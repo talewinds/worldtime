@@ -2,60 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>WorldTime Pro — Full Edition</title>
-<meta name="description" content="WorldTime Pro — Compare timezones, meeting planner with suggestions, map, converters, DST ticker, sunrise/sunset, export image, embeds.">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>WorldTime Pro: Global Meeting Scheduler & Time Zone Comparator</title>
+<meta name="description" content="WorldTime Pro is the ultimate free world clock and time zone meeting planner for global teams, remote workers, and international travelers. Compare zones, find the best meeting slot, see DST alerts, sunrise/sunset, and embed/share your view.">
+// SEO: canonical could be added if you host on your domain
+<link rel="icon" href="data:,">
 
-<!-- Basic styling (dark theme) -->
+<!-- Styles (prefixed to avoid collisions). Responsive + mobile friendly. -->
 <style>
-  :root{
-    --bg:#071323; --card:#0d1b2a; --muted:#9fb0c8; --accent:#a23a3a; --glass:rgba(255,255,255,0.03);
-    --radius:12px; color-scheme: dark;
-  }
-  *{box-sizing:border-box}
-  body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; padding:18px; background:linear-gradient(180deg,#03101a,#071323); color:#e6f0fb; min-height:100vh}
-  header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
-  h1{font-size:20px;margin:0}
-  .lead{color:var(--muted);font-size:13px;margin:0}
-  .row{display:flex;gap:12px;align-items:flex-start}
-  .col{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1}
-  .col.side{flex:0 0 380px;max-width:380px}
-  .controls{display:flex;gap:8px;margin-bottom:12px}
-  input[type=text], select, input[type=time], input[type=date], input[type=number]{
-    background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px;border-radius:8px;outline:none;
-  }
-  button{background:var(--accent);border:0;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-  .card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02)}
-  .flag{font-size:22px;margin-right:8px}
-  .timebig{font-weight:700;font-size:18px}
-  .meta{color:var(--muted);font-size:12px}
-  .tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:20}
-  .tooltip.show{display:block}
-  /* timeline */
-  .timeline{overflow:auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px;border-radius:10px;margin-top:10px}
-  .timeline .hourbar{display:flex;gap:6px;align-items:center}
-  .hour{flex:0 0 48px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
-  .hour.now{box-shadow:0 6px 18px rgba(0,0,0,0.6);border-color:rgba(255,255,255,0.08)}
-  .cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
-  .citylabel{width:160px;flex:0 0 160px}
-  /* planner */
-  .planner{display:grid;grid-template-columns:1fr 360px;gap:10px}
-  .small-tools{display:flex;flex-direction:column;gap:10px}
-  .tools .tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.015)}
-  /* map */
-  #map { height:260px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); margin-top:8px }
-  /* ticker */
-  .ticker{background:linear-gradient(90deg,#0b1b2a,#071323);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
-  .ticker span{display:inline-block;padding-right:28px;color:var(--muted)}
-  /* embed */
-  pre{white-space:pre-wrap;word-break:break-word}
-  /* responsive */
-  @media (max-width:980px){ .row{flex-direction:column} .col.side{max-width:none;flex:1} .planner{grid-template-columns:1fr} .citylabel{width:120px;flex:0 0 120px} .hour{flex:0 0 40px} #map{height:200px} }
-  /* accessibility focus */
-  .card:focus { outline: 3px solid rgba(123,33,33,0.5); }
-  .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:12px}
-  .sharelink{background:rgba(255,255,255,0.02);padding:6px;border-radius:8px;font-size:13px}
+:root{
+  --bg:#071323; --card:#0d1b2a; --muted:#9fb0c8; --accent:#b14444; --accent-2:#3b82f6;
+  --glass:rgba(255,255,255,0.03); --radius:12px; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0;padding:18px;background:linear-gradient(180deg,#03101a,#071323);color:#e6f0fb;min-height:100vh;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto}
+.header{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.h1{font-size:20px;margin:0}
+.tag{color:var(--muted);font-size:13px}
+.seo-blurb{margin-top:8px;color:#dbeafe;background:linear-gradient(90deg, rgba(59,130,246,0.04), rgba(177,68,68,0.02));padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);font-size:14px}
+
+/* layout */
+.row{display:flex;gap:12px;align-items:flex-start}
+.col{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1}
+.col.side{flex:0 0 380px;max-width:380px}
+
+/* controls */
+.controls{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.input,select,time,input[type=time],input[type=date],input[type=number]{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px;border-radius:8px;outline:none}
+.btn{background:var(--accent);border:0;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+.small{font-size:13px;padding:6px 10px;border-radius:6px}
+
+/* suggestions */
+.suggestions{position:relative}
+.suggest-list{position:absolute;z-index:40;left:0;right:0;background:var(--card);border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-top:6px;max-height:240px;overflow:auto}
+.suggest-item{padding:8px;border-radius:6px;cursor:pointer}
+.suggest-item:hover,.suggest-item.active{background:rgba(255,255,255,0.02)}
+
+/* cards grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02)}
+.flag{font-size:22px;margin-right:8px}
+.timebig{font-weight:700;font-size:18px}
+.meta{color:var(--muted);font-size:12px}
+.tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:30}
+.tooltip.show{display:block}
+
+/* timeline */
+.timeline{overflow:auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px;border-radius:10px;margin-top:10px}
+.hourbar{display:flex;gap:6px;align-items:center}
+.hour{flex:0 0 48px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
+.hour.now{background:linear-gradient(180deg, rgba(177,68,68,0.12), rgba(177,68,68,0.06));border-color:rgba(177,68,68,0.25)}
+.hour.selected{background:linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.25)}
+.cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.citylabel{width:160px;flex:0 0 160px}
+
+/* vertical slider (rotated range) */
+.vert-wrap{height:220px;display:flex;align-items:center;justify-content:center}
+.vert-range{writing-mode:bt-lr; -webkit-appearance:none; appearance:none; width:160px; transform: rotate(-90deg);}
+
+/* map */
+#map { height:260px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); margin-top:8px }
+
+/* utilities */
+.tools .tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.015);margin-bottom:10px}
+
+/* DST ticker */
+.ticker{background:linear-gradient(90deg,#0b1b2a,#071323);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;padding-right:28px;color:var(--muted)}
+
+/* footer */
+.footer{margin-top:14px;color:var(--muted);text-align:center;font-size:13px}
+
+/* responsive */
+@media (max-width:980px){ .row{flex-direction:column} .col.side{max-width:none;flex:1} .citylabel{width:120px;flex:0 0 120px} .hour{flex:0 0 40px} #map{height:200px} .vert-wrap{display:none} }
 </style>
 
 <!-- Libraries -->
@@ -69,25 +92,32 @@
 
 </head>
 <body>
-  <header>
-    <div>
-      <h1>WorldTime Pro <span class="badge">Full Edition</span></h1>
-      <p class="lead">Hover cards, timeline comparator, meeting planner with suggestions, map, sunrise/sunset, DST ticker, converters, and embed/export.</p>
+<div class="container">
+  <header class="header">
+    <div class="title-row">
+      <h1 class="h1">WorldTime Pro: Global Meeting Scheduler & Time Zone Comparator</h1>
+      <div class="tag">Never guess a meeting time again — instantly find the best slot across any time zone.</div>
+    </div>
+
+    <!-- SEO blurb (Option 1 recommended) -->
+    <div class="seo-blurb" id="seoBlurb">
+      WorldTime Pro is the ultimate free world clock and time zone meeting planner for global teams, remote workers, and international travelers. Easily compare time zones for New York, London, Mumbai and hundreds more. Our Meeting Planner instantly scores and suggests the best universal time slots to maximize attendance across all your cities (optimizing for 9 AM to 6 PM local working hours). Features include a real-time DST ticker, sunrise/sunset times, time converters (e.g., EST to IST), and embeddable widgets for your website. No sign-up or backend required—start planning instantly.
     </div>
   </header>
 
-  <!-- DST ticker (dynamic) -->
-  <div class="ticker" id="dstTicker" title="DST & timezone changes">
-    <span id="dstSeed">Scanning for upcoming DST changes for your cities...</span>
-  </div>
+  <!-- DST ticker -->
+  <div class="ticker" id="dstTicker" aria-live="polite"><span id="dstText">Scanning for DST changes...</span></div>
 
   <div class="row">
-    <!-- Left: main -->
-    <div class="col">
-      <div class="controls" role="region" aria-label="City controls">
-        <input id="citySearch" type="text" placeholder="Search city or IANA zone (e.g. New York, Europe/London)" aria-label="City search"/>
-        <button id="addCity">Add</button>
-        <select id="preset" aria-label="Popular presets">
+    <main class="col" role="main">
+      <div class="controls" aria-label="city controls">
+        <div style="flex:1">
+          <input id="citySearch" class="input" type="text" placeholder="Search city or IANA zone (e.g. New York or Europe/London)" aria-label="Search city"/>
+          <div id="suggestions" class="suggestions" aria-hidden="true"></div>
+        </div>
+        <button id="addBtn" class="btn">Add</button>
+
+        <select id="preset" class="input" aria-label="Popular presets">
           <option value="">Popular presets</option>
           <option>New York, USA|America/New_York</option>
           <option>London, UK|Europe/London</option>
@@ -98,847 +128,627 @@
         </select>
 
         <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-          <button id="shareBtn">Share</button>
-          <button id="exportImage">Export Image</button>
-          <button id="resetBtn">Reset</button>
+          <button id="shareBtn" class="btn">Share</button>
+          <button id="exportImg" class="btn ghost">Export Image</button>
+          <button id="resetBtn" class="btn ghost">Reset</button>
         </div>
       </div>
 
-      <!-- autocomplete suggestions -->
-      <div id="suggestions" style="position:relative"></div>
+      <div id="cards" class="grid" aria-live="polite"></div>
 
-      <!-- cards grid -->
-      <div id="cards" class="grid" aria-live="polite" style="margin-top:10px"></div>
-
-      <!-- timeline & time range slider -->
-      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+      <!-- timeline + vertical slider -->
+      <div style="margin-top:12px;display:flex;gap:12px;align-items:flex-start">
         <div style="flex:1">
           <h3 style="margin:6px 0">24-Hour Comparator</h3>
-          <div class="timeline" id="timeline" aria-hidden="false"></div>
+          <div id="timeline" class="timeline" aria-hidden="false"></div>
         </div>
-        <div style="width:240px">
-          <label class="meta">Scrub UTC offset (minutes)</label>
-          <input id="timeScrub" type="range" min="-720" max="840" step="30" value="0" aria-label="Time range slider"/>
-          <div class="meta" id="scrubLabel">UTC offset: 0m</div>
+
+        <div class="vert-wrap" title="Move slider to highlight hours">
+          <input id="vertSlider" type="range" class="vert-range" min="0" max="23" step="1" value="0" aria-label="Highlight hour"/>
         </div>
       </div>
 
       <!-- meeting planner -->
       <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
       <h3 style="margin:6px 0">Meeting Planner & Suggestions</h3>
-      <div class="planner">
-        <div>
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-            <input id="meetingDate" type="date" />
-            <input id="meetingTime" type="time" />
-            <select id="meetingDuration">
-              <option value="30">30 min</option>
-              <option value="45">45 min</option>
-              <option value="60" selected>60 min</option>
-              <option value="90">90 min</option>
-            </select>
-            <button id="applyPlan">Apply</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input id="meetingDate" type="date" class="input"/>
+        <input id="meetingTime" type="time" class="input"/>
+        <select id="meetingDuration" class="input"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option><option value="90">90 min</option></select>
+        <button id="applyPlan" class="btn">Apply</button>
+      </div>
+      <div id="plannerResult" style="max-height:300px;overflow:auto;padding:6px"></div>
+
+      <!-- small converters / embed -->
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start">
+        <div style="flex:1" class="tools">
+          <div class="tool">
+            <strong>Quick Converters</strong>
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+              <button class="small" data-from="America/New_York" data-to="Asia/Kolkata">EST → IST</button>
+              <button class="small" data-from="America/Los_Angeles" data-to="Asia/Kolkata">PST → IST</button>
+              <button class="small" data-from="Etc/UTC" data-to="Asia/Kolkata">GMT → IST</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <select id="convFrom" class="input"></select>
+              <select id="convTo" class="input"></select>
+              <input id="convTime" type="time" class="input"/>
+              <button id="convBtn" class="btn">Convert</button>
+            </div>
+            <div id="convOut" class="meta" style="margin-top:6px"></div>
           </div>
 
-          <div id="plannerResult" style="max-height:300px;overflow:auto;padding:6px"></div>
+          <div class="tool" style="margin-top:10px">
+            <strong>Embed widget</strong>
+            <div class="meta" style="margin-top:6px">Copy this iframe to embed your current view.</div>
+            <pre id="embedCode" style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px"></pre>
+            <button id="copyEmbed" class="btn small">Copy Embed</button>
+          </div>
         </div>
 
-        <div class="small-tools">
-          <div class="tools">
-            <div class="tool">
-              <strong>Quick Converters</strong>
-              <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-                <button class="presetConv" data-from="America/New_York" data-to="Asia/Kolkata">EST → IST</button>
-                <button class="presetConv" data-from="America/Los_Angeles" data-to="Asia/Kolkata">PST → IST</button>
-                <button class="presetConv" data-from="Etc/UTC" data-to="Asia/Kolkata">GMT → IST</button>
-                <button id="swapConv">Swap</button>
-              </div>
-              <div style="display:flex;gap:6px;margin-top:8px">
-                <select id="convFrom"></select>
-                <select id="convTo"></select>
-                <input id="convTime" type="time" />
-                <button id="convBtn">Convert</button>
-              </div>
-              <div id="convOut" style="margin-top:6px;color:var(--muted)"></div>
-            </div>
-
-            <div class="tool" style="margin-top:10px">
-              <strong>Embeddable Widget</strong>
-              <div style="font-size:13px;margin-top:8px">Paste this iframe on your blog:</div>
-              <pre id="embedCode" style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px"></pre>
-              <button id="copyEmbed">Copy</button>
-            </div>
-
-            <div class="tool" style="margin-top:10px">
-              <strong>Share / Save</strong>
-              <div style="margin-top:8px"><input id="shareLink" class="sharelink" readonly style="width:100%"/></div>
-            </div>
+        <div style="width:320px" class="tools">
+          <div class="tool">
+            <strong>Share / Save</strong>
+            <div style="margin-top:8px"><input id="shareLink" class="input" readonly style="width:100%"/></div>
+            <div style="margin-top:8px" class="meta">Share or bookmark the link — opens the site with same cities & view.</div>
           </div>
         </div>
       </div>
 
-    </div>
+      <!-- AdSense placeholder (put your AdSense script inside <head> and replace the data-ad-client / ad-slot) -->
+      <div style="margin-top:12px;text-align:center;">
+        <!-- Add AdSense script in <head> (see instructions). Place ad unit below -->
+        <div id="adContainer" style="display:flex;justify-content:center;margin-top:8px">
+          <!-- Example responsive placeholder: replace with real AdSense code -->
+          <div style="width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--muted)">Ad placeholder — paste AdSense unit here</div>
+        </div>
+      </div>
+    </main>
 
-    <!-- Right column: tools + map -->
-    <div class="col side">
+    <aside class="col side" role="complementary">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
         <strong style="flex:1">Utilities & Map</strong>
-        <button id="collapseTools" title="Reset tools">Reset</button>
+        <button id="resetTools" class="btn ghost">Reset</button>
       </div>
 
-      <!-- map -->
       <div id="map"></div>
 
-      <div style="margin-top:10px" class="tools">
-        <!-- Sunrise/Sunset & Export -->
+      <div style="margin-top:12px">
+        <div class="tool" style="margin-bottom:10px">
+          <strong>Sunrise / Sunset</strong>
+          <div class="meta" style="margin-top:6px">Sunrise/sunset times show automatically on each city card (when coords available).</div>
+        </div>
+
+        <div class="tool" style="margin-bottom:10px">
+          <strong>Countdown</strong>
+          <div style="display:flex;gap:6px;margin-top:6px"><input id="countDate" type="date" class="input"/><input id="countTime" type="time" class="input"/><button id="startCount" class="btn">Start</button></div>
+          <div id="countRes" class="meta" style="margin-top:6px"></div>
+        </div>
+
         <div class="tool">
-          <strong>Sunrise / Sunset (auto shows on cards)</strong>
-          <div style="margin-top:8px;color:var(--muted)">The app uses stored coordinates from the timezone database; if a card has no coords, add coordinates manually via the map.</div>
-        </div>
-
-        <!-- Countdown -->
-        <div class="tool" style="margin-top:10px">
-          <strong>Countdown & Prayer Times</strong>
-          <div style="margin-top:8px;display:flex;gap:6px">
-            <input id="countDate" type="date" />
-            <input id="countTime" type="time" />
-            <button id="startCount">Start</button>
+          <strong>Prayer times</strong>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <input id="prayLat" type="number" class="input" placeholder="Lat" step="any"/>
+            <input id="prayLng" type="number" class="input" placeholder="Lng" step="any"/>
+            <select id="prayMethod" class="input"><option>MuslimWorldLeague</option><option>Egyptian</option><option>Karachi</option><option>ISNA</option></select>
+            <button id="calcPray" class="btn">Calc</button>
           </div>
-          <div id="countRes" style="margin-top:8px;color:var(--muted)"></div>
+          <div id="prayRes" class="meta" style="margin-top:6px"></div>
         </div>
-
-        <div class="tool" style="margin-top:10px">
-          <strong>Prayer Times</strong>
-          <div style="margin-top:8px;display:flex;gap:6px">
-            <input id="prayLat" type="number" placeholder="Lat" step="any" />
-            <input id="prayLng" type="number" placeholder="Lng" step="any" />
-            <select id="prayMethod"><option value="MuslimWorldLeague">Muslim World League</option><option value="Egyptian">Egyptian</option><option value="Karachi">Karachi</option><option value="ISNA">ISNA</option></select>
-            <button id="calcPray">Calc</button>
-          </div>
-          <div id="prayRes" style="margin-top:8px;color:var(--muted)"></div>
-        </div>
-
       </div>
 
       <div style="margin-top:12px;color:var(--muted);font-size:13px">
-        <strong>Notes</strong>
+        <strong>Hosting & files</strong>
         <ul>
-          <li>To host: just push `index.html` to GitHub and enable Pages (root). No backend needed for everything here.</li>
-          <li>For short permanent URLs or account sync you can add Firebase later (optional).</li>
+          <li>Just push <code>index.html</code> to GitHub and enable Pages (root). No backend needed.</li>
+          <li>Full IANA data is auto-loaded from a public GitHub raw file (no extra files required). See notes below.</li>
         </ul>
       </div>
-    </div>
+    </aside>
   </div>
 
-  <footer style="margin-top:14px;color:var(--muted);text-align:center;font-size:13px">
-    Built with Luxon, Fuse.js, Leaflet, SunCalc, Adhan and html2canvas — ready for GitHub Pages.
+  <footer class="footer">
+    Links: <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener">AdSense</a>
   </footer>
+</div>
 
-<!-- App Logic -->
+<!-- App script -->
 <script>
-/* WorldTime Pro — Full Edition
-   - Luxon for timezone handling
-   - Fuse.js for fuzzy search/autocomplete
-   - Leaflet for map / markers
-   - SunCalc for sunrise/sunset
-   - html2canvas for export
+/* WorldTime Pro — Final edition:
+   - Lazy-load full IANA timezone list (from a public raw GitHub JSON)
+   - Hash-based deep linking (base64url)
+   - DST ticker; vertical slider highlights; present time highlighted in different color
+   - Mobile friendly + AdSense placeholder
 */
 
-(() => {
-  const { DateTime, IANAZone } = luxon;
+/* ----- Utilities & libs ----- */
+const { DateTime, IANAZone } = luxon;
+const base64url = {
+  encode: (s) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+  decode: (s) => decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))
+};
 
-  /**************************************************************************
-   * Compact timezone/city dataset (label, tz, lat, lon, cc)
-   * This is a compact curated list of commonly used cities. For full coverage,
-   * replace with a larger JSON of IANA zones with coords (I can provide).
-   **************************************************************************/
-  const tzCities = [
-    {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
-    {label:'Los Angeles, USA', tz:'America/Los_Angeles', lat:34.0522, lon:-118.2437, cc:'US'},
-    {label:'Chicago, USA', tz:'America/Chicago', lat:41.8781, lon:-87.6298, cc:'US'},
-    {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB'},
-    {label:'Paris, France', tz:'Europe/Paris', lat:48.8566, lon:2.3522, cc:'FR'},
-    {label:'Berlin, Germany', tz:'Europe/Berlin', lat:52.52, lon:13.405, cc:'DE'},
-    {label:'Moscow, Russia', tz:'Europe/Moscow', lat:55.7558, lon:37.6173, cc:'RU'},
-    {label:'Dubai, UAE', tz:'Asia/Dubai', lat:25.2048, lon:55.2708, cc:'AE'},
-    {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN'},
-    {label:'Bangalore, India', tz:'Asia/Kolkata', lat:12.9716, lon:77.5946, cc:'IN'},
-    {label:'Delhi, India', tz:'Asia/Kolkata', lat:28.7041, lon:77.1025, cc:'IN'},
-    {label:'Kathmandu, Nepal', tz:'Asia/Kathmandu', lat:27.7172, lon:85.3240, cc:'NP'},
-    {label:'Beijing, China', tz:'Asia/Shanghai', lat:39.9042, lon:116.4074, cc:'CN'},
-    {label:'Shanghai, China', tz:'Asia/Shanghai', lat:31.2304, lon:121.4737, cc:'CN'},
-    {label:'Singapore', tz:'Asia/Singapore', lat:1.3521, lon:103.8198, cc:'SG'},
-    {label:'Tokyo, Japan', tz:'Asia/Tokyo', lat:35.6762, lon:139.6503, cc:'JP'},
-    {label:'Seoul, South Korea', tz:'Asia/Seoul', lat:37.5665, lon:126.9780, cc:'KR'},
-    {label:'Sydney, Australia', tz:'Australia/Sydney', lat:-33.8688, lon:151.2093, cc:'AU'},
-    {label:'Melbourne, Australia', tz:'Australia/Melbourne', lat:-37.8136, lon:144.9631, cc:'AU'},
-    {label:'Auckland, NZ', tz:'Pacific/Auckland', lat:-36.8485, lon:174.7633, cc:'NZ'},
-    {label:'Sao Paulo, Brazil', tz:'America/Sao_Paulo', lat:-23.5505, lon:-46.6333, cc:'BR'},
-    {label:'Buenos Aires, Argentina', tz:'America/Argentina/Buenos_Aires', lat:-34.6037, lon:-58.3816, cc:'AR'},
-    {label:'Toronto, Canada', tz:'America/Toronto', lat:43.6532, lon:-79.3832, cc:'CA'},
-    {label:'Vancouver, Canada', tz:'America/Vancouver', lat:49.2827, lon:-123.1207, cc:'CA'},
-    {label:'Johannesburg, South Africa', tz:'Africa/Johannesburg', lat:-26.2041, lon:28.0473, cc:'ZA'},
-    {label:'Cairo, Egypt', tz:'Africa/Cairo', lat:30.0444, lon:31.2357, cc:'EG'},
-    {label:'Istanbul, Turkey', tz:'Europe/Istanbul', lat:41.0082, lon:28.9784, cc:'TR'},
-    {label:'Riyadh, Saudi Arabia', tz:'Asia/Riyadh', lat:24.7136, lon:46.6753, cc:'SA'},
-    {label:'Tel Aviv, Israel', tz:'Asia/Jerusalem', lat:32.0853, lon:34.7818, cc:'IL'},
-    {label:'Bangkok, Thailand', tz:'Asia/Bangkok', lat:13.7563, lon:100.5018, cc:'TH'},
-    {label:'Jakarta, Indonesia', tz:'Asia/Jakarta', lat:-6.2088, lon:106.8456, cc:'ID'},
-    {label:'Manila, Philippines', tz:'Asia/Manila', lat:14.5995, lon:120.9842, cc:'PH'},
-    {label:'Hanoi, Vietnam', tz:'Asia/Bangkok', lat:21.0278, lon:105.8342, cc:'VN'},
-    {label:'Mexico City, Mexico', tz:'America/Mexico_City', lat:19.4326, lon:-99.1332, cc:'MX'},
-    {label:'Lagos, Nigeria', tz:'Africa/Lagos', lat:6.5244, lon:3.3792, cc:'NG'},
-    {label:'Accra, Ghana', tz:'Africa/Accra', lat:5.6037, lon:-0.1870, cc:'GH'},
-    {label:'Honolulu, USA', tz:'Pacific/Honolulu', lat:21.3069, lon:-157.8583, cc:'US'},
-    {label:'Anchorage, USA', tz:'America/Anchorage', lat:61.2181, lon:-149.9003, cc:'US'},
-    {label:'Kathmandu, Nepal', tz:'Asia/Kathmandu', lat:27.7172, lon:85.3240, cc:'NP'},
-    // Add more as needed — replace with a larger dataset for full coverage
-  ];
+/* ----- DOM refs ----- */
+const $ = id => document.getElementById(id);
+const cards = $('cards'), citySearch = $('citySearch'), addBtn = $('addBtn'), suggestions = $('suggestions');
+const timeline = $('timeline'), vertSlider = $('vertSlider'), dstText = $('dstText');
+const convFrom = $('convFrom'), convTo = $('convTo'), convTime = $('convTime'), convBtn = $('convBtn'), convOut = $('convOut');
+const embedCode = $('embedCode'), copyEmbed = $('copyEmbed'), shareBtn = $('shareBtn'), shareLink = $('shareLink');
+const exportImg = $('exportImg'), resetBtn = $('resetBtn'), preset = $('preset');
+const meetingDate = $('meetingDate'), meetingTime = $('meetingTime'), meetingDuration = $('meetingDuration'), applyPlan = $('applyPlan'), plannerResult = $('plannerResult');
 
-  /**************************************************************************
-   * App state + storage
-   **************************************************************************/
-  const STORAGE_KEY = 'wtpro_full_v1';
-  let cities = loadCitiesFromStorage();
+let tzCities = []; // will be loaded (full DB) or fallback to compact
+let fuse = null;
+const STORAGE_KEY = 'wtpro_final_v1';
+let cities = []; // user selected cities
 
-  // Fuse for autocomplete
-  const fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.35 });
+/* ----- Built-in compact fallback list (small) ----- */
+const COMPACT = [
+  {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
+  {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB'},
+  {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN'},
+  {label:'Tokyo, Japan', tz:'Asia/Tokyo', lat:35.6762, lon:139.6503, cc:'JP'},
+  {label:'Sydney, AU', tz:'Australia/Sydney', lat:-33.8688, lon:151.2093, cc:'AU'},
+  {label:'Dubai, UAE', tz:'Asia/Dubai', lat:25.2048, lon:55.2708, cc:'AE'},
+  {label:'Beijing, CN', tz:'Asia/Shanghai', lat:39.9042, lon:116.4074, cc:'CN'},
+  {label:'Singapore', tz:'Asia/Singapore', lat:1.3521, lon:103.8198, cc:'SG'}
+];
 
-  /**************************************************************************
-   * DOM refs
-   **************************************************************************/
-  const cardsEl = document.getElementById('cards');
-  const citySearch = document.getElementById('citySearch');
-  const addCityBtn = document.getElementById('addCity');
-  const presetEl = document.getElementById('preset');
-  const timelineEl = document.getElementById('timeline');
-  const timeScrub = document.getElementById('timeScrub');
-  const scrubLabel = document.getElementById('scrubLabel');
-  const plannerResult = document.getElementById('plannerResult');
-  const meetingDate = document.getElementById('meetingDate');
-  const meetingTime = document.getElementById('meetingTime');
-  const meetingDuration = document.getElementById('meetingDuration');
-  const applyPlanBtn = document.getElementById('applyPlan');
-  const convFrom = document.getElementById('convFrom');
-  const convTo = document.getElementById('convTo');
-  const convTime = document.getElementById('convTime');
-  const convBtn = document.getElementById('convBtn');
-  const convOut = document.getElementById('convOut');
-  const suggestionsEl = document.getElementById('suggestions');
-  const embedCode = document.getElementById('embedCode');
-  const copyEmbed = document.getElementById('copyEmbed');
-  const shareBtn = document.getElementById('shareBtn');
-  const shareLink = document.getElementById('shareLink');
-  const exportImageBtn = document.getElementById('exportImage');
-  const dstTicker = document.getElementById('dstSeed');
-  const presetConvButtons = document.querySelectorAll('.presetConv');
-  const swapConv = document.getElementById('swapConv');
+/* ----- Try to load full IANA timezone DB (lazy) ----- */
+/*
+  Source used: raw GitHub repo 'timezones.json' (dmfilipenko/timezones.json).
+  If this fetch fails (rate limit/offline), COMPACT will be used.
+*/
+async function loadIanaDB(){
+  const url = 'https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json';
+  try {
+    const resp = await fetch(url, {cache:'reload'});
+    if(!resp.ok) throw new Error('TZ fetch failed');
+    const raw = await resp.json();
+    // raw is array of objects with {value: 'Europe/London', abbr, offset, value etc}
+    // Convert to tzCities with basic label and no coords (coords not provided in that file),
+    // So we'll merge with COMPACT for coords when available.
+    tzCities = raw.map(z => ({ label: z.value.replace('_',' '), tz: z.value, lat: null, lon: null, cc: null }));
+    // merge coords for entries present in COMPACT
+    for(const c of COMPACT){
+      const found = tzCities.find(t=>t.tz === c.tz);
+      if(found){ found.lat = c.lat; found.lon = c.lon; found.cc = c.cc; found.label = c.label; }
+    }
+    console.log('Loaded IANA DB entries:', tzCities.length);
+  } catch(e){
+    console.warn('Could not load full IANA DB, using compact list', e);
+    tzCities = COMPACT.slice();
+  }
+  // Initialize Fuse for search
+  fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.35 });
+}
 
-  // Map
-  let map, markers = [];
-
-  /**************************************************************************
-   * Functions: storage
-   **************************************************************************/
-  function loadCitiesFromStorage(){
+/* ----- State persistence and hash sharing ----- */
+function loadState(){
+  // Priority: URL hash -> localStorage -> default seed
+  const hash = location.hash.replace(/^#/,'');
+  if(hash){
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
-    } catch (e) {}
-    // fallback: seed with a few
-    return [
-      {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, flag:'🇺🇸'},
-      {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, flag:'🇬🇧'},
-      {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, flag:'🇮🇳'}
-    ];
+      const json = base64url.decode(hash);
+      const parsed = JSON.parse(json);
+      if(Array.isArray(parsed) && parsed.length){
+        cities = parsed; saveState(); return;
+      }
+    } catch(e){ console.warn('Invalid hash payload', e); }
   }
-  function saveCitiesToStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) { cities = JSON.parse(raw); return; }
+  } catch(e){}
+  // default seed
+  cities = [
+    {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
+    {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
+    {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
+  ];
+}
+function saveState(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); } catch(e){ console.warn('Storage save failed', e); }
+  // update hash for deep linking
+  try {
+    const payload = base64url.encode(JSON.stringify(cities));
+    location.hash = payload;
+    $('shareLink').value = location.href;
+  } catch(e){ console.warn('Hash encode failed', e); }
+}
 
-  /**************************************************************************
-   * Utility helpers
-   **************************************************************************/
-  function countryToEmoji(cc){
-    if(!cc) return '';
-    return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
-  }
-  function formatOffset(minutes){
-    const sign = minutes >= 0 ? '+' : '-';
-    const m = Math.abs(minutes); const h = Math.floor(m/60).toString().padStart(2,'0'); const mm = (m%60).toString().padStart(2,'0');
-    return `${sign}${h}:${mm}`;
-  }
+/* ----- helpers ----- */
+function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
+function fmtOffset(m){ const sign = m>=0?'+':'-'; const mm = Math.abs(m); const h = String(Math.floor(mm/60)).padStart(2,'0'); const mm2 = String(mm%60).padStart(2,'0'); return `${sign}${h}:${mm2}`; }
 
-  /**************************************************************************
-   * Render cards
-   **************************************************************************/
-  function renderCards(){
-    cardsEl.innerHTML = '';
-    cities.forEach((c, idx) => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.tabIndex = 0;
-      card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', `${c.label} local time card`);
-      const flag = c.flag || (c.cc ? countryToEmoji(c.cc) : '');
-      const latlon = (c.lat && c.lon) ? `${c.lat.toFixed(3)}, ${c.lon.toFixed(3)}` : '';
-      card.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="flag">${flag}</div>
-          <div style="flex:1">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div class="meta" style="font-weight:700">${c.label}</div>
-                <div class="meta">${c.tz} ${latlon ? ' • ' + latlon : ''}</div>
-              </div>
-              <div style="display:flex;gap:6px">
-                <button class="rm" title="Remove" data-idx="${idx}">✖</button>
-              </div>
+/* ----- Render cards + tooltip ----- */
+function renderCards(){
+  cards.innerHTML = '';
+  cities.forEach((c, idx) => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', `${c.label} local time card`);
+    const flag = c.flag || (c.cc ? ccToEmoji(c.cc) : '');
+    const latlon = (c.lat && c.lon) ? `${Number(c.lat).toFixed(3)}, ${Number(c.lon).toFixed(3)}` : '';
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="flag">${flag}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="meta" style="font-weight:700">${c.label}</div>
+              <div class="meta">${c.tz}${latlon ? ' • '+latlon : ''}</div>
             </div>
-            <div class="timebig" id="time-${idx}">--:--:--</div>
-            <div class="meta" id="date-${idx}">--</div>
-            <div class="meta" id="sun-${idx}" style="margin-top:6px"></div>
+            <div style="display:flex;gap:6px">
+              <button class="small remove" data-idx="${idx}" title="Remove">✖</button>
+            </div>
           </div>
+          <div class="timebig" id="time-${idx}">--:--:--</div>
+          <div class="meta" id="date-${idx}">--</div>
+          <div class="meta" id="sun-${idx}" style="margin-top:6px"></div>
         </div>
-        <div class="tooltip" id="tip-${idx}"></div>
-      `;
-      // events
-      cardsEl.appendChild(card);
-      // add hover/tap behaviour
-      card.addEventListener('mouseenter', ()=> showTip(idx));
-      card.addEventListener('mouseleave', ()=> hideTip(idx));
-      card.addEventListener('click', (e) => {
-        // on mobile tapping toggles tooltip
-        const tip = document.getElementById(`tip-${idx}`);
-        if(tip) tip.classList.toggle('show');
-      });
-      card.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showTip(idx); }
-      });
+      </div>
+      <div class="tooltip" id="tip-${idx}"></div>
+    `;
+    cards.appendChild(card);
+    card.addEventListener('mouseenter', ()=> showTip(idx));
+    card.addEventListener('mouseleave', ()=> hideTip(idx));
+    card.addEventListener('click', () => { const tip = $('tip-'+idx); if(tip) tip.classList.toggle('show'); });
+    // remove button
+    card.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); const i = +e.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); });
+  });
+}
 
-      const rm = card.querySelector('.rm');
-      rm.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        const i = +ev.currentTarget.dataset.idx;
-        cities.splice(i,1); saveCitiesToStorage(); renderAll();
-      });
-
-    });
-  }
-
-  function showTip(idx){
-    const c = cities[idx];
-    const tip = document.getElementById(`tip-${idx}`);
-    if(!tip) return;
+/* ----- showTip / hideTip ----- */
+function showTip(idx){
+  const c = cities[idx];
+  const tip = $('tip-'+idx);
+  if(!tip) return;
+  try {
     const now = DateTime.now().setZone(c.tz);
-    const sunriseText = (c.lat && c.lon) ? (() => {
+    let sun = '';
+    if(c.lat && c.lon){
       try {
         const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
-        return DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm') + ' • ' + DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
-      } catch(e) { return ''; }
-    })() : '';
+        sun = `${DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm')} • ${DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm')}`;
+      } catch(e){}
+    }
     tip.innerHTML = `
       <div style="font-weight:700">${c.tz}</div>
       <div style="margin-top:6px;color:var(--muted)">Local: ${now.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div>
-      <div style="margin-top:6px;color:var(--muted)">UTC offset: UTC${formatOffset(now.offset)}</div>
+      <div style="margin-top:6px;color:var(--muted)">UTC offset: UTC${fmtOffset(now.offset)}</div>
       <div style="margin-top:6px;color:var(--muted)">DST: ${now.isInDST ? 'Yes' : 'No'}</div>
-      ${sunriseText ? `<div style="margin-top:6px;color:var(--muted)">Sunrise/Sunset: ${sunriseText}</div>` : ''}
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Ctrl+Click to remove (desktop) • Tap to toggle (mobile)</div>
+      ${sun ? `<div style="margin-top:6px;color:var(--muted)">Sunrise/Sunset: ${sun}</div>` : ''}
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Tip: Use map to add missing coordinates.</div>
     `;
     tip.classList.add('show');
-  }
-  function hideTip(idx){
-    const tip = document.getElementById(`tip-${idx}`);
-    if(tip) tip.classList.remove('show');
-  }
+  } catch(e){ tip.textContent = 'Error showing details'; tip.classList.add('show'); }
+}
+function hideTip(idx){ const tip = $('tip-'+idx); if(tip) tip.classList.remove('show'); }
 
-  /**************************************************************************
-   * Timeline rendering (24 hours) — affected by scrub offset (minutes)
-   **************************************************************************/
-  function renderTimeline(){
-    const offsetMinutes = Number(timeScrub.value || 0);
-    const nowUtc = DateTime.now().toUTC().plus({ minutes: offsetMinutes });
-    // Build header
-    const hours = Array.from({length:24}, (_,i)=>i);
-    timelineEl.innerHTML = '';
-    const header = document.createElement('div'); header.className='hourbar';
-    header.innerHTML = `<div style="width:160px"></div>` + hours.map(h => `<div class="hour">${h.toString().padStart(2,'0')}:00</div>`).join('');
-    timelineEl.appendChild(header);
-    // rows
-    cities.forEach((c, idx) => {
-      const row = document.createElement('div'); row.className='cityrow';
-      const label = document.createElement('div'); label.className='citylabel';
-      label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="meta">${c.tz}</div>`;
-      row.appendChild(label);
-      const container = document.createElement('div'); container.style.display='flex'; container.style.gap='6px';
-      hours.forEach(h => {
-        // compute the local time at this UTC hour + offset
-        const dtUtc = DateTime.utc().set({ hour: h, minute:0, second:0, millisecond:0 }).plus({ minutes: offsetMinutes });
-        const dtLocal = dtUtc.setZone(c.tz);
-        const el = document.createElement('div'); el.className='hour';
-        el.textContent = dtLocal.toFormat('HH');
-        // highlight current hour relative to (utc+offset)
-        const nowLocalAtOffset = nowUtc.setZone(c.tz);
-        if(dtLocal.hasSame(nowLocalAtOffset, 'hour')) el.classList.add('now');
-        container.appendChild(el);
-      });
-      row.appendChild(container);
-      timelineEl.appendChild(row);
+/* ----- Timeline rendering (hour columns) ----- */
+function renderTimeline(selectedHour = null){
+  const offset = 0; // using UTC base and slider for highlight; vertical slider controls selectedHour
+  const hours = Array.from({length:24}, (_,i)=>i);
+  timeline.innerHTML = '';
+  const header = document.createElement('div'); header.className = 'hourbar';
+  header.innerHTML = `<div style="width:160px"></div>` + hours.map(h => `<div class="hour" data-hour="${h}">${String(h).padStart(2,'0')}:00</div>`).join('');
+  timeline.appendChild(header);
+  cities.forEach(c => {
+    const row = document.createElement('div'); row.className = 'cityrow';
+    const label = document.createElement('div'); label.className = 'citylabel'; label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="meta">${c.tz}</div>`;
+    row.appendChild(label);
+    const container = document.createElement('div'); container.style.display='flex'; container.style.gap='6px';
+    hours.forEach(h => {
+      // compute local hour at UTC h
+      const dt = DateTime.utc().set({hour:h, minute:0}).setZone(c.tz);
+      const el = document.createElement('div'); el.className = 'hour'; el.dataset.hour = h; el.textContent = dt.toFormat('HH');
+      // current hour highlight (based on actual now)
+      const nowLocal = DateTime.now().setZone(c.tz);
+      if(dt.hasSame(nowLocal, 'hour')) el.classList.add('now');
+      // selected hour highlight
+      if(selectedHour !== null && Number(selectedHour) === h) el.classList.add('selected');
+      container.appendChild(el);
     });
-  }
-
-  /**************************************************************************
-   * Time scrub slider handler
-   **************************************************************************/
-  timeScrub.addEventListener('input', () => {
-    scrubLabel.textContent = `UTC offset: ${Number(timeScrub.value)}m`;
-    renderTimeline();
+    row.appendChild(container);
+    timeline.appendChild(row);
   });
+}
 
-  /**************************************************************************
-   * Meeting Planner: improved suggestions & visualization
-   * - Suggests top 6 possible UTC start times (30-min steps) across a day
-   * - Scoring: how many cities will have whole meeting inside working hours (09:00-18:00)
-   **************************************************************************/
-  applyPlanBtn.addEventListener('click', applyMeetingPlan);
+/* ----- vertical slider interaction ----- */
+vertSlider.addEventListener('input', (e) => {
+  const h = Number(e.target.value);
+  renderTimeline(h);
+});
 
-  function applyMeetingPlan(){
-    plannerResult.innerHTML = '';
-    if(!meetingDate.value || !meetingTime.value){ plannerResult.innerHTML = '<div class="meta">Pick a date and time.</div>'; return; }
-    const durMin = Number(meetingDuration.value || 60);
-    // Build base UTC using provided local time interpreted as user's local zone (browser)
-    const [hh, mm] = meetingTime.value.split(':').map(Number);
-    const baseLocal = DateTime.fromISO(meetingDate.value).set({ hour: hh, minute: mm, second:0 });
-    const baseUtc = baseLocal.toUTC();
-    const endUtc = baseUtc.plus({ minutes: durMin });
-
-    // For each city, show start/end local times
-    const tableWrap = document.createElement('div');
-    tableWrap.innerHTML = cities.map(c => {
-      const startLocal = baseUtc.setZone(c.tz);
-      const endLocal = endUtc.setZone(c.tz);
-      return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between">
-        <div><strong>${c.label}</strong><div class="meta">${c.tz}</div></div>
-        <div style="text-align:right"><div class="timebig">${startLocal.toFormat('HH:mm')} — ${endLocal.toFormat('HH:mm')}</div><div class="meta">${startLocal.toFormat('cccc, dd LLL yyyy')}</div></div>
-      </div></div>`;
-    }).join('');
-    plannerResult.appendChild(tableWrap);
-
-    // Compute suggestions: consider a scanning window around chosen date (24 hours from midnight UTC of that date),
-    // step 30 minutes, score each slot.
-    const scanStart = DateTime.fromISO(meetingDate.value).startOf('day').toUTC();
-    const slots = [];
-    for(let i=0;i<48;i++){
-      const slotStartUtc = scanStart.plus({ minutes: i*30 });
-      const slotEndUtc = slotStartUtc.plus({ minutes: durMin });
-      let score = 0;
-      const details = [];
-      cities.forEach(c => {
-        const s = slotStartUtc.setZone(c.tz);
-        const e = slotEndUtc.setZone(c.tz);
-        // working hours criteria: both start and end within 09:00-18:00 local
-        const within = (s.hour >= 9 && s.hour <= 17) && (e.hour >= 9 && e.hour <= 18);
-        if(within) score++;
-        details.push({city:c.label, tz:c.tz, start:s.toFormat('HH:mm'), end:e.toFormat('HH:mm'), within});
-      });
-      slots.push({slotStartUtc, score, details});
-    }
-    // sort by highest score then earliest
-    slots.sort((a,b)=> b.score - a.score || a.slotStartUtc - b.slotStartUtc);
-
-    // Show top 6 suggestions
-    const suggestWrap = document.createElement('div'); suggestWrap.style.marginTop='10px';
-    suggestWrap.innerHTML = `<div class="meta">Top suggestions (maximize number of cities inside 09:00–18:00):</div>`;
-    const list = document.createElement('div'); list.style.marginTop='6px';
-    slots.slice(0,6).forEach(s => {
-      const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName);
-      const el = document.createElement('div');
-      el.style.padding='8px';
-      el.style.border='1px solid rgba(255,255,255,0.02)';
-      el.style.marginBottom='6px';
-      el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-        <div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')} (your local)</strong><div class="meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div>
-        <div style="text-align:right"><div class="meta">${s.score}/${cities.length} cities fit</div><button class="applySuggest" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div>
-      </div>
-      <div style="margin-top:6px;font-size:13px;color:var(--muted)">Example: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}-${d.end}${d.within?' ✓':''}`).join(' • ')}...</div>`;
-      list.appendChild(el);
-    });
-    suggestWrap.appendChild(list);
-    plannerResult.appendChild(suggestWrap);
-
-    // event: clicking apply on a suggestion will set meetingTime to that time in local user's zone and update result
-    plannerResult.querySelectorAll('.applySuggest').forEach(btn=>{
-      btn.addEventListener('click', (ev)=>{
-        const utc = DateTime.fromISO(ev.currentTarget.dataset.utc);
-        const local = utc.setZone(DateTime.now().zoneName);
-        meetingDate.value = local.toISODate();
-        meetingTime.value = `${local.toFormat('HH')}:${local.toFormat('mm')}`;
-        applyMeetingPlan(); // recalc with chosen slot
-      });
-    });
-  }
-
-  /**************************************************************************
-   * Converter
-   **************************************************************************/
-  function populateConverterSelects(){
-    convFrom.innerHTML = ''; convTo.innerHTML = '';
-    // populate with cities first
+/* ----- Meeting planner with suggestions (scan day, 30-min slots) ----- */
+applyPlan.addEventListener('click', runPlanner);
+function runPlanner(){
+  plannerResult.innerHTML = '';
+  if(!meetingDate.value || !meetingTime.value){ plannerResult.innerHTML = '<div class="meta">Pick a date and time.</div>'; return; }
+  const dur = Number(meetingDuration.value || 60);
+  const [hh,mm] = meetingTime.value.split(':').map(Number);
+  const baseLocal = DateTime.fromISO(meetingDate.value).set({hour:hh, minute:mm});
+  const baseUtc = baseLocal.toUTC();
+  const endUtc = baseUtc.plus({minutes:dur});
+  // show local times
+  const listHtml = cities.map(c => {
+    const s = baseUtc.setZone(c.tz), e = endUtc.setZone(c.tz);
+    return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between"><div><strong>${c.label}</strong><div class="meta">${c.tz}</div></div><div style="text-align:right"><div class="timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`;
+  }).join('');
+  plannerResult.innerHTML = listHtml;
+  // suggestions
+  const scanStart = DateTime.fromISO(meetingDate.value).startOf('day').toUTC();
+  const slots = [];
+  for(let i=0;i<48;i++){
+    const slotStartUtc = scanStart.plus({minutes: i*30});
+    const slotEndUtc = slotStartUtc.plus({minutes: dur});
+    let score = 0; const details = [];
     cities.forEach(c => {
-      const o1 = document.createElement('option'); o1.value = c.tz; o1.textContent = `${c.label} — ${c.tz}`;
-      const o2 = o1.cloneNode(true);
-      convFrom.appendChild(o1); convTo.appendChild(o2);
+      const s = slotStartUtc.setZone(c.tz), e = slotEndUtc.setZone(c.tz);
+      const within = (s.hour >=9 && s.hour <=17) && (e.hour >=9 && e.hour <=18);
+      if(within) score++;
+      details.push({city:c.label, start:s.toFormat('HH:mm'), within});
     });
-    // then fall back to tzCities list
-    tzCities.forEach(tc => {
-      if(!Array.from(convFrom.options).some(o=>o.value===tc.tz)){
-        const o = document.createElement('option'); o.value=tc.tz; o.textContent = `${tc.label} — ${tc.tz}`;
-        convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-      }
-    });
+    slots.push({slotStartUtc, score, details});
   }
-
-  convBtn.addEventListener('click', runConvert);
-  function runConvert(){
-    if(!convFrom.value || !convTo.value || !convTime.value){ convOut.textContent='Pick From, To and time'; return; }
-    const [hh,mm] = convTime.value.split(':').map(Number);
-    const today = DateTime.now().setZone(convFrom.value).toISODate();
-    const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
-    const out = dt.setZone(convTo.value);
-    convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
-  }
-
-  // preset converter buttons (one-click)
-  presetConvButtons.forEach(btn => btn.addEventListener('click', (e)=>{
-    const f = e.currentTarget.dataset.from, t = e.currentTarget.dataset.to;
-    convFrom.value = f; convTo.value = t;
-    // default time now in from zone
-    const now = DateTime.now().setZone(f);
-    convTime.value = `${now.toFormat('HH')}:${now.toFormat('mm')}`;
-    runConvert();
-  }));
-  swapConv.addEventListener('click', ()=> {
-    const a = convFrom.value; convFrom.value = convTo.value; convTo.value = a;
+  slots.sort((a,b) => b.score - a.score || +a.slotStartUtc - +b.slotStartUtc);
+  const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+  wrap.innerHTML = `<div class="meta">Top suggestions (maximize cities in 09:00–18:00):</div>`;
+  const list = document.createElement('div'); list.style.marginTop='6px';
+  slots.slice(0,6).forEach(s => {
+    const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName);
+    const item = document.createElement('div'); item.style.padding='8px'; item.style.border='1px solid rgba(255,255,255,0.02)'; item.style.marginBottom='6px';
+    item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="meta">${s.score}/${cities.length} fit</div><button class="small applySuggest" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--muted)">Sample: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`;
+    list.appendChild(item);
   });
+  wrap.appendChild(list); plannerResult.appendChild(wrap);
+  plannerResult.querySelectorAll('.applySuggest').forEach(btn => btn.addEventListener('click', (ev)=>{
+    const utcIso = ev.currentTarget.dataset.utc;
+    const utc = DateTime.fromISO(utcIso);
+    const local = utc.setZone(DateTime.now().zoneName);
+    meetingDate.value = local.toISODate(); meetingTime.value = `${local.toFormat('HH')}:${local.toFormat('mm')}`; runPlanner();
+  }));
+}
 
-  /**************************************************************************
-   * Embed & share link
-   **************************************************************************/
-  function updateEmbedAndShare(){
-    const payload = encodeURIComponent(JSON.stringify(cities));
-    const url = `${location.origin}${location.pathname}?view=${payload}`;
+/* ----- Converter ----- */
+function populateConv(){
+  convFrom.innerHTML = ''; convTo.innerHTML = '';
+  cities.forEach(c => {
+    const o = document.createElement('option'); o.value = c.tz; o.textContent = `${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
+  });
+  // add some common zones
+  const common = ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'];
+  common.forEach(tz => {
+    if(!Array.from(convFrom.options).some(o=>o.value===tz)){
+      const o = document.createElement('option'); o.value=tz; o.textContent = tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
+    }
+  });
+}
+$('convBtn').addEventListener('click', ()=>{
+  if(!convFrom.value || !convTo.value || !convTime.value) { convOut.textContent='Pick From, To and time'; return; }
+  const today = DateTime.now().setZone(convFrom.value).toISODate();
+  const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
+  const out = dt.setZone(convTo.value);
+  convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
+});
+
+/* ----- Embed & Share (hash) ----- */
+function updateEmbed(){
+  try {
+    const payload = base64url.encode(JSON.stringify(cities));
+    const url = `${location.origin}${location.pathname}#${payload}`;
     embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`;
     shareLink.value = url;
-  }
-  copyEmbed.addEventListener('click', ()=> {
-    navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed code copied'));
-  });
-  document.getElementById('shareBtn').addEventListener('click', ()=> {
-    const payload = encodeURIComponent(JSON.stringify(cities));
-    const url = `${location.origin}${location.pathname}?view=${payload}`;
-    navigator.clipboard?.writeText(url).then(()=> alert('Share link copied!'));
-    shareLink.value = url;
-  });
+  } catch(e){ console.warn('embed update failed', e); }
+}
+copyEmbed.addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')));
 
-  /**************************************************************************
-   * Add city flow: from search or from map
-   **************************************************************************/
-  addCityBtn.addEventListener('click', addCityFromInput);
-  citySearch.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') addCityFromInput();
-  });
+/* ----- Export image (cards + timeline) ----- */
+exportImg.addEventListener('click', ()=>{
+  const wrapper = document.createElement('div'); wrapper.style.background='#071323'; wrapper.style.padding='12px'; wrapper.appendChild(cards.cloneNode(true)); wrapper.appendChild(timeline.cloneNode(true));
+  document.body.appendChild(wrapper);
+  html2canvas(wrapper, {backgroundColor:null, scale:2}).then(canvas=>{
+    const url = canvas.toDataURL('image/png'); const a = document.createElement('a'); a.href = url; a.download='worldtime.png'; a.click(); document.body.removeChild(wrapper);
+  }).catch(err => alert('Export failed: '+err));
+});
 
-  function addCityFromInput(){
-    const q = citySearch.value.trim();
-    if(!q) return;
-    // try exact match in tzCities first
-    let found = tzCities.find(t => t.label.toLowerCase() === q.toLowerCase() || t.tz.toLowerCase() === q.toLowerCase());
-    if(!found){
-      // fuzzy search
-      const res = fuse.search(q);
-      if(res && res.length) found = res[0].item;
-    }
-    if(!found){
-      alert('Could not find that city/timezone in the built-in list. Try a city name (e.g., Tokyo) or an IANA zone (Europe/London).');
-      return;
-    }
-    cities.push({label: found.label, tz: found.tz, lat: found.lat, lon: found.lon, cc: found.cc, flag: countryToEmoji(found.cc)});
-    saveCitiesToStorage();
-    citySearch.value = '';
-    suggestionsEl.innerHTML = '';
-    renderAll();
-  }
-
-  // autocomplete suggestions UI
-  citySearch.addEventListener('input', (e) => {
-    const q = e.target.value.trim();
-    suggestionsEl.innerHTML = '';
-    if(!q) return;
-    const results = fuse.search(q).slice(0,8).map(r => r.item);
-    const ul = document.createElement('div'); ul.style.marginTop='6px';
-    results.forEach(r => {
-      const item = document.createElement('div'); item.style.padding='6px'; item.style.border='1px solid rgba(255,255,255,0.02)'; item.style.borderRadius='6px'; item.style.marginBottom='4px';
-      item.innerHTML = `<strong>${r.label}</strong><div class="meta">${r.tz}</div>`;
-      item.addEventListener('click', ()=> {
-        cities.push({label: r.label, tz: r.tz, lat: r.lat, lon: r.lon, cc: r.cc, flag: countryToEmoji(r.cc)});
-        saveCitiesToStorage(); renderAll(); suggestionsEl.innerHTML=''; citySearch.value='';
-      });
-      ul.appendChild(item);
-    });
-    suggestionsEl.appendChild(ul);
-  });
-
-  presetEl.addEventListener('change', ()=>{
-    const v = presetEl.value;
-    if(!v) return;
-    const [label, tz] = v.split('|');
-    const found = tzCities.find(t => t.tz === tz);
-    const lat = found ? found.lat : null, lon = found ? found.lon : null, cc = found ? found.cc : '';
-    cities.push({label:label.trim(), tz:tz.trim(), lat, lon, cc, flag:countryToEmoji(cc)});
-    presetEl.selectedIndex = 0; saveCitiesToStorage(); renderAll();
-  });
-
-  /**************************************************************************
-   * DST ticker detection: scan next 90 days for offset changes for each city
-   **************************************************************************/
-  function scanForDstChanges(){
+/* ----- DST ticker: scan next 90 days for offset changes ----- */
+function scanDst(){
+  try {
     const changes = [];
     const now = DateTime.now();
-    const daysToScan = 90;
+    const days = 90;
     cities.forEach(c => {
       if(!c.tz) return;
-      const zone = c.tz;
-      // check offset each day and detect changes
-      let prevOffset = DateTime.now().setZone(zone).offset;
-      for(let d=1;d<=daysToScan;d++){
-        const dt = now.plus({ days: d }).setZone(zone);
-        if(dt.offset !== prevOffset){
-          // found transition at day d
-          changes.push({city:c.label, tz: zone, date: dt.toISODate(), offset: dt.offset, oldOffset: prevOffset});
-          break;
-        }
+      let prev = DateTime.now().setZone(c.tz).offset;
+      for(let d=1; d<=days; d++){
+        const dt = now.plus({days:d}).setZone(c.tz);
+        if(dt.offset !== prev){ changes.push({city:c.label, date: dt.toISODate(), oldOffset: prev, newOffset: dt.offset}); break; }
       }
     });
-    if(changes.length === 0){
-      dstTicker.textContent = 'No DST changes detected for your current cities in the next 90 days.';
-    } else {
-      const soon = changes.sort((a,b)=> DateTime.fromISO(a.date) - DateTime.fromISO(b.date))[0];
-      dstTicker.textContent = `Upcoming DST change: ${soon.city} on ${soon.date} — new offset UTC${formatOffset(soon.offset)} (was UTC${formatOffset(soon.oldOffset)})`;
+    if(changes.length===0) dstText.textContent = 'No DST changes for your cities in next 90 days.';
+    else {
+      changes.sort((a,b)=> new Date(a.date) - new Date(b.date));
+      const s = changes[0];
+      dstText.textContent = `Upcoming DST: ${s.city} on ${s.date} — from UTC${fmtOffset(s.oldOffset)} to UTC${fmtOffset(s.newOffset)}`;
     }
-  }
+  } catch(e){ dstText.textContent='DST ticker unavailable'; console.warn(e); }
+}
 
-  /**************************************************************************
-   * Map (Leaflet)
-   **************************************************************************/
-  function initMap(){
-    try {
-      map = L.map('map', { dragging: true, attributionControl: false }).setView([20,0], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, tileSize: 256
-      }).addTo(map);
-      // add markers for tzCities; on hover show time; on click add city
-      tzCities.forEach(tc => {
-        if(!tc.lat || !tc.lon) return;
-        const marker = L.circleMarker([tc.lat, tc.lon], { radius:6, fillOpacity:0.9 }).addTo(map);
-        marker.bindTooltip(`${tc.label} — ${tc.tz}`);
-        marker.on('mouseover', () => {
-          const dt = DateTime.now().setZone(tc.tz);
-          marker.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${formatOffset(dt.offset)})`);
-          marker.openTooltip();
-        });
-        marker.on('click', () => {
-          cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: countryToEmoji(tc.cc)});
-          saveCitiesToStorage(); renderAll();
-        });
-        markers.push(marker);
-      });
-    } catch (e) {
-      console.error('Map init error', e);
-      document.getElementById('map').innerHTML = '<div class="meta">Map could not load</div>';
-    }
-  }
-
-  /**************************************************************************
-   * Export to image (cards + timeline)
-   **************************************************************************/
-  exportImageBtn.addEventListener('click', ()=>{
-    // choose wrapper area: cards + timeline
-    const wrapper = document.createElement('div');
-    wrapper.style.background = '#071323';
-    wrapper.style.padding = '12px';
-    wrapper.appendChild(cardsEl.cloneNode(true));
-    wrapper.appendChild(timelineEl.cloneNode(true));
-    document.body.appendChild(wrapper);
-    html2canvas(wrapper, {backgroundColor: null, scale: 2}).then(canvas => {
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url; a.download = 'worldtime.png'; a.click();
-      document.body.removeChild(wrapper);
-    }).catch(err => {
-      alert('Export failed: ' + err);
-    });
-  });
-
-  /**************************************************************************
-   * Countdown & Prayer (small utilities)
-   **************************************************************************/
-  const startCountBtn = document.getElementById('startCount');
-  const countRes = document.getElementById('countRes');
-  let countInterval = null;
-  startCountBtn.addEventListener('click', ()=>{
-    const d = document.getElementById('countDate').value;
-    const t = document.getElementById('countTime').value;
-    if(!d || !t){ countRes.textContent = 'Pick date & time'; return; }
-    const target = DateTime.fromISO(`${d}T${t}`);
-    if(!target.isValid){ countRes.textContent = 'Invalid'; return; }
-    if(countInterval) clearInterval(countInterval);
-    function tickCount(){
-      const now = DateTime.now();
-      const diff = target.diff(now, ['days','hours','minutes','seconds']).toObject();
-      if(diff.seconds <= 0){ countRes.textContent = 'Event reached!'; clearInterval(countInterval); return; }
-      countRes.textContent = `${Math.floor(diff.days)}d ${Math.floor(diff.hours)}h ${Math.floor(diff.minutes)}m ${Math.floor(diff.seconds)}s`;
-    }
-    tickCount();
-    countInterval = setInterval(tickCount, 1000);
-  });
-
-  // Prayer times (Adhan)
-  document.getElementById('calcPray').addEventListener('click', ()=>{
-    const lat = Number(document.getElementById('prayLat').value);
-    const lng = Number(document.getElementById('prayLng').value);
-    const method = document.getElementById('prayMethod').value;
-    if(isNaN(lat) || isNaN(lng)){ document.getElementById('prayRes').textContent = 'Enter lat & lng'; return; }
-    const coords = new adhan.Coordinates(lat, lng);
-    let params = adhan.CalculationMethod.MuslimWorldLeague();
-    if(method === 'Egyptian') params = adhan.CalculationMethod.Egyptian();
-    if(method === 'Karachi') params = adhan.CalculationMethod.Karachi();
-    if(method === 'ISNA') params = adhan.CalculationMethod.ISNA();
-    const times = new adhan.PrayerTimes(coords, new Date(), params);
-    const fmt = d => DateTime.fromJSDate(d).toFormat('HH:mm');
-    document.getElementById('prayRes').innerHTML = `Fajr: ${fmt(times.fajr)} • Dhuhr: ${fmt(times.dhuhr)} • Asr: ${fmt(times.asr)} • Maghrib: ${fmt(times.maghrib)} • Isha: ${fmt(times.isha)}`;
-  });
-
-  /**************************************************************************
-   * Tick update: update card times, dates, sunrise display and timeline
-   **************************************************************************/
-  function tick(){
-    cities.forEach((c, idx) => {
-      const timeEl = document.getElementById(`time-${idx}`);
-      const dateEl = document.getElementById(`date-${idx}`);
-      const sunEl = document.getElementById(`sun-${idx}`);
-      if(!timeEl) return;
-      const dt = DateTime.now().setZone(c.tz);
-      timeEl.textContent = dt.toFormat('HH:mm:ss');
-      dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
-      // sunrise/sunset if coords present
-      if(c.lat && c.lon){
-        try {
-          const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
-          const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
-          const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
-          sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`;
-        } catch(e) {
-          sunEl.textContent = '';
-        }
-      } else {
-        sunEl.textContent = '';
-      }
-      // update tooltip if visible
-      const tip = document.getElementById(`tip-${idx}`);
-      if(tip && tip.classList.contains('show')){
-        showTip(idx);
-      }
-    });
-    renderTimeline();
-    updateEmbedAndShare();
-    scanForDstChanges(); // update ticker occasionally (cheap for small city counts)
-  }
-
-  /**************************************************************************
-   * Render all
-   **************************************************************************/
-  function renderAll(){
-    renderCards();
-    populateConverterSelects();
-    renderTimeline();
-    updateEmbedAndShare();
-    // refresh map markers? (keep static markers)
-    scanForDstChanges();
-  }
-
-  /**************************************************************************
-   * Converter selects population (called after cities change)
-   **************************************************************************/
-  function populateConverterSelects(){
-    convFrom.innerHTML = ''; convTo.innerHTML = '';
-    // fill with city tz first
-    cities.forEach(c => {
-      const o = document.createElement('option'); o.value = c.tz; o.textContent = `${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-    });
-    // then fill with tzCities for extra choices
+/* ----- Map (Leaflet) ----- */
+let map=null;
+function initMap(){
+  try {
+    map = L.map('map', { attributionControl:false }).setView([20,0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(map);
+    // add markers from tzCities that have coords (if any)
     tzCities.forEach(tc => {
-      if(!Array.from(convFrom.options).some(o => o.value === tc.tz)){
-        const o = document.createElement('option'); o.value = tc.tz; o.textContent = `${tc.label} — ${tc.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-      }
+      if(tc.lat == null || tc.lon == null) return;
+      const marker = L.circleMarker([tc.lat, tc.lon], {radius:6, fillOpacity:0.9}).addTo(map);
+      marker.bindTooltip(`${tc.label} — ${tc.tz}`);
+      marker.on('mouseover', ()=> {
+        const dt = DateTime.now().setZone(tc.tz);
+        marker.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+        marker.openTooltip();
+      });
+      marker.on('click', ()=> {
+        cities.push({label:tc.label, tz:tc.tz, lat:tc.lat, lon:tc.lon, cc:tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
+        saveState(); renderAll();
+      });
     });
-  }
+  } catch(e){ console.warn('Map init failed', e); $('map').innerHTML = '<div class="meta">Map could not load</div>'; }
+}
 
-  /**************************************************************************
-   * URL load support (?view=...) — allows sharing selected city lists
-   **************************************************************************/
-  (function loadFromUrl(){
-    const params = new URLSearchParams(location.search);
-    const view = params.get('view');
-    if(view){
-      try {
-        const decoded = JSON.parse(decodeURIComponent(view));
-        if(Array.isArray(decoded)) { cities = decoded; saveCitiesToStorage(); }
-      } catch (e) {
-        console.warn('Invalid view payload');
-      }
-    }
-  })();
+/* ----- Autocomplete suggestions (Fuse) ----- */
+function showSuggestions(q){
+  suggestions.innerHTML=''; suggestions.setAttribute('aria-hidden','true');
+  if(!q || !fuse) return;
+  const res = fuse.search(q).slice(0,8).map(r=>r.item);
+  if(!res.length) return;
+  const wrap = document.createElement('div'); wrap.className='suggest-list';
+  res.forEach(r => {
+    const it = document.createElement('div'); it.className='suggest-item'; it.tabIndex=0;
+    it.innerHTML = `<strong>${r.label}</strong><div class="meta">${r.tz}</div>`;
+    it.addEventListener('click', ()=> { pickSuggestion(r); });
+    it.addEventListener('keydown', ev => { if(ev.key==='Enter') pickSuggestion(r); });
+    wrap.appendChild(it);
+  });
+  suggestions.appendChild(wrap); suggestions.setAttribute('aria-hidden','false');
+}
+function pickSuggestion(r){
+  cities.push({label:r.label, tz:r.tz, lat:r.lat, lon:r.lon, cc:r.cc, flag: r.cc ? ccToEmoji(r.cc) : ''});
+  saveState(); citySearch.value=''; suggestions.innerHTML=''; renderAll();
+}
 
-  /**************************************************************************
-   * Map init then startup
-   **************************************************************************/
-  initMap();
+/* ----- Add city from input ----- */
+addBtn.addEventListener('click', () => {
+  const q = citySearch.value.trim(); if(!q) return;
+  // try exact
+  let found = tzCities.find(t => t.label.toLowerCase() === q.toLowerCase() || t.tz.toLowerCase() === q.toLowerCase());
+  if(!found && fuse){ const res = fuse.search(q); if(res && res.length) found = res[0].item; }
+  if(!found){ alert('City not found in list. Try a different name or IANA zone.'); return; }
+  cities.push({label:found.label, tz:found.tz, lat:found.lat||null, lon:found.lon||null, cc:found.cc||null, flag: found.cc? ccToEmoji(found.cc): ''});
+  saveState(); citySearch.value=''; renderAll();
+});
+citySearch.addEventListener('input', (e)=> showSuggestions(e.target.value.trim()));
+citySearch.addEventListener('keydown', e => { if(e.key==='Enter'){ addBtn.click(); } });
+
+/* ----- Preset add ----- */
+preset.addEventListener('change', ()=>{
+  const v = preset.value; if(!v) return;
+  const [label,tz] = v.split('|'); const found = tzCities.find(t => t.tz === tz);
+  const lat = found ? found.lat : null, lon = found ? found.lon : null, cc = found ? found.cc : null;
+  cities.push({label: label.trim(), tz: tz.trim(), lat, lon, cc, flag: cc? ccToEmoji(cc): ''});
+  preset.selectedIndex = 0; saveState(); renderAll();
+});
+
+/* ----- Reset button ----- */
+resetBtn.addEventListener('click', ()=> {
+  if(!confirm('Reset to default cities?')) return;
+  cities = [
+    {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
+    {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
+    {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
+  ];
+  saveState(); renderAll();
+});
+
+/* ----- Share button (copies URL with hash) ----- */
+shareBtn.addEventListener('click', ()=> {
+  try {
+    saveState(); navigator.clipboard?.writeText(location.href).then(()=> alert('Link copied')); $('shareLink').value = location.href;
+  } catch(e){ alert('Could not copy link'); }
+});
+
+/* ----- Populate conv selects etc ----- */
+function populateAllSelects(){
+  // conv
+  convFrom.innerHTML=''; convTo.innerHTML='';
+  cities.forEach(c => {
+    const o = document.createElement('option'); o.value=c.tz; o.textContent=`${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
+  });
+  // fallback list
+  ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'].forEach(tz=>{
+    if(!Array.from(convFrom.options).some(o=>o.value===tz)){ const o=document.createElement('option'); o.value=tz; o.textContent=tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true)); }
+  });
+  updateEmbed();
+}
+
+/* ----- Tick update (times, sun, timeline, dst) ----- */
+function tick(){
+  cities.forEach((c, idx) => {
+    const timeEl = $('time-'+idx), dateEl = $('date-'+idx), sunEl = $('sun-'+idx);
+    if(!timeEl) return;
+    try {
+      const dt = DateTime.now().setZone(c.tz);
+      timeEl.textContent = dt.toFormat('HH:mm:ss'); dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
+      if(c.lat && c.lon){
+        const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
+        const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
+        const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
+        sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`;
+      } else sunEl.textContent = '';
+    } catch(e){ console.warn('tick update', e); }
+  });
+  const selectedHour = Number(vertSlider.value);
+  renderTimeline(selectedHour);
+  scanDst();
+  populateAllSelects();
+}
+
+/* ----- Render all ----- */
+function renderAll(){
+  renderCards();
+  populateAllSelects();
+  renderTimeline(Number(vertSlider.value));
+  updateEmbed();
+  scanDst();
+}
+
+/* ----- boot sequence ----- */
+(async function init(){
+  // load IANA DB
+  await loadIanaDB();
+  // set fuse
+  fuse = new Fuse(tzCities, { keys:['label','tz'], threshold:0.35 });
+  // load state
+  loadState();
+  // init map (best-effort)
+  try { initMap(); } catch(e){ console.warn('map init', e); }
+  // initial render
   renderAll();
-  tick();
-  setInterval(tick, 1000);
-
-  /**************************************************************************
-   * Event: reset, copy embed etc.
-   **************************************************************************/
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    if(confirm('Reset to default cities?')){
-      cities = [
-        {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, flag:'🇺🇸'},
-        {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, flag:'🇬🇧'},
-        {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, flag:'🇮🇳'}
-      ];
-      saveCitiesToStorage(); renderAll();
-    }
-  });
-
-  // shareLink initial value
-  updateEmbedAndShare();
-
-  /**************************************************************************
-   * Autoplay prevention & small UX
-   **************************************************************************/
-  document.addEventListener('click', e => {
-    // ctrl+click remove support on desktop: handled per-card remove button already
-  });
-
-  /**************************************************************************
-   * Expose for manual operations in console
-   **************************************************************************/
-  window.WorldTimePro = {
-    getCities: ()=>cities,
-    setCities: (arr)=>{ if(Array.isArray(arr)){ cities = arr; saveCitiesToStorage(); renderAll(); } }
-  };
-
+  // tick every second
+  tick(); setInterval(tick, 1000);
 })();
-</script>
 
+/* ----- Accessibility: keyboard for suggestions (arrow keys) ----- */
+document.addEventListener('keydown', (e)=>{
+  const list = suggestions.querySelectorAll('.suggest-item');
+  if(!list.length) return;
+  const active = suggestions.querySelector('.suggest-item.active');
+  if(e.key === 'ArrowDown'){ e.preventDefault(); const next = active ? (active.nextSibling || list[0]) : list[0]; setActive(next); }
+  if(e.key === 'ArrowUp'){ e.preventDefault(); const prev = active ? (active.previousSibling || list[list.length-1]) : list[list.length-1]; setActive(prev); }
+  if(e.key === 'Enter' && active){ active.click(); }
+});
+function setActive(el){ suggestions.querySelectorAll('.suggest-item').forEach(i=>i.classList.remove('active')); if(el) el.classList.add('active'); }
+
+/* ----- Simple error handling for inputs (some validations) ----- */
+$('calcPray')?.addEventListener?.('click', ()=> {
+  const lat = Number($('prayLat').value), lng = Number($('prayLng').value);
+  if(Number.isNaN(lat) || Number.isNaN(lng)){ $('prayRes').textContent = 'Enter valid lat & lng'; return; }
+});
+
+/* ----- Footer links already use rel="noopener" above ----- */
+
+/* ----- AdSense instructions (you must paste your AdSense script) -----
+  1) Sign up for AdSense and get <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-XXXXXXXXXXXX"></script>
+  2) Paste that script inside the <head> of this HTML (replace ca-pub-...).
+  3) Replace the ad placeholder at #adContainer with the ad unit code provided by AdSense.
+  4) Use responsive ad units to fit mobile; do not place ads where they create accidental clicks (e.g., avoid placing inside interactive elements).
+---------------------------------------------------------------------*/
+
+</script>
 </body>
 </html>
