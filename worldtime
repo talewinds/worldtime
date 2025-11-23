@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WorldTime Pro — Compare, Plan & Tools</title>
+<meta name="description" content="WorldTime Pro — fast world clock, meeting planner, timeline comparator, quick converters, and small utilities (Age, EMI, GST, Sunrise, Prayer times).">
+<!-- CSS (simple, responsive) -->
+<style>
+  :root{
+    --bg:#0b1220; --card:#0f1a2a; --muted:#9fb0c8; --accent:#9b2f2f; --glass: rgba(255,255,255,0.03);
+    --radius:12px; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0; background:linear-gradient(180deg,#071021,#071827); color:#e8f0fb; min-height:100vh; padding:18px}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  h1{font-size:20px;margin:0}
+  .lead{color:var(--muted);font-size:13px;margin:0}
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .col{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.04);flex:1}
+  .col.small{flex:0 0 360px;max-width:360px}
+  .controls{display:flex;gap:8px;margin-bottom:12px}
+  input[type=text], select, input[type=time], input[type=date], input[type=number]{
+    background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px;border-radius:8px;outline:none;
+  }
+  button{background:var(--accent);border:0;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .card{padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));position:relative}
+  .flag{font-size:22px;margin-right:8px}
+  .timebig{font-weight:700;font-size:18px}
+  .meta{color:var(--muted);font-size:12px}
+  .tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 8px);background:var(--glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:220px;display:none;z-index:10}
+  .tooltip.show{display:block}
+  /* timeline */
+  .timeline{overflow:auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px;border-radius:10px}
+  .timeline .hourbar{display:flex;gap:6px;align-items:center}
+  .hour{flex:0 0 48px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
+  .hour.now{box-shadow:0 6px 18px rgba(0,0,0,0.6);border-color:rgba(255,255,255,0.08)}
+  .cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .citylabel{width:160px;flex:0 0 160px}
+  /* meeting planner */
+  .planner{display:grid;grid-template-columns:1fr 320px;gap:10px}
+  .small-tools{display:flex;flex-direction:column;gap:10px}
+  .tools .tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)}
+  /* responsive */
+  @media (max-width:980px){ .row{flex-direction:column} .col.small{max-width:none;flex:1} .planner{grid-template-columns:1fr} .citylabel{width:120px;flex:0 0 120px} .hour{flex:0 0 40px} }
+  /* ticker */
+  .ticker{background:linear-gradient(90deg,#111827,#0b1220);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
+  .ticker span{display:inline-block;padding-right:28px;color:var(--muted)}
+  /* footer note */
+  footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
+  .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:12px}
+  .sharelink{background:rgba(255,255,255,0.02);padding:6px;border-radius:8px;font-size:13px}
+</style>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+<script src="https://unpkg.com/adhan/dist/Adhan.js"></script>
+
+</head>
+<body>
+  <header>
+    <div>
+      <h1>WorldTime Pro <span class="badge">v1.0</span></h1>
+      <p class="lead">Compare timezones, plan meetings, quick converters, and utilities — copy to GitHub Pages and go live.</p>
+    </div>
+  </header>
+
+  <!-- DST / News ticker (static seed; you can replace with dynamic feed later) -->
+  <div class="ticker" id="dstTicker" title="DST & timezone news">
+    <span>Note: DST starts in US (second Sunday March) — clocks go forward 1 hour.</span>
+    <span>Upcoming: EU DST ends last Sunday October (clocks go back 1 hour).</span>
+    <span>Tip: Use Meeting Planner to find best overlapping times across zones.</span>
+  </div>
+
+  <div class="row">
+    <!-- Left column: main features -->
+    <div class="col">
+      <div class="controls">
+        <input id="citySearch" type="text" placeholder="Add city or IANA zone (e.g. New York or Europe/London)" />
+        <button id="addCity">Add</button>
+        <select id="preset">
+          <option value="">Popular presets</option>
+          <option>New York, USA|America/New_York</option>
+          <option>London, UK|Europe/London</option>
+          <option>Mumbai, India|Asia/Kolkata</option>
+          <option>Dubai, UAE|Asia/Dubai</option>
+          <option>Tokyo, Japan|Asia/Tokyo</option>
+          <option>Sydney, AU|Australia/Sydney</option>
+        </select>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <button id="shareBtn">Share</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <!-- city cards -->
+      <div id="cards" class="grid" aria-live="polite"></div>
+
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
+
+      <!-- timeline comparator -->
+      <h3 style="margin:6px 0 8px 0">24-Hour Comparator (Scroll horizontally)</h3>
+      <div class="timeline" id="timeline"></div>
+
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
+
+      <!-- meeting planner -->
+      <h3 style="margin:6px 0 8px 0">Meeting Planner</h3>
+      <div class="planner">
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input id="meetingDate" type="date" />
+            <input id="meetingTime" type="time" />
+            <select id="meetingDuration">
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60" selected>60 min</option>
+              <option value="90">90 min</option>
+            </select>
+            <button id="applyPlan">Apply</button>
+          </div>
+
+          <div id="plannerResult" style="max-height:280px;overflow:auto;padding:6px"></div>
+        </div>
+
+        <div class="small-tools">
+          <div class="tools" style="display:flex;flex-direction:column;gap:8px">
+            <div class="tool">
+              <strong>Quick Converters</strong>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <select id="convFrom"></select>
+                <select id="convTo"></select>
+                <input id="convTime" type="time" />
+                <button id="convBtn">Convert</button>
+              </div>
+              <div id="convOut" style="margin-top:6px;color:var(--muted)"></div>
+            </div>
+
+            <div class="tool">
+              <strong>Embeddable Widget</strong>
+              <div style="font-size:13px;margin-top:8px">Paste this iframe on your blog:</div>
+              <pre style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px" id="embedCode"></pre>
+              <button id="copyEmbed">Copy</button>
+            </div>
+
+            <div class="tool">
+              <strong>Share / Save</strong>
+              <div style="margin-top:8px"><input id="shareLink" class="sharelink" readonly style="width:100%"/></div>
+            </div>
+          </div>
+          <!-- small note about ads -->
+          <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.02);border-radius:8px">
+            Ad placeholder: When ready, add your AdSense script in the <code>&lt;head&gt;</code> and the ad unit code where you'd like ads to appear.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: small utilities -->
+    <div class="col small">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <strong style="flex:1">Utilities</strong>
+        <button id="collapseTools" title="Reset tools">Reset</button>
+      </div>
+
+      <div class="tools">
+        <!-- Age calculator -->
+        <div class="tool" id="ageTool">
+          <strong>Age Calculator</strong>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <input id="dob" type="date" />
+            <button id="calcAge">Calc</button>
+          </div>
+          <div id="ageRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+        <!-- GST estimator -->
+        <div class="tool" id="gstTool">
+          <strong>GST Estimator (India)</strong>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <input id="gstPrice" type="number" placeholder="Price" />
+            <select id="gstRate"><option>0</option><option>5</option><option>12</option><option>18</option><option>28</option></select>
+            <button id="calcGst">Calc</button>
+          </div>
+          <div id="gstRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+        <!-- EMI -->
+        <div class="tool" id="emiTool">
+          <strong>EMI Calculator</strong>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-direction:column">
+            <input id="emiAmount" type="number" placeholder="Principal" />
+            <input id="emiRate" type="number" placeholder="Annual interest % (e.g. 8.5)" />
+            <input id="emiTenure" type="number" placeholder="Months" />
+            <button id="calcEmi">Calc</button>
+          </div>
+          <div id="emiRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+        <!-- Sunrise/Sunset -->
+        <div class="tool" id="sunTool">
+          <strong>Sunrise / Sunset</strong>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <input id="sunLat" type="number" placeholder="Lat" step="any" />
+            <input id="sunLng" type="number" placeholder="Lng" step="any" />
+            <button id="calcSun">Calc</button>
+          </div>
+          <div id="sunRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+        <!-- Countdown -->
+        <div class="tool" id="countTool">
+          <strong>Countdown Timer</strong>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <input id="countDate" type="date" />
+            <input id="countTime" type="time" />
+            <button id="startCount">Start</button>
+          </div>
+          <div id="countRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+        <!-- Prayer times -->
+        <div class="tool" id="prayTool">
+          <strong>Prayer Times (Adhan)</strong>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-direction:column">
+            <input id="prayLat" type="number" placeholder="Lat" step="any" />
+            <input id="prayLng" type="number" placeholder="Lng" step="any" />
+            <select id="prayMethod">
+              <option value="MuslimWorldLeague">Muslim World League</option>
+              <option value="Egyptian">Egyptian</option>
+              <option value="Karachi">Karachi</option>
+              <option value="ISNA">ISNA</option>
+              <option value="MWL">MWL</option>
+            </select>
+            <button id="calcPray">Calc</button>
+          </div>
+          <div id="prayRes" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Built for quick deployment — copy to GitHub Pages. Want a PWA, analytics, or AdMob/AdSense integration? I can add those next.
+  </footer>
+
+<!-- App JavaScript -->
+<script>
+(() => {
+  const { DateTime, IANAZone } = luxon;
+
+  // Small curated timezone list; for production you can load a full list JSON
+  const COMMON = [
+    {label:'New York, USA', tz:'America/New_York', flag:'🇺🇸'},
+    {label:'Los Angeles, USA', tz:'America/Los_Angeles', flag:'🇺🇸'},
+    {label:'London, UK', tz:'Europe/London', flag:'🇬🇧'},
+    {label:'Paris, FR', tz:'Europe/Paris', flag:'🇫🇷'},
+    {label:'Dubai, UAE', tz:'Asia/Dubai', flag:'🇦🇪'},
+    {label:'Mumbai, India', tz:'Asia/Kolkata', flag:'🇮🇳'},
+    {label:'Singapore', tz:'Asia/Singapore', flag:'🇸🇬'},
+    {label:'Tokyo, JP', tz:'Asia/Tokyo', flag:'🇯🇵'},
+    {label:'Sydney, AU', tz:'Australia/Sydney', flag:'🇦🇺'},
+    {label:'Beijing, CN', tz:'Asia/Shanghai', flag:'🇨🇳'}
+  ];
+
+  const STORAGE_KEY = 'wtpro_v1';
+  let cities = loadCities();
+
+  // DOM refs
+  const cardsEl = document.getElementById('cards');
+  const addCityBtn = document.getElementById('addCity');
+  const citySearch = document.getElementById('citySearch');
+  const preset = document.getElementById('preset');
+  const timelineEl = document.getElementById('timeline');
+  const shareBtn = document.getElementById('shareBtn');
+  const shareLink = document.getElementById('shareLink');
+  const embedCode = document.getElementById('embedCode');
+  const copyEmbed = document.getElementById('copyEmbed');
+  const convFrom = document.getElementById('convFrom');
+  const convTo = document.getElementById('convTo');
+  const convTime = document.getElementById('convTime');
+  const convBtn = document.getElementById('convBtn');
+  const convOut = document.getElementById('convOut');
+  const meetingDate = document.getElementById('meetingDate');
+  const meetingTime = document.getElementById('meetingTime');
+  const meetingDuration = document.getElementById('meetingDuration');
+  const applyPlan = document.getElementById('applyPlan');
+  const plannerResult = document.getElementById('plannerResult');
+  const resetBtn = document.getElementById('resetBtn');
+  const shareBtnEl = document.getElementById('shareBtn');
+
+  // Utilities refs
+  const dob = document.getElementById('dob'), calcAge = document.getElementById('calcAge'), ageRes = document.getElementById('ageRes');
+  const gstPrice = document.getElementById('gstPrice'), gstRate = document.getElementById('gstRate'), calcGst = document.getElementById('calcGst'), gstRes = document.getElementById('gstRes');
+  const emiAmount = document.getElementById('emiAmount'), emiRate = document.getElementById('emiRate'), emiTenure = document.getElementById('emiTenure'), calcEmi = document.getElementById('calcEmi'), emiRes = document.getElementById('emiRes');
+  const sunLat = document.getElementById('sunLat'), sunLng = document.getElementById('sunLng'), calcSun = document.getElementById('calcSun'), sunRes = document.getElementById('sunRes');
+  const countDate = document.getElementById('countDate'), countTime = document.getElementById('countTime'), startCount = document.getElementById('startCount'), countRes = document.getElementById('countRes');
+  const prayLat = document.getElementById('prayLat'), prayLng = document.getElementById('prayLng'), calcPray = document.getElementById('calcPray'), prayRes = document.getElementById('prayRes'), prayMethod = document.getElementById('prayMethod');
+
+  // init
+  function loadCities(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return COMMON.slice(); // default
+  }
+  function saveCities(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); }
+
+  // utility: guess tz from input
+  function findTzForQuery(q){
+    if(!q) return null;
+    q = q.trim();
+    // direct IANA
+    if(IANAZone.isValidZone(q)) return q;
+    // common matches
+    const lower = q.toLowerCase();
+    for(const c of COMMON) if(c.label.toLowerCase().includes(lower) || c.tz.toLowerCase().includes(lower)) return c.tz;
+    const map = {'nyc':'America/New_York','new york':'America/New_York','london':'Europe/London','mumbai':'Asia/Kolkata','kolkata':'Asia/Kolkata','delhi':'Asia/Kolkata','tokyo':'Asia/Tokyo','sydney':'Australia/Sydney','beijing':'Asia/Shanghai','china':'Asia/Shanghai','dubai':'Asia/Dubai'};
+    for(const k in map) if(lower.includes(k)) return map[k];
+    return null;
+  }
+
+  function flagFromTZ(tz){
+    const hints = {'Asia/Kolkata':'IN','America/New_York':'US','Europe/London':'GB','Europe/Paris':'FR','Asia/Tokyo':'JP','Asia/Shanghai':'CN','Australia/Sydney':'AU','Asia/Dubai':'AE','Asia/Singapore':'SG','America/Los_Angeles':'US'};
+    const c = hints[tz];
+    if(!c) return '';
+    return c.toUpperCase().replace(/./g,ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
+  }
+
+  // Render functions
+  function renderCards(){
+    cardsEl.innerHTML = '';
+    cities.forEach((c, idx) => {
+      const el = document.createElement('article'); el.className='card';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="flag">${c.flag||flagFromTZ(c.tz)||''}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div><div class="meta">${c.label}</div></div>
+              <div style="display:flex;gap:6px">
+                <button title="Remove" data-idx="${idx}" class="rm">✖</button>
+              </div>
+            </div>
+            <div class="timebig" id="time-${idx}">--:--:--</div>
+            <div class="meta" id="date-${idx}">--</div>
+          </div>
+        </div>
+        <div class="tooltip" id="tip-${idx}"></div>
+      `;
+      cardsEl.appendChild(el);
+
+      // events
+      el.addEventListener('mouseenter', ()=> showTip(idx));
+      el.addEventListener('mouseleave', ()=> hideTip(idx));
+      el.querySelector('.rm').addEventListener('click', (e)=>{
+        const i = +e.currentTarget.dataset.idx;
+        cities.splice(i,1); saveCities(); renderAll();
+      });
+    });
+    // update converter selects
+    populateConverterSelects();
+  }
+
+  function showTip(idx){
+    const tip = document.getElementById(`tip-${idx}`);
+    if(!tip) return;
+    tip.classList.add('show');
+    const c = cities[idx];
+    const dt = DateTime.now().setZone(c.tz);
+    tip.innerHTML = `<div style="font-weight:700">${c.tz}</div>
+      <div style="margin-top:6px;color:var(--muted)">Local: ${dt.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div>
+      <div style="color:var(--muted);margin-top:6px">UTC offset: UTC${formatOffset(dt.offset)}</div>
+      <div style="color:var(--muted);margin-top:6px">DST: ${dt.isInDST ? 'Yes' : 'No'}</div>
+      <div style="margin-top:6px;font-size:12px;color:var(--muted)">Ctrl+Click a card to remove (desktop). Tap to toggle (mobile).</div>`;
+  }
+  function hideTip(idx){
+    const tip = document.getElementById(`tip-${idx}`);
+    if(tip) tip.classList.remove('show');
+  }
+
+  function formatOffset(minutes){
+    const sign = minutes >= 0 ? '+' : '-';
+    const m = Math.abs(minutes); const h = Math.floor(m/60).toString().padStart(2,'0'); const mm = (m%60).toString().padStart(2,'0');
+    return `${sign}${h}:${mm}`;
+  }
+
+  // timeline: shows 24 hours with mark for each city
+  function renderTimeline(){
+    // 24 hour columns relative to UTC 0..23
+    const hours = Array.from({length:24}, (_,i)=>i);
+    timelineEl.innerHTML = '';
+    const header = document.createElement('div'); header.className='hourbar';
+    header.innerHTML = `<div style="width:160px"></div>` + hours.map(h => `<div class="hour">${h.toString().padStart(2,'0')}:00</div>`).join('');
+    timelineEl.appendChild(header);
+
+    cities.forEach((c, idx) => {
+      const row = document.createElement('div'); row.className='cityrow';
+      const label = document.createElement('div'); label.className='citylabel'; label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="meta">${c.tz}</div>`;
+      row.appendChild(label);
+      const now = DateTime.now().setZone(c.tz);
+      const offset = now.offset; // minutes
+      const container = document.createElement('div'); container.style.display='flex'; container.style.gap='6px';
+      hours.forEach(h => {
+        // compute local hour representation for this UTC hour
+        // we take UTC hour h, set zone to tz
+        const dt = DateTime.utc().set({hour:h, minute:0, second:0}).setZone(c.tz);
+        const el = document.createElement('div'); el.className='hour';
+        el.textContent = dt.toFormat('HH');
+        if(dt.hasSame(now, 'hour')) el.classList.add('now');
+        container.appendChild(el);
+      });
+      row.appendChild(container);
+      timelineEl.appendChild(row);
+    });
+  }
+
+  // meeting planner
+  function applyMeetingPlan(){
+    plannerResult.innerHTML = '';
+    if(!meetingDate.value || !meetingTime.value){ plannerResult.innerHTML = '<div class="meta">Pick a date and time.</div>'; return; }
+    const dur = Number(meetingDuration.value);
+    const [hh,mm] = meetingTime.value.split(':').map(Number);
+    const baseLocal = DateTime.fromISO(meetingDate.value).set({hour:hh, minute:mm, second:0,millisecond:0});
+    // interpret baseLocal as local system zone then convert to each city zone
+    const baseUtc = baseLocal.toUTC();
+    const endUtc = baseUtc.plus({minutes:dur});
+    const list = cities.map(c => {
+      const start = baseUtc.setZone(c.tz);
+      const end = endUtc.setZone(c.tz);
+      return {label:c.label,tz:c.tz,start,end};
+    });
+    // show table
+    const table = document.createElement('div');
+    table.innerHTML = list.map(l => `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between"><div><strong>${l.label}</strong><div class="meta">${l.tz}</div></div><div style="text-align:right"><div class="timebig">${l.start.toFormat('HH:mm')} — ${l.end.toFormat('HH:mm')}</div><div class="meta">${l.start.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`).join('');
+    plannerResult.appendChild(table);
+
+    // also show overlap indicator: working hours (09:00-18:00) count
+    const overlap = computeOverlap(baseUtc, endUtc);
+    const ovEl = document.createElement('div'); ovEl.style.marginTop='8px'; ovEl.innerHTML = `<div class="meta">Cities with meeting inside 09:00–18:00 local: <strong>${overlap.count}/${cities.length}</strong></div>`;
+    plannerResult.appendChild(ovEl);
+  }
+
+  function computeOverlap(startUtc, endUtc){
+    let count=0;
+    cities.forEach(c=>{
+      const s = startUtc.setZone(c.tz);
+      const e = endUtc.setZone(c.tz);
+      const startOK = s.hour >= 9 && s.hour < 18;
+      const endOK = e.hour >= 9 && e.hour <= 18;
+      if(startOK && endOK) count++;
+    });
+    return {count};
+  }
+
+  // Converter
+  function populateConverterSelects(){
+    convFrom.innerHTML = ''; convTo.innerHTML = '';
+    cities.forEach((c, idx) => {
+      const opt1 = document.createElement('option'); opt1.value=c.tz; opt1.textContent=c.label + ' — ' + c.tz;
+      const opt2 = opt1.cloneNode(true);
+      convFrom.appendChild(opt1); convTo.appendChild(opt2);
+    });
+    // fill with some common tz if empty
+    if(convFrom.options.length===0){
+      COMMON.forEach(c=>{
+        const o = document.createElement('option'); o.value=c.tz; o.textContent=c.label + ' — ' + c.tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
+      });
+    }
+  }
+  function runConvert(){
+    if(!convFrom.value || !convTo.value || !convTime.value){ convOut.textContent='Pick From, To and time'; return; }
+    const [hh,mm] = convTime.value.split(':').map(Number);
+    // interpret time in From timezone today
+    const today = DateTime.now().setZone(convFrom.value).toISODate();
+    const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
+    const out = dt.setZone(convTo.value);
+    convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
+  }
+
+  // embed code generation
+  function updateEmbedCode(){
+    const payload = encodeURIComponent(JSON.stringify(cities));
+    const url = `${location.origin}${location.pathname}?view=${payload}`;
+    embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`;
+    shareLink.value = url;
+  }
+
+  // share link handler
+  function buildShareFromUrl(){
+    const params = new URLSearchParams(location.search);
+    const view = params.get('view');
+    if(view){
+      try{ const decoded = JSON.parse(decodeURIComponent(view)); if(Array.isArray(decoded)) { cities = decoded; saveCities(); } } catch(e){}
+    }
+  }
+
+  // Tick update
+  function tick(){
+    cities.forEach((c, idx) => {
+      const el = document.getElementById(`time-${idx}`);
+      const dateEl = document.getElementById(`date-${idx}`);
+      if(!el) return;
+      const dt = DateTime.now().setZone(c.tz);
+      el.textContent = dt.toFormat('HH:mm:ss');
+      dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
+      // update tooltip if open
+      const tip = document.getElementById(`tip-${idx}`);
+      if(tip && tip.classList.contains('show')){
+        tip.innerHTML = `<div style="font-weight:700">${c.tz}</div>
+          <div style="margin-top:6px;color:var(--muted)">Local: ${dt.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div>
+          <div style="color:var(--muted);margin-top:6px">UTC offset: UTC${formatOffset(dt.offset)}</div>
+          <div style="color:var(--muted);margin-top:6px">DST: ${dt.isInDST ? 'Yes' : 'No'}</div>`;
+      }
+    });
+    renderTimeline();
+    updateEmbedCode();
+  }
+
+  // add city
+  addCityBtn.addEventListener('click', ()=>{
+    const q = citySearch.value.trim();
+    if(!q) return;
+    const tz = findTzForQuery(q);
+    if(!tz){ alert('Could not identify timezone. Use a city name (ex: Tokyo) or IANA tz (Europe/London).'); return; }
+    cities.push({label:q, tz, flag:flagFromTZ(tz)});
+    saveCities(); citySearch.value=''; renderAll();
+  });
+
+  preset.addEventListener('change', ()=>{
+    const v = preset.value;
+    if(!v) return;
+    const [label,tz] = v.split('|');
+    cities.push({label:label.trim(), tz:tz.trim(), flag:flagFromTZ(tz.trim())});
+    preset.selectedIndex=0; saveCities(); renderAll();
+  });
+
+  // share / reset
+  shareBtn.addEventListener('click', ()=> {
+    const payload = encodeURIComponent(JSON.stringify(cities));
+    const url = `${location.origin}${location.pathname}?view=${payload}`;
+    navigator.clipboard?.writeText(url).then(()=> alert('Share link copied to clipboard!')).catch(()=> prompt('Copy link:', url));
+    shareLink.value = url;
+  });
+  resetBtn.addEventListener('click', ()=>{
+    if(confirm('Reset cities to defaults?')){
+      cities = COMMON.slice(); saveCities(); renderAll();
+    }
+  });
+
+  // converter
+  convBtn.addEventListener('click', runConvert);
+
+  // embed copy
+  copyEmbed.addEventListener('click', ()=>{
+    navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed code copied'));
+  });
+
+  // meeting planner
+  applyPlan.addEventListener('click', applyMeetingPlan);
+
+  // utilities event handlers
+  calcAge.addEventListener('click', ()=>{
+    if(!dob.value) { ageRes.textContent='Pick a date of birth'; return; }
+    const b = DateTime.fromISO(dob.value);
+    const now = DateTime.now();
+    const diff = now.diff(b, ['years','months','days']).toObject();
+    ageRes.textContent = `${Math.floor(diff.years)} years, ${Math.floor(diff.months)} months, ${Math.floor(diff.days)} days`;
+  });
+
+  calcGst.addEventListener('click', ()=>{
+    const p = Number(gstPrice.value||0), r = Number(gstRate.value||0);
+    const tax = p * r / 100; const total = p + tax;
+    gstRes.innerHTML = `Tax: ${tax.toFixed(2)} — Total: ${total.toFixed(2)} (GST ${r}%)`;
+  });
+
+  calcEmi.addEventListener('click', ()=>{
+    const P = Number(emiAmount.value||0), annual = Number(emiRate.value||0), n = Number(emiTenure.value||0);
+    if(!P||!annual||!n){ emiRes.textContent='Enter principal, rate and tenure'; return; }
+    const r = annual/1200; // monthly rate
+    const emi = (P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+    const total = emi*n;
+    emiRes.innerHTML = `EMI: ${emi.toFixed(2)} — Total payment: ${total.toFixed(2)}`;
+  });
+
+  calcSun.addEventListener('click', ()=>{
+    const lat = Number(sunLat.value), lng = Number(sunLng.value);
+    if(isNaN(lat)||isNaN(lng)){ sunRes.textContent='Enter lat & lng'; return; }
+    const now = new Date();
+    const times = SunCalc.getTimes(now, lat, lng);
+    function fmt(d){ return DateTime.fromJSDate(d).toFormat('HH:mm'); }
+    sunRes.innerHTML = `Sunrise: ${fmt(times.sunrise)} — Sunset: ${fmt(times.sunset)} — Solar Noon: ${fmt(times.solarNoon)}`;
+  });
+
+  // countdown
+  let countInterval = null;
+  startCount.addEventListener('click', ()=>{
+    const d = countDate.value, t = countTime.value;
+    if(!d || !t) { countRes.textContent='Pick date & time'; return; }
+    const target = DateTime.fromISO(`${d}T${t}`);
+    if(!target.isValid) { countRes.textContent='Invalid target'; return; }
+    if(countInterval) clearInterval(countInterval);
+    function update(){
+      const now = DateTime.now();
+      const diff = target.diff(now, ['days','hours','minutes','seconds']).toObject();
+      if(diff.seconds<=0){ countRes.textContent='Event reached!'; clearInterval(countInterval); return;}
+      countRes.textContent = `${Math.floor(diff.days)}d ${Math.floor(diff.hours)}h ${Math.floor(diff.minutes)}m ${Math.floor(diff.seconds)}s`;
+    }
+    update(); countInterval = setInterval(update, 1000);
+  });
+
+  // prayer times using Adhan
+  calcPray.addEventListener('click', ()=>{
+    const lat = Number(prayLat.value), lng = Number(prayLng.value);
+    if(isNaN(lat)||isNaN(lng)){ prayRes.textContent='Enter lat & lng'; return; }
+    const date = new Date();
+    const coordinates = new adhan.Coordinates(lat, lng);
+    // choose method by selection
+    let params = adhan.CalculationMethod.MuslimWorldLeague();
+    try{
+      const m = prayMethod.value;
+      if(m === 'Egyptian') params = adhan.CalculationMethod.Egyptian();
+      else if(m === 'Karachi') params = adhan.CalculationMethod.Karachi();
+      else if(m === 'ISNA') params = adhan.CalculationMethod.ISNA();
+      else if(m === 'MWL') params = adhan.CalculationMethod.MuslimWorldLeague();
+    }catch(e){}
+    const prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+    const fmt = d => DateTime.fromJSDate(d).toFormat('HH:mm');
+    prayRes.innerHTML = `Fajr: ${fmt(prayerTimes.fajr)} — Dhuhr: ${fmt(prayerTimes.dhuhr)} — Asr: ${fmt(prayerTimes.asr)} — Maghrib: ${fmt(prayerTimes.maghrib)} — Isha: ${fmt(prayerTimes.isha)}`;
+  });
+
+  // initial render + tick
+  function renderAll(){
+    renderCards();
+    renderTimeline();
+    populateConverterSelects();
+    updateEmbedCode();
+  }
+
+  // URL load
+  buildShareFromUrl();
+
+  renderAll();
+  tick();
+  setInterval(tick, 1000);
+
+  // expose some global methods (for embed)
+  window.WorldTimePro = {
+    getCities: ()=>cities,
+    setCities: (arr)=>{ if(Array.isArray(arr)){ cities=arr; saveCities(); renderAll(); } }
+  };
+
+})();
+</script>
+
+</body>
+</html>
