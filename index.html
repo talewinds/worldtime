@@ -6,19 +6,6 @@
 <title>WorldTime Pro — Final Edition (Stable)</title>
 <meta name="description" content="WorldTime Pro — Global time zone comparator, meeting planner, DST ticker, sunrise/sunset, share/embed, and responsive design.">
 <link rel="icon" href="data:,">
-<!--
-  Full single-file app:
-  - Lazy-loads full IANA DB (public raw GitHub). Falls back to compact DB immediately.
-  - Hash-based deep linking (base64url).
-  - DST ticker implemented.
-  - Vertical slider highlights an hour across rows; present time highlighted differently.
-  - Map with markers for entries that include coords; map tiles always initialize.
-  - Search (Fuse) initialized immediately with compact DB; replaced when big DB loads.
-  - Prayer times removed.
-  - AdSense placeholder included (instructions below).
--->
-
-<!-- Styles: namespaced with .wtp- to reduce collisions -->
 <style>
 :root{
   --wtp-bg:#071323; --wtp-card:#0d1b2a; --wtp-muted:#9fb0c8; --wtp-accent:#a23a3a; --wtp-accent2:#3b82f6;
@@ -98,6 +85,9 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Optionally include Leaflet.markercluster in your repo if you want clustering -->
+<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script> -->
 
 </head>
 <body>
@@ -214,7 +204,6 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
         <div style="margin-top:12px;text-align:center;">
           <div id="wtp-adContainer" style="display:flex;justify-content:center;margin-top:8px">
-            <!-- Replace this placeholder with AdSense code (responsive unit). See instructions below. -->
             <div style="width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--wtp-muted)">Ad placeholder — paste AdSense unit here</div>
           </div>
         </div>
@@ -262,20 +251,13 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
     </footer>
   </div>
 
-<!-- App Script (complete) -->
 <script>
-/* WorldTime Pro — Final stable single-file build
-   Key robustness features:
-   - Immediate compact Fuse so search works instantly
-   - Lazy-load full IANA DB (replace fuse after load)
-   - Guard against empty localStorage/hash payloads
-   - Always init map tiles; add markers when coordinates available
-   - Removed prayer times (per user request)
+/* WorldTime Pro — patched single-file build
+   - fixes: addCityFromInput, initMap improvements, robust boot order, single tick loop
 */
 
 /* --- Short aliases & libs --- */
 const { DateTime } = luxon;
-// safe base64url (unicode-aware)
 const base64url = {
   encode: (str) => {
     const utf8 = new TextEncoder().encode(String(str));
@@ -286,10 +268,8 @@ const base64url = {
   decode: (s) => {
     if (!s) return '';
     s = s.replace(/-/g, '+').replace(/_/g, '/');
-    // padding
     while (s.length % 4) s += '=';
     const binary = atob(s);
-    // convert binary string to Uint8Array
     const bytes = new Uint8Array(binary.length);
     for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
     return new TextDecoder().decode(bytes);
@@ -327,13 +307,13 @@ const swapConvBtn = $('wtp-swapConv');
 const resetBtn = $('wtp-resetBtn');
 const adContainer = $('wtp-adContainer');
 
-/* --- Storage keys & state --- */
+/* --- State & small helpers --- */
 const STORAGE_KEY = 'wtpro_final_stable_v1';
-let tzCities = [];   // full DB (lazy) or fallback
+let tzCities = []; // big DB (lazy)
 let fuse = null;
 let cities = [];
 let countryIndex = {};
-/* --- Compact fallback (immediate) --- */
+
 const COMPACT = [
   {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
   {label:'Los Angeles, USA', tz:'America/Los_Angeles', lat:34.0522, lon:-118.2437, cc:'US'},
@@ -347,42 +327,33 @@ const COMPACT = [
   {label:'Beijing, China', tz:'Asia/Shanghai', lat:39.9042, lon:116.4074, cc:'CN'}
 ];
 
-/* initialize fuse with compact immediately (search works without waiting) */
 fuse = new Fuse(COMPACT, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
 
-/* --- Utilities --- */
 function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
 function fmtOffset(m){ const sign = m>=0 ? '+' : '-'; const mm = Math.abs(m); const h = String(Math.floor(mm/60)).padStart(2,'0'); const mm2 = String(mm%60).padStart(2,'0'); return `${sign}${h}:${mm2}`; }
 function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
 
-/* --- Storage & hash (deep link) --- */
+/* --- persistence --- */
 function loadState(){
-  // 1) try URL hash
-  const hash = location.hash.replace(/^#/,'');
-  if(hash){
-    try {
+  // 1) hash payload
+  try {
+    const hash = location.hash.replace(/^#/,'');
+    if(hash){
       const decoded = base64url.decode(hash);
       const parsed = JSON.parse(decoded);
-      if(Array.isArray(parsed) && parsed.length > 0){
-        cities = parsed;
-        saveState();
-        return;
-      }
-    } catch(e){ console.warn('invalid hash payload', e); }
-  }
-  // 2) try localStorage
+      if(Array.isArray(parsed) && parsed.length > 0){ cities = parsed; saveState(); return; }
+    }
+  } catch(e){ console.warn('invalid hash payload', e); }
+  // 2) localStorage
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length > 0){
-        cities = parsed;
-        return;
-      }
+      if(Array.isArray(parsed) && parsed.length > 0){ cities = parsed; return; }
     }
   } catch(e){ console.warn('storage read failed', e); }
 
-  // 3) fallback seed (ensures non-empty)
+  // 3) seed defaults
   cities = [
     {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
     {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
@@ -398,7 +369,6 @@ function saveState(){
 function renderCards(){
   cardsEl.innerHTML = '';
   if(!Array.isArray(cities) || cities.length === 0){
-    // guard: reseed
     cities = [
       {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
       {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
@@ -442,7 +412,7 @@ function renderCards(){
     card.addEventListener('mouseleave', ()=> hideTip(idx));
     card.addEventListener('click', () => { const tip = $(`wtp-tip-${idx}`); if(tip) tip.classList.toggle('show'); });
     const rmBtn = card.querySelector('.wtp-remove');
-    rmBtn.addEventListener('click', (ev) => { ev.stopPropagation(); const i = +ev.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); });
+    rmBtn.addEventListener('click', (ev) => { ev.stopPropagation(); const i = +ev.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); initMap(); });
   });
 }
 
@@ -472,7 +442,7 @@ function showTip(idx){
 }
 function hideTip(idx){ const tip = $(`wtp-tip-${idx}`); if(tip) tip.classList.remove('show'); }
 
-/* --- Timeline (24-hour) & vertical slider highlight --- */
+/* --- Timeline (24-hour) --- */
 function renderTimeline(selectedHour = null){
   const hours = Array.from({length:24}, (_,i)=>i);
   timelineEl.innerHTML = '';
@@ -551,7 +521,6 @@ function applyMeetingPlan(){
     list.appendChild(el);
   });
   suggestWrap.appendChild(list); plannerResult.appendChild(suggestWrap);
-  // attach apply handlers
   plannerResult.querySelectorAll('.wtp-applySuggest').forEach(btn => btn.addEventListener('click', (ev) => {
     const utcIso = ev.currentTarget.dataset.utc; const utc = DateTime.fromISO(utcIso);
     const local = utc.setZone(DateTime.now().zoneName);
@@ -599,9 +568,7 @@ function updateEmbedShare(){
 copyEmbed.addEventListener('click', () => navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed code copied')).catch(()=> alert('Copy failed')));
 shareBtn.addEventListener('click', ()=> { navigator.clipboard?.writeText(shareLink.value || window.location.href).then(()=> alert('Share link copied!')).catch(()=> alert('Copy failed')); });
 
-/* --- Add city / Autocomplete --- */
-addBtn.addEventListener('click', addCityFromInput);
-  // --- Add this once under Utilities ---
+/* --- Debounce utility --- */
 function debounce(fn, wait = 200) {
   let t;
   return function(...args) {
@@ -610,6 +577,8 @@ function debounce(fn, wait = 200) {
   };
 }
 
+/* --- Suggest UI & search --- */
+addBtn.addEventListener('click', addCityFromInput);
 searchInput.addEventListener('input', debounce((e)=> showSuggestions(e.target.value.trim()), 220));
 searchInput.addEventListener('keydown', (e)=> {
   const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
@@ -622,7 +591,7 @@ function setActiveSuggestion(el){
   suggestionsWrap.querySelectorAll('.wtp-suggest-item').forEach(i => i.classList.remove('active'));
   if(el) el.classList.add('active'); el?.scrollIntoView({block:'nearest'});
 }
-// Robust suggestion UI: Fuse preferred, then substring fallback, then COMPACT fallback
+
 function showSuggestions(q){
   suggestionsWrap.innerHTML = ''; suggestionsWrap.setAttribute('aria-hidden','true');
   if(!q) return;
@@ -631,41 +600,34 @@ function showSuggestions(q){
   let results = [];
   let fuseResults = [];
 
-  // 1) Fuse search (if available)
   try {
     if(fuse){
-      const res = fuse.search(q, {limit: 20}); // include scores
+      const res = fuse.search(q, {limit: 20});
       fuseResults = res.map(r => ({ item: r.item, score: (r.score != null ? r.score : 1) }));
     }
   } catch(e){ console.warn('Fuse search error', e); }
 
-  // convert fuseResults to base results
   results = fuseResults.map(r => Object.assign({}, r.item, { _score: r.score }));
 
-  // 2) Country name match using countryIndex (case-insensitive)
   try {
     if(countryIndex && typeof countryIndex === 'object'){
       const qLower = q.toLowerCase();
-      // exact or contains match for country name keys
       Object.keys(countryIndex).forEach(countryName => {
         if(countryName.toLowerCase().includes(qLower) || qLower.includes(countryName.toLowerCase())){
           const tzs = countryIndex[countryName] || [];
           tzs.forEach(tz => {
-            const entry = tzCities.find(x => x.tz === tz || x.label.toLowerCase().includes(tz.toLowerCase()));
-            if(entry) results.push(Object.assign({}, entry, { _score: 0.05 })); // high priority (low score)
+            const entry = tzCities.find(x => x.tz === tz || (x.label && x.label.toLowerCase().includes(tz.toLowerCase())));
+            if(entry) results.push(Object.assign({}, entry, { _score: 0.05 }));
           });
         }
       });
-      // also allow users to type ISO code (e.g., "DE" or "de")
-      if(q.length <= 3){ // likely a country code
+      if(q.length <= 3){
         const code = q.toUpperCase();
-        // try to match keys of index by cc inside tzCities
         tzCities.forEach(entry => { if(entry.cc && entry.cc.toUpperCase() === code) results.push(Object.assign({}, entry, { _score: 0.05 })); });
       }
     }
   } catch(e){ console.warn('countryIndex lookup error', e); }
 
-  // 3) substring fallback on tzCities
   if(results.length === 0 && Array.isArray(tzCities) && tzCities.length){
     const qq = q.toLowerCase();
     results = tzCities.filter(it => {
@@ -675,7 +637,6 @@ function showSuggestions(q){
     }).slice(0, 30).map(r => Object.assign({}, r, { _score: 0.5 }));
   }
 
-  // 4) final fallback to COMPACT
   if(results.length === 0 && Array.isArray(COMPACT)){
     const qq = q.toLowerCase();
     results = COMPACT.filter(it => ((it.label || '').toLowerCase().includes(qq) || (it.tz || '').toLowerCase().includes(qq))).slice(0,12).map(r => Object.assign({}, r, {_score:0.6}));
@@ -683,13 +644,11 @@ function showSuggestions(q){
 
   if(!results || results.length === 0) return;
 
-  // dedupe by tz
   const byTz = new Map();
   results.forEach(r => { if(r && r.tz) byTz.set(r.tz, r); });
 
   let final = Array.from(byTz.values());
 
-  // sort: first by _score (lower is better from Fuse), then by weight desc
   final.sort((a,b) => {
     const sa = (a._score != null ? a._score : 1);
     const sb = (b._score != null ? b._score : 1);
@@ -700,7 +659,6 @@ function showSuggestions(q){
 
   final = final.slice(0, 12);
 
-  // render suggestions
   const wrap = document.createElement('div'); wrap.className = 'wtp-suggest-list';
   final.forEach(r => {
     const it = document.createElement('div'); it.className = 'wtp-suggest-item'; it.tabIndex = 0;
@@ -708,13 +666,13 @@ function showSuggestions(q){
     const tz = r.tz || '';
     const meta = (r.cc ? `${r.cc} • ` : '') + tz;
     const strong = document.createElement('strong'); strong.textContent = label;
-const metaEl = document.createElement('div'); metaEl.className = 'wtp-meta'; metaEl.style.fontSize = '12px'; metaEl.textContent = meta;
-it.appendChild(strong);
-it.appendChild(metaEl);
+    const metaEl = document.createElement('div'); metaEl.className = 'wtp-meta'; metaEl.style.fontSize = '12px'; metaEl.textContent = meta;
+    it.appendChild(strong);
+    it.appendChild(metaEl);
 
     it.addEventListener('click', ()=> {
       cities.push({ label: r.label || label, tz: r.tz || tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : '' });
-      saveState(); renderAll(); suggestionsWrap.innerHTML = ''; searchInput.value = '';
+      saveState(); renderAll(); suggestionsWrap.innerHTML = ''; searchInput.value = ''; initMap();
     });
     it.addEventListener('keydown', ev => { if(ev.key === 'Enter') it.click(); });
     wrap.appendChild(it);
@@ -724,32 +682,48 @@ it.appendChild(metaEl);
   suggestionsWrap.setAttribute('aria-hidden','false');
 }
 
-
-function pickSuggestion(r){
-  cities.push({label: r.label, tz: r.tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : ''});
-  saveState(); renderAll(); suggestionsWrap.innerHTML=''; searchInput.value='';
-}
+/* --- addCityFromInput (fixed) --- */
 function addCityFromInput(){
-  const q = searchInput.value.trim(); if(!q) return;
-  // exact match
-  let found = tzCities.find(t => t.label.toLowerCase() === q.toLowerCase() || t.tz.toLowerCase() === q.toLowerCase());
-  if(!found){
-    const res = fuse.search(q); if(res && res.length){
-  const first = res[0];
-  // if fuse returned wrapped results: {item}
-  found = first.item || first;
+  const q = (searchInput.value || '').trim();
+  if(!q) return;
+
+  let found = null;
+  if (Array.isArray(tzCities) && tzCities.length) {
+    found = tzCities.find(t => (t.label || '').toLowerCase() === q.toLowerCase() || (t.tz || '').toLowerCase() === q.toLowerCase());
   }
-  if(!found){ alert('City not found in list. Try a different name or IANA zone.'); return; }
-  cities.push({label: found.label, tz: found.tz, lat: found.lat || null, lon: found.lon || null, cc: found.cc || null, flag: found.cc ? ccToEmoji(found.cc) : ''});
-  saveState(); searchInput.value=''; renderAll();
+
+  if (!found && fuse) {
+    try {
+      const res = fuse.search(q, { limit: 10 });
+      if (Array.isArray(res) && res.length > 0) {
+        const top = res[0];
+        found = (top && top.item) ? top.item : top;
+      }
+    } catch (err) {
+      console.warn('Fuse search error in addCityFromInput:', err);
+    }
+  }
+
+  if (!found) {
+    alert('City not found in list. Try a different name or IANA zone.');
+    return;
+  }
+
+  cities.push({
+    label: found.label || found.tz || q,
+    tz: found.tz || found.value || q,
+    lat: safeNum(found.lat),
+    lon: safeNum(found.lon),
+    cc: found.cc || null,
+    flag: found.cc ? ccToEmoji(found.cc) : (found.flag || '')
+  });
+
+  saveState();
+  searchInput.value = '';
+  suggestionsWrap.innerHTML = '';
+  renderAll();
+  try { initMap(); } catch(e){ /* ignore */ }
 }
-presetEl.addEventListener('change', ()=> {
-  const v = presetEl.value; if(!v) return;
-  const [label,tz] = v.split('|'); const found = tzCities.find(t => t.tz === tz);
-  const lat = found ? found.lat : null, lon = found ? found.lon : null, cc = found ? found.cc : '';
-  cities.push({label:label.trim(), tz:tz.trim(), lat, lon, cc, flag: cc ? ccToEmoji(cc) : ''});
-  presetEl.selectedIndex = 0; saveState(); renderAll();
-});
 
 /* --- DST ticker --- */
 function scanDst(){
@@ -774,90 +748,99 @@ function scanDst(){
   } catch(e){ console.warn('DST scan failed', e); dstText.textContent = 'DST ticker unavailable'; }
 }
 
-/* --- Map init and markers --- */
+/* --- Map init & markers (improved) --- */
 let map = null, markers = [];
 function clearMarkers(){
   if(!map) return;
-  markers.forEach(m => {
-    try { map.removeLayer(m); } catch(e){}
-  });
+  try {
+    markers.forEach(m => {
+      try { map.removeLayer(m); } catch(e){}
+    });
+  } catch(e){}
   markers = [];
 }
 
 function initMap(){
   try {
-    // create map if missing
+    const mpEl = document.getElementById('wtp-map');
+    if(!mpEl) return;
+
     if(!map){
       map = L.map('wtp-map', { dragging: true, attributionControl: false }).setView([20,0], 2);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+      setTimeout(()=> { try { map.invalidateSize(); } catch(e){} }, 150);
     } else {
-      // remove existing markers (keeps map instance)
       clearMarkers();
     }
 
-    // Performance: limit number of markers added from large tzCities
-    const MAX_MARKERS = 800; // tune this: 200-2000 depending on device expectations
+    const useClustering = !!(L && typeof L.markerClusterGroup === 'function');
+    let clusterGroup = null;
+    if (useClustering) clusterGroup = L.markerClusterGroup();
+
+    const MAX_MARKERS = 800; 
     let count = 0;
 
-    // Use marker clustering if plugin is present for much better performance/UX
-    // (Leaflet.markercluster exposes L.markerClusterGroup)
-    const useClustering = typeof L.markerClusterGroup === 'function';
-    let clusterGroup = null;
-    if (useClustering) {
-      clusterGroup = L.markerClusterGroup();
-    }
+    if (Array.isArray(tzCities) && tzCities.length) {
+      for (const tc of tzCities) {
+        if (tc == null) continue;
+        if (tc.lat == null || tc.lon == null) continue;
+        if (count >= MAX_MARKERS) break;
+        count++;
 
-    for (const tc of tzCities) {
-      if (tc.lat == null || tc.lon == null) continue;
-      if (count >= MAX_MARKERS) break;
-      count++;
-
-      // If clustering is available, use simple markers (clustering handles rendering)
-      if (useClustering) {
-        const mk = L.marker([tc.lat, tc.lon]);
-        mk.bindTooltip(`${tc.label} — ${tc.tz}`);
-        mk.on('mouseover', ()=> {
-          const dt = DateTime.now().setZone(tc.tz);
-          mk.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
-          mk.openTooltip();
-        });
-        mk.on('click', ()=> {
-          cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
-          saveState(); renderAll();
-        });
-        clusterGroup.addLayer(mk);
-        markers.push(mk); // for clearMarkers to remove later
-      } else {
-        // simple circle marker fallback (lighter weight than full markers)
-        const mark = L.circleMarker([tc.lat, tc.lon], { radius:6, fillOpacity:0.9 }).addTo(map);
-        mark.bindTooltip(`${tc.label} — ${tc.tz}`);
-        mark.on('mouseover', ()=> {
-          const dt = DateTime.now().setZone(tc.tz);
-          mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
-          mark.openTooltip();
-        });
-        mark.on('click', ()=> {
-          cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
-          saveState(); renderAll();
-        });
-        markers.push(mark);
+        if (useClustering) {
+          const mk = L.marker([tc.lat, tc.lon]);
+          mk.bindTooltip(`${tc.label} — ${tc.tz}`);
+          mk.on('mouseover', ()=> {
+            const dt = DateTime.now().setZone(tc.tz);
+            mk.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+            mk.openTooltip();
+          });
+          mk.on('click', ()=> {
+            cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
+            saveState(); renderAll(); initMap();
+          });
+          clusterGroup.addLayer(mk);
+          markers.push(mk);
+        } else {
+          const mark = L.circleMarker([tc.lat, tc.lon], { radius:5, fillOpacity:0.9 });
+          mark.bindTooltip(`${tc.label} — ${tc.tz}`);
+          mark.on('mouseover', ()=> {
+            const dt = DateTime.now().setZone(tc.tz);
+            mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+            mark.openTooltip();
+          });
+          mark.on('click', ()=> {
+            cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
+            saveState(); renderAll(); initMap();
+          });
+          mark.addTo(map);
+          markers.push(mark);
+        }
       }
     }
 
-    // add clusterGroup to map if used
     if (useClustering && clusterGroup) {
       map.addLayer(clusterGroup);
-      // keep clusterGroup in markers array so clearMarkers will remove it nicely:
       markers.push(clusterGroup);
     }
 
-    // if we hit the MAX_MARKERS cap, show a small map hint (non-blocking)
-    if (count >= MAX_MARKERS) {
-      const hint = L.popup({ closeButton: false, autoClose: true, closeOnEscapeKey: true })
-        .setLatLng([20,0])
-        .setContent(`<div class="wtp-meta" style="font-size:12px;padding:6px">Marker limit reached (${MAX_MARKERS}). Zoom or refine search to add more.</div>`);
-      hint.openOn(map);
-      setTimeout(()=> map.closePopup(hint), 3500);
+    // Add selected cities markers (highlight)
+    if (Array.isArray(cities) && cities.length) {
+      for (const c of cities) {
+        if (!c || c.lat == null || c.lon == null) continue;
+        const msel = L.circleMarker([c.lat, c.lon], { radius:6, color:'#a23a3a', weight:1, fillOpacity:0.95 }).addTo(map);
+        msel.bindTooltip(`${c.label} — ${c.tz}`);
+        msel.on('mouseover', ()=> {
+          const dt = DateTime.now().setZone(c.tz);
+          msel.setTooltipContent(`${c.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+          msel.openTooltip();
+        });
+        markers.push(msel);
+      }
+    }
+
+    if (!markers.length) {
+      mpEl.innerHTML = '<div class="wtp-meta" style="padding:12px">No map markers available — add a city with coordinates or bundle timezones.json with coords.</div>';
     }
 
   } catch(e) {
@@ -865,8 +848,6 @@ function initMap(){
     const mp = document.getElementById('wtp-map'); if(mp) mp.innerHTML = '<div class="wtp-meta">Map could not load</div>';
   }
 }
-
-
 
 /* --- Export Image --- */
 exportImageBtn.addEventListener('click', () => {
@@ -883,10 +864,8 @@ exportImageBtn.addEventListener('click', () => {
   });
 });
 
-/* --- Countdown (fixed) --- */
-// keep one countdown interval in module scope so it can be cleared reliably
+/* --- Countdown (improved) --- */
 let countdownInterval = null;
-
 $('wtp-startCount')?.addEventListener?.('click', ()=> {
   const d = $('wtp-countDate').value;
   const t = $('wtp-countTime').value;
@@ -897,21 +876,15 @@ $('wtp-startCount')?.addEventListener?.('click', ()=> {
   const target = DateTime.fromISO(`${d}T${t}`);
   if(!target.isValid){ out.textContent = 'Invalid date/time'; return; }
 
-  // clear any existing interval
-  if(countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
+  if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
   function tickCount(){
     const now = DateTime.now();
-    // if target reached or earlier -> stop immediately
     if(target <= now) {
       out.textContent = 'Event reached!';
       if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; }
       return;
     }
-    // compute remaining, rounding down each unit
     const diff = target.diff(now, ['days','hours','minutes','seconds']).toObject();
     const days = Math.floor(diff.days || 0);
     const hours = Math.floor(diff.hours || 0);
@@ -920,11 +893,11 @@ $('wtp-startCount')?.addEventListener?.('click', ()=> {
     out.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
 
-  // initial update and start interval
   tickCount();
   countdownInterval = setInterval(tickCount, 1000);
 });
-/* --- Tick / main loop (fixed) --- */
+
+/* --- Tick / main loop (single) --- */
 let lastTimelineUpdate = 0;
 function tick(){
   const nowTs = Date.now();
@@ -939,7 +912,6 @@ function tick(){
       dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
 
       if(c.lat && c.lon){
-        // consider caching SunCalc.getTimes results per-city and updating less frequently if performance becomes a concern
         const times = SunCalc.getTimes(new Date(nowTs), c.lat, c.lon);
         const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
         const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
@@ -955,7 +927,6 @@ function tick(){
     }
   });
 
-  // throttle timeline re-render to once every ~8s
   if (nowTs - lastTimelineUpdate > 8000) {
     renderTimeline(Number(vertSlider.value || 0));
     lastTimelineUpdate = nowTs;
@@ -965,39 +936,30 @@ function tick(){
   updateEmbedShare();
 }
 
-// make sure you start the tick interval once at boot:
+// ensure tick runs once
 if (typeof window !== 'undefined') {
-  // don't double-start if code re-evaluates
   if (!window.__wtp_tick_started__) {
     setInterval(tick, 1000);
     window.__wtp_tick_started__ = true;
   }
 }
 
-
-/* --- State & boot --- */
-function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(vertSlider.value)); updateEmbedShare(); scanDst(); }
-
-/* --- IANA DB lazy load --- */
-// Robust loader for bundled timezones.json (or remote fallback)
+/* --- IANA DB loader --- */
 async function loadIanaDB(){
   const localTz = './timezones.json';
   const localIdx = './country_to_zones_index.json';
   let raw = null, idxRaw = null;
 
-  // try local timezone bundle
   try {
     const r = await fetch(localTz, {cache:'reload'});
     if(r.ok) raw = await r.json();
   } catch(e){ console.warn('local tz fetch failed', e); }
 
-  // try local country->zones index
   try {
     const r2 = await fetch(localIdx, {cache:'reload'});
     if(r2.ok) idxRaw = await r2.json();
   } catch(e){ console.warn('local country index fetch failed', e); }
 
-  // fallback remote tz list if local not present (keeps your previous remote fallback)
   if(!raw){
     try {
       const resp = await fetch('https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json',{cache:'reload'});
@@ -1008,14 +970,12 @@ async function loadIanaDB(){
   if(!raw || !Array.isArray(raw) || raw.length === 0){
     console.warn('No timezone DB loaded, falling back to COMPACT list.');
     tzCities = COMPACT.slice();
-    fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33 });
+    fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
     countryIndex = idxRaw || {};
     return;
   }
 
-  // normalize raw entries into {label,tz,lat,lon,cc,weight}
   tzCities = raw.map(item => {
-    // item may already have label,tz,lat,lon,cc,weight or be another format
     const tz = item.tz || item.value || item.name || String(item);
     const label = item.label || item.name || (typeof item.value === 'string' ? item.value.split('/').pop().replace(/_/g,' ') + ' ('+ tz +')' : tz);
     return {
@@ -1028,43 +988,36 @@ async function loadIanaDB(){
     };
   });
 
-  // Merge coords from COMPACT for known zones (keeps friendly labels/flags)
   for(const c of COMPACT){
     const found = tzCities.find(t => t.tz === c.tz);
     if(found){ found.lat = found.lat || c.lat; found.lon = found.lon || c.lon; found.cc = found.cc || c.cc; found.label = found.label || c.label; found.weight = Math.max(found.weight||0, 500); }
   }
 
-  // dedupe by tz
   const seen = new Set(); tzCities = tzCities.filter(t => { if(seen.has(t.tz)) return false; seen.add(t.tz); return true; });
 
-  // create fuse (includeScore true so we can combine with weight if desired)
   fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
-
-  // assign country index (if loaded)
   countryIndex = idxRaw || {};
 
   console.log('tzCities loaded, count=', tzCities.length, 'countryIndex keys=', Object.keys(countryIndex).length);
 }
 
-
-
-/* --- Populate conv selects --- */
-
-/* --- Event handlers for misc controls --- */
+/* --- Misc handlers --- */
 $('wtp-copyEmbed').addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')).catch(()=> alert('Copy failed')));
-$('wtp-resetBtn').addEventListener('click', ()=> { if(confirm('Reset to default cities?')) { cities = [{label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,flag:'🇺🇸'},{label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,flag:'🇬🇧'},{label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,flag:'🇮🇳'}]; saveState(); renderAll(); } });
+$('wtp-resetBtn').addEventListener('click', ()=> { if(confirm('Reset to default cities?')) { cities = [{label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,flag:'🇺🇸'},{label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,flag:'🇬🇧'},{label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,flag:'🇮🇳'}]; saveState(); renderAll(); initMap(); } });
 
-/* --- Boot sequence --- */
+/* --- Render all --- */
+function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(vertSlider.value)); updateEmbedShare(); scanDst(); }
+
+/* --- Boot (robust order) --- */
 (async function boot(){
-  // immediate fuse is ready (from COMPACT)
-  await loadIanaDB(); // attempts to load full DB and replace fuse
-  loadState(); // guarded
+  try { await loadIanaDB(); } catch(e){ console.warn('loadIanaDB failed in boot', e); }
+  try { loadState(); } catch(e){ console.warn('loadState failed', e); }
   try { initMap(); } catch(e) { console.warn('map init error', e); }
-  renderAll();
-  tick();
+  try { renderAll(); } catch(e){ console.warn('renderAll failed', e); }
+  try { tick(); } catch(e){ console.warn('initial tick failed', e); }
 })();
-
-/* --- Accessibility: keyboard nav for suggestions --- */
+ 
+/* --- Keyboard nav for suggestions --- */
 document.addEventListener('keydown', (e)=>{
   const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
   if(!list.length) return;
@@ -1074,20 +1027,12 @@ document.addEventListener('keydown', (e)=>{
   if(e.key === 'Enter' && active){ active.click(); }
 });
 
-/* Expose small helpers for console debugging */
+/* --- Debug helpers --- */
 window.WorldTimePro = {
   getCities: ()=>cities,
-  setCities: (arr)=> { if(Array.isArray(arr)){ cities = arr; saveState(); renderAll(); } }
+  setCities: (arr)=> { if(Array.isArray(arr)){ cities = arr; saveState(); renderAll(); initMap(); } }
 };
 </script>
-
-<!-- AdSense instructions (do not include actual ad code here unless you have it):
-  1) Sign up for AdSense and get the publisher code:
-     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-XXXXXXXXXXXX"></script>
-     Put that inside <head>.
-  2) Replace the placeholder in #wtp-adContainer with the ad unit code AdSense gives you (responsive).
-  3) Avoid placing ads inside interactive controls. The placeholder is below content and is responsive-friendly.
--->
 
 </body>
 </html>
