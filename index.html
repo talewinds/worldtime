@@ -275,9 +275,25 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
 /* --- Short aliases & libs --- */
 const { DateTime } = luxon;
+// safe base64url (unicode-aware)
 const base64url = {
-  encode: s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
-  decode: s => decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))
+  encode: (str) => {
+    const utf8 = new TextEncoder().encode(String(str));
+    let b = '';
+    for (let i = 0; i < utf8.length; i++) b += String.fromCharCode(utf8[i]);
+    return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  },
+  decode: (s) => {
+    if (!s) return '';
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    // padding
+    while (s.length % 4) s += '=';
+    const binary = atob(s);
+    // convert binary string to Uint8Array
+    const bytes = new Uint8Array(binary.length);
+    for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
 };
 
 /* --- DOM refs --- */
@@ -585,7 +601,7 @@ shareBtn.addEventListener('click', ()=> { navigator.clipboard?.writeText(shareLi
 
 /* --- Add city / Autocomplete --- */
 addBtn.addEventListener('click', addCityFromInput);
-searchInput.addEventListener('input', (e)=> showSuggestions(e.target.value.trim()));
+searchInput.addEventListener('input', debounce((e)=> showSuggestions(e.target.value.trim()), 220));
 searchInput.addEventListener('keydown', (e)=> {
   const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
   const active = suggestionsWrap.querySelector('.wtp-suggest-item.active');
@@ -682,7 +698,11 @@ function showSuggestions(q){
     const label = r.label || r.tz || String(r);
     const tz = r.tz || '';
     const meta = (r.cc ? `${r.cc} • ` : '') + tz;
-    it.innerHTML = `<strong>${label}</strong><div class="wtp-meta" style="font-size:12px">${meta}</div>`;
+    const strong = document.createElement('strong'); strong.textContent = label;
+const metaEl = document.createElement('div'); metaEl.className = 'wtp-meta'; metaEl.style.fontSize = '12px'; metaEl.textContent = meta;
+it.appendChild(strong);
+it.appendChild(metaEl);
+
     it.addEventListener('click', ()=> {
       cities.push({ label: r.label || label, tz: r.tz || tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : '' });
       saveState(); renderAll(); suggestionsWrap.innerHTML = ''; searchInput.value = '';
@@ -744,11 +764,23 @@ function scanDst(){
 
 /* --- Map init and markers --- */
 let map = null, markers = [];
+function clearMarkers(){
+  if(!map) return;
+  markers.forEach(m => {
+    try { map.removeLayer(m); } catch(e){}
+  });
+  markers = [];
+}
+
 function initMap(){
   try {
-    map = L.map('wtp-map', { dragging: true, attributionControl: false }).setView([20,0], 2);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
-    // add markers for tzCities when lat/lon available
+    if(!map){
+      map = L.map('wtp-map', { dragging: true, attributionControl: false }).setView([20,0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+    } else {
+      clearMarkers();
+    }
+
     tzCities.forEach(tc => {
       if(tc.lat == null || tc.lon == null) return;
       const mark = L.circleMarker([tc.lat, tc.lon], { radius:6, fillOpacity:0.9 }).addTo(map);
@@ -769,6 +801,7 @@ function initMap(){
     const mp = document.getElementById('wtp-map'); if(mp) mp.innerHTML = '<div class="wtp-meta">Map could not load</div>';
   }
 }
+
 
 /* --- Export Image --- */
 exportImageBtn.addEventListener('click', () => {
