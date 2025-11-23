@@ -597,21 +597,59 @@ function setActiveSuggestion(el){
   suggestionsWrap.querySelectorAll('.wtp-suggest-item').forEach(i => i.classList.remove('active'));
   if(el) el.classList.add('active'); el?.scrollIntoView({block:'nearest'});
 }
+// Robust suggestion UI: Fuse preferred, then substring fallback, then COMPACT fallback
 function showSuggestions(q){
-  suggestionsWrap.innerHTML = ''; suggestionsWrap.setAttribute('aria-hidden','true');
-  if(!q || !fuse) return;
-  const results = fuse.search(q).slice(0,8).map(r => r.item);
-  if(results.length === 0) return;
-  const list = document.createElement('div'); list.className = 'wtp-suggest-list';
-  results.forEach(r => {
-    const item = document.createElement('div'); item.className = 'wtp-suggest-item'; item.tabIndex = 0;
-    item.innerHTML = `<strong>${r.label}</strong><div class="wtp-meta">${r.tz}</div>`;
-    item.addEventListener('click', ()=> { pickSuggestion(r); });
-    item.addEventListener('keydown', (ev)=> { if(ev.key === 'Enter') pickSuggestion(r); });
-    list.appendChild(item);
+  suggestions.innerHTML = ''; suggestions.setAttribute('aria-hidden','true');
+  if(!q) return;
+  q = String(q).trim();
+  let results = [];
+
+  // 1) try Fuse if initialized
+  try {
+    if(typeof fuse !== 'undefined' && fuse){
+      // allow fuzzy limit
+      const res = fuse.search(q, {limit: 12});
+      results = res.map(r => r.item || r);
+    }
+  } catch(e){
+    console.warn('Fuse search error', e);
+    results = [];
+  }
+
+  // 2) if nothing from fuse, do case-insensitive substring on label and tz
+  if((!results || results.length === 0) && Array.isArray(tzCities) && tzCities.length){
+    const qq = q.toLowerCase();
+    results = tzCities.filter(it => {
+      const label = (it.label || '').toLowerCase();
+      const tz = (it.tz || '').toLowerCase();
+      return label.includes(qq) || tz.includes(qq);
+    }).slice(0, 12);
+  }
+
+  // 3) fallback to COMPACT for immediate matches
+  if((!results || results.length === 0) && Array.isArray(COMPACT)){
+    const qq = q.toLowerCase();
+    results = COMPACT.filter(it => ((it.label || '').toLowerCase().includes(qq) || (it.tz || '').toLowerCase().includes(qq))).slice(0,12);
+  }
+
+  if(!results || results.length === 0) return;
+
+  const wrap = document.createElement('div'); wrap.className = 'suggest-list';
+  results.slice(0,12).forEach(r => {
+    const it = document.createElement('div'); it.className = 'suggest-item'; it.tabIndex = 0;
+    const label = r.label || r.tz || String(r);
+    const tz = r.tz || '';
+    it.innerHTML = `<strong>${label}</strong><div class="meta">${tz}</div>`;
+    it.addEventListener('click', ()=> {
+      cities.push({ label: r.label || label, tz: r.tz || tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : '' });
+      saveState(); renderAll(); suggestions.innerHTML = ''; searchInput.value = '';
+    });
+    it.addEventListener('keydown', ev => { if(ev.key === 'Enter') it.click(); });
+    wrap.appendChild(it);
   });
-  suggestionsWrap.appendChild(list); suggestionsWrap.setAttribute('aria-hidden','false');
+  suggestions.appendChild(wrap); suggestions.setAttribute('aria-hidden','false');
 }
+
 function pickSuggestion(r){
   cities.push({label: r.label, tz: r.tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : ''});
   saveState(); renderAll(); suggestionsWrap.innerHTML=''; searchInput.value='';
@@ -745,27 +783,73 @@ setInterval(tick, 1000);
 function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(vertSlider.value)); updateEmbedShare(); scanDst(); }
 
 /* --- IANA DB lazy load --- */
+// Robust loader for bundled timezones.json (or remote fallback)
 async function loadIanaDB(){
-  const url = './timezones.json';
+  const localUrl = './timezones.json';
+  const remoteUrl = 'https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json';
+  let raw = null;
+  // try local first (bundled)
   try {
-    const resp = await fetch(url, {cache:'reload'});
-    if(!resp.ok) throw new Error('TZ fetch failed');
-    const raw = await resp.json();
-    tzCities = raw.map(z => ({ label: z.value.replace('_',' '), tz: z.value, lat: null, lon: null, cc: null }));
-    // merge coords for entries present in COMPACT
-    for(const c of COMPACT){
-      const found = tzCities.find(t=>t.tz === c.tz);
-      if(found){ found.lat = c.lat; found.lon = c.lon; found.cc = c.cc; found.label = c.label; }
+    const resp = await fetch(localUrl, {cache:'reload'});
+    if(resp.ok){
+      raw = await resp.json();
+      console.log('Loaded bundled timezones.json (local).');
+    } else {
+      console.warn('Local timezones.json not found (status ' + resp.status + '), will try remote.');
     }
-    // replace fuse with full db
-    fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33 });
-    console.log('Loaded IANA DB entries:', tzCities.length);
   } catch(e){
-    console.warn('Could not load full IANA DB, using compact list', e);
+    console.warn('Failed to fetch local timezones.json, will try remote.', e);
+  }
+
+  // fallback to remote if local missing
+  if(!raw){
+    try {
+      const resp = await fetch(remoteUrl, {cache:'reload'});
+      if(resp.ok) { raw = await resp.json(); console.log('Loaded timezones.json from remote.'); }
+      else console.warn('Remote fetch failed status', resp.status);
+    } catch(e){ console.warn('Remote fetch failed', e); }
+  }
+
+  // If still no raw, fall back to COMPACT
+  if(!raw || !Array.isArray(raw) || raw.length === 0){
+    console.warn('No timezone DB loaded, falling back to COMPACT list.');
     tzCities = COMPACT.slice();
     fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33 });
+    return;
   }
+
+  // Convert entries into a consistent shape and add friendly labels
+  // raw items typically have a .value or .name field depending on source; support both
+  tzCities = raw.map(item => {
+    // support both raw formats: {value: 'Asia/Tokyo'} or string
+    const tzVal = (item && (item.value || item.tz || item.name)) ? (item.value || item.tz || item.name) : String(item);
+    const tz = String(tzVal);
+    // derive a friendly short name by taking the last part after '/'
+    let short = tz.split('/').pop().replace(/_/g, ' ');
+    // if short is a compound like 'New_York' we replaced underscore; keep as Title Case
+    short = short.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    // If source provides label or text include it; else produce "Short (Zone)"
+    let label = (item && item.label) ? item.label : `${short} (${tz})`;
+    // ensure tz field exists and be explicit
+    const obj = { label: label, tz: tz, lat: null, lon: null, cc: null };
+    return obj;
+  });
+
+  // Merge coords and country codes from COMPACT for known zones
+  for(const c of COMPACT){
+    const found = tzCities.find(t => t.tz === c.tz);
+    if(found){ found.lat = c.lat; found.lon = c.lon; found.cc = c.cc; found.label = c.label; }
+  }
+
+  // Final safety: dedupe by tz string (keep first)
+  const seen = new Set(); tzCities = tzCities.filter(t => { if(seen.has(t.tz)) return false; seen.add(t.tz); return true; });
+
+  // Create fuse index (search by label and tz)
+  fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, ignoreLocation: true });
+
+  console.log('tzCities built, count=', tzCities.length);
 }
+
 
 /* --- Populate conv selects --- */
 function populateConverterSelects(){
