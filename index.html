@@ -746,7 +746,7 @@ function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(
 
 /* --- IANA DB lazy load --- */
 async function loadIanaDB(){
-  const url = 'https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json';
+  const url = './timezones.json';
   try {
     const resp = await fetch(url, {cache:'reload'});
     if(!resp.ok) throw new Error('TZ fetch failed');
