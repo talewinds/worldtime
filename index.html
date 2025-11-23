@@ -316,7 +316,7 @@ const STORAGE_KEY = 'wtpro_final_stable_v1';
 let tzCities = [];   // full DB (lazy) or fallback
 let fuse = null;
 let cities = [];
-
+let countryIndex = {};
 /* --- Compact fallback (immediate) --- */
 const COMPACT = [
   {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
@@ -599,56 +599,102 @@ function setActiveSuggestion(el){
 }
 // Robust suggestion UI: Fuse preferred, then substring fallback, then COMPACT fallback
 function showSuggestions(q){
-  suggestions.innerHTML = ''; suggestions.setAttribute('aria-hidden','true');
+  suggestionsWrap.innerHTML = ''; suggestionsWrap.setAttribute('aria-hidden','true');
   if(!q) return;
   q = String(q).trim();
+
   let results = [];
+  let fuseResults = [];
 
-  // 1) try Fuse if initialized
+  // 1) Fuse search (if available)
   try {
-    if(typeof fuse !== 'undefined' && fuse){
-      // allow fuzzy limit
-      const res = fuse.search(q, {limit: 12});
-      results = res.map(r => r.item || r);
+    if(fuse){
+      const res = fuse.search(q, {limit: 20}); // include scores
+      fuseResults = res.map(r => ({ item: r.item, score: (r.score != null ? r.score : 1) }));
     }
-  } catch(e){
-    console.warn('Fuse search error', e);
-    results = [];
-  }
+  } catch(e){ console.warn('Fuse search error', e); }
 
-  // 2) if nothing from fuse, do case-insensitive substring on label and tz
-  if((!results || results.length === 0) && Array.isArray(tzCities) && tzCities.length){
+  // convert fuseResults to base results
+  results = fuseResults.map(r => Object.assign({}, r.item, { _score: r.score }));
+
+  // 2) Country name match using countryIndex (case-insensitive)
+  try {
+    if(countryIndex && typeof countryIndex === 'object'){
+      const qLower = q.toLowerCase();
+      // exact or contains match for country name keys
+      Object.keys(countryIndex).forEach(countryName => {
+        if(countryName.toLowerCase().includes(qLower) || qLower.includes(countryName.toLowerCase())){
+          const tzs = countryIndex[countryName] || [];
+          tzs.forEach(tz => {
+            const entry = tzCities.find(x => x.tz === tz || x.label.toLowerCase().includes(tz.toLowerCase()));
+            if(entry) results.push(Object.assign({}, entry, { _score: 0.05 })); // high priority (low score)
+          });
+        }
+      });
+      // also allow users to type ISO code (e.g., "DE" or "de")
+      if(q.length <= 3){ // likely a country code
+        const code = q.toUpperCase();
+        // try to match keys of index by cc inside tzCities
+        tzCities.forEach(entry => { if(entry.cc && entry.cc.toUpperCase() === code) results.push(Object.assign({}, entry, { _score: 0.05 })); });
+      }
+    }
+  } catch(e){ console.warn('countryIndex lookup error', e); }
+
+  // 3) substring fallback on tzCities
+  if(results.length === 0 && Array.isArray(tzCities) && tzCities.length){
     const qq = q.toLowerCase();
     results = tzCities.filter(it => {
       const label = (it.label || '').toLowerCase();
       const tz = (it.tz || '').toLowerCase();
       return label.includes(qq) || tz.includes(qq);
-    }).slice(0, 12);
+    }).slice(0, 30).map(r => Object.assign({}, r, { _score: 0.5 }));
   }
 
-  // 3) fallback to COMPACT for immediate matches
-  if((!results || results.length === 0) && Array.isArray(COMPACT)){
+  // 4) final fallback to COMPACT
+  if(results.length === 0 && Array.isArray(COMPACT)){
     const qq = q.toLowerCase();
-    results = COMPACT.filter(it => ((it.label || '').toLowerCase().includes(qq) || (it.tz || '').toLowerCase().includes(qq))).slice(0,12);
+    results = COMPACT.filter(it => ((it.label || '').toLowerCase().includes(qq) || (it.tz || '').toLowerCase().includes(qq))).slice(0,12).map(r => Object.assign({}, r, {_score:0.6}));
   }
 
   if(!results || results.length === 0) return;
 
-  const wrap = document.createElement('div'); wrap.className = 'suggest-list';
-  results.slice(0,12).forEach(r => {
-    const it = document.createElement('div'); it.className = 'suggest-item'; it.tabIndex = 0;
+  // dedupe by tz
+  const byTz = new Map();
+  results.forEach(r => { if(r && r.tz) byTz.set(r.tz, r); });
+
+  let final = Array.from(byTz.values());
+
+  // sort: first by _score (lower is better from Fuse), then by weight desc
+  final.sort((a,b) => {
+    const sa = (a._score != null ? a._score : 1);
+    const sb = (b._score != null ? b._score : 1);
+    if(sa !== sb) return sa - sb;
+    const wa = (a.weight||0), wb = (b.weight||0);
+    return wb - wa;
+  });
+
+  final = final.slice(0, 12);
+
+  // render suggestions
+  const wrap = document.createElement('div'); wrap.className = 'wtp-suggest-list';
+  final.forEach(r => {
+    const it = document.createElement('div'); it.className = 'wtp-suggest-item'; it.tabIndex = 0;
     const label = r.label || r.tz || String(r);
     const tz = r.tz || '';
-    it.innerHTML = `<strong>${label}</strong><div class="meta">${tz}</div>`;
+    const meta = (r.cc ? `${r.cc} • ` : '') + tz;
+    it.innerHTML = `<strong>${label}</strong><div class="wtp-meta" style="font-size:12px">${meta}</div>`;
     it.addEventListener('click', ()=> {
       cities.push({ label: r.label || label, tz: r.tz || tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : '' });
-      saveState(); renderAll(); suggestions.innerHTML = ''; searchInput.value = '';
+      saveState(); renderAll(); suggestionsWrap.innerHTML = ''; searchInput.value = '';
     });
     it.addEventListener('keydown', ev => { if(ev.key === 'Enter') it.click(); });
     wrap.appendChild(it);
   });
-  suggestions.appendChild(wrap); suggestions.setAttribute('aria-hidden','false');
+
+  suggestionsWrap.appendChild(wrap);
+  suggestionsWrap.setAttribute('aria-hidden','false');
 }
+
 
 function pickSuggestion(r){
   cities.push({label: r.label, tz: r.tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : ''});
@@ -785,70 +831,71 @@ function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(
 /* --- IANA DB lazy load --- */
 // Robust loader for bundled timezones.json (or remote fallback)
 async function loadIanaDB(){
-  const localUrl = './timezones.json';
-  const remoteUrl = 'https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json';
-  let raw = null;
-  // try local first (bundled)
-  try {
-    const resp = await fetch(localUrl, {cache:'reload'});
-    if(resp.ok){
-      raw = await resp.json();
-      console.log('Loaded bundled timezones.json (local).');
-    } else {
-      console.warn('Local timezones.json not found (status ' + resp.status + '), will try remote.');
-    }
-  } catch(e){
-    console.warn('Failed to fetch local timezones.json, will try remote.', e);
-  }
+  const localTz = './timezones.json';
+  const localIdx = './country_to_zones_index.json';
+  let raw = null, idxRaw = null;
 
-  // fallback to remote if local missing
+  // try local timezone bundle
+  try {
+    const r = await fetch(localTz, {cache:'reload'});
+    if(r.ok) raw = await r.json();
+  } catch(e){ console.warn('local tz fetch failed', e); }
+
+  // try local country->zones index
+  try {
+    const r2 = await fetch(localIdx, {cache:'reload'});
+    if(r2.ok) idxRaw = await r2.json();
+  } catch(e){ console.warn('local country index fetch failed', e); }
+
+  // fallback remote tz list if local not present (keeps your previous remote fallback)
   if(!raw){
     try {
-      const resp = await fetch(remoteUrl, {cache:'reload'});
-      if(resp.ok) { raw = await resp.json(); console.log('Loaded timezones.json from remote.'); }
-      else console.warn('Remote fetch failed status', resp.status);
-    } catch(e){ console.warn('Remote fetch failed', e); }
+      const resp = await fetch('https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json',{cache:'reload'});
+      if(resp.ok) raw = await resp.json();
+    } catch(e){ console.warn('remote tz fetch failed', e); }
   }
 
-  // If still no raw, fall back to COMPACT
   if(!raw || !Array.isArray(raw) || raw.length === 0){
     console.warn('No timezone DB loaded, falling back to COMPACT list.');
     tzCities = COMPACT.slice();
     fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33 });
+    countryIndex = idxRaw || {};
     return;
   }
 
-  // Convert entries into a consistent shape and add friendly labels
-  // raw items typically have a .value or .name field depending on source; support both
+  // normalize raw entries into {label,tz,lat,lon,cc,weight}
   tzCities = raw.map(item => {
-    // support both raw formats: {value: 'Asia/Tokyo'} or string
-    const tzVal = (item && (item.value || item.tz || item.name)) ? (item.value || item.tz || item.name) : String(item);
-    const tz = String(tzVal);
-    // derive a friendly short name by taking the last part after '/'
-    let short = tz.split('/').pop().replace(/_/g, ' ');
-    // if short is a compound like 'New_York' we replaced underscore; keep as Title Case
-    short = short.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-    // If source provides label or text include it; else produce "Short (Zone)"
-    let label = (item && item.label) ? item.label : `${short} (${tz})`;
-    // ensure tz field exists and be explicit
-    const obj = { label: label, tz: tz, lat: null, lon: null, cc: null };
-    return obj;
+    // item may already have label,tz,lat,lon,cc,weight or be another format
+    const tz = item.tz || item.value || item.name || String(item);
+    const label = item.label || item.name || (typeof item.value === 'string' ? item.value.split('/').pop().replace(/_/g,' ') + ' ('+ tz +')' : tz);
+    return {
+      label: String(label),
+      tz: String(tz),
+      lat: safeNum(item.lat),
+      lon: safeNum(item.lon),
+      cc: item.cc || item.country || null,
+      weight: Number(item.weight || 0)
+    };
   });
 
-  // Merge coords and country codes from COMPACT for known zones
+  // Merge coords from COMPACT for known zones (keeps friendly labels/flags)
   for(const c of COMPACT){
     const found = tzCities.find(t => t.tz === c.tz);
-    if(found){ found.lat = c.lat; found.lon = c.lon; found.cc = c.cc; found.label = c.label; }
+    if(found){ found.lat = found.lat || c.lat; found.lon = found.lon || c.lon; found.cc = found.cc || c.cc; found.label = found.label || c.label; found.weight = Math.max(found.weight||0, 500); }
   }
 
-  // Final safety: dedupe by tz string (keep first)
+  // dedupe by tz
   const seen = new Set(); tzCities = tzCities.filter(t => { if(seen.has(t.tz)) return false; seen.add(t.tz); return true; });
 
-  // Create fuse index (search by label and tz)
-  fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, ignoreLocation: true });
+  // create fuse (includeScore true so we can combine with weight if desired)
+  fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
 
-  console.log('tzCities built, count=', tzCities.length);
+  // assign country index (if loaded)
+  countryIndex = idxRaw || {};
+
+  console.log('tzCities loaded, count=', tzCities.length, 'countryIndex keys=', Object.keys(countryIndex).length);
 }
+
 
 
 /* --- Populate conv selects --- */
