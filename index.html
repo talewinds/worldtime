@@ -3,46 +3,31 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>WorldTime Pro: Global Meeting Scheduler & Time Zone Comparator</title>
-<meta name="description" content="WorldTime Pro is the ultimate free world clock and time zone meeting planner for global teams, remote workers, and international travelers. Compare zones, find the best meeting slot, see DST alerts, sunrise/sunset, and embed/share your view.">
-// SEO: canonical could be added if you host on your domain
+<title>WorldTime Pro — Fixed</title>
+<meta name="description" content="WorldTime Pro — compare timezones, meeting planner, DST ticker, sunrise/sunset, export/share.">
 <link rel="icon" href="data:,">
-
-<!-- Styles (prefixed to avoid collisions). Responsive + mobile friendly. -->
+<!-- Styles (same as before, prefixed) -->
 <style>
-:root{
-  --bg:#071323; --card:#0d1b2a; --muted:#9fb0c8; --accent:#b14444; --accent-2:#3b82f6;
-  --glass:rgba(255,255,255,0.03); --radius:12px; color-scheme: dark;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0;padding:18px;background:linear-gradient(180deg,#03101a,#071323);color:#e6f0fb;min-height:100vh;-webkit-font-smoothing:antialiased}
+:root{--bg:#071323;--card:#0d1b2a;--muted:#9fb0c8;--accent:#b14444;--accent-2:#3b82f6;--glass:rgba(255,255,255,0.03);--radius:12px;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:0;padding:18px;background:linear-gradient(180deg,#03101a,#071323);color:#e6f0fb;min-height:100vh;-webkit-font-smoothing:antialiased}
 .container{max-width:1200px;margin:0 auto}
 .header{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
 .title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .h1{font-size:20px;margin:0}
 .tag{color:var(--muted);font-size:13px}
 .seo-blurb{margin-top:8px;color:#dbeafe;background:linear-gradient(90deg, rgba(59,130,246,0.04), rgba(177,68,68,0.02));padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);font-size:14px}
-
-/* layout */
 .row{display:flex;gap:12px;align-items:flex-start}
 .col{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1}
 .col.side{flex:0 0 380px;max-width:380px}
-
-/* controls */
 .controls{display:flex;gap:8px;margin-bottom:12px;align-items:center}
 .input,select,time,input[type=time],input[type=date],input[type=number]{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px;border-radius:8px;outline:none}
 .btn{background:var(--accent);border:0;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
-.small{font-size:13px;padding:6px 10px;border-radius:6px}
-
-/* suggestions */
 .suggestions{position:relative}
 .suggest-list{position:absolute;z-index:40;left:0;right:0;background:var(--card);border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-top:6px;max-height:240px;overflow:auto}
 .suggest-item{padding:8px;border-radius:6px;cursor:pointer}
 .suggest-item:hover,.suggest-item.active{background:rgba(255,255,255,0.02)}
-
-/* cards grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02)}
 .flag{font-size:22px;margin-right:8px}
@@ -50,8 +35,6 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 .meta{color:var(--muted);font-size:12px}
 .tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:30}
 .tooltip.show{display:block}
-
-/* timeline */
 .timeline{overflow:auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px;border-radius:10px;margin-top:10px}
 .hourbar{display:flex;gap:6px;align-items:center}
 .hour{flex:0 0 48px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
@@ -59,53 +42,36 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 .hour.selected{background:linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.25)}
 .cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .citylabel{width:160px;flex:0 0 160px}
-
-/* vertical slider (rotated range) */
 .vert-wrap{height:220px;display:flex;align-items:center;justify-content:center}
-.vert-range{writing-mode:bt-lr; -webkit-appearance:none; appearance:none; width:160px; transform: rotate(-90deg);}
-
-/* map */
-#map { height:260px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); margin-top:8px }
-
-/* utilities */
+.vert-range{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:160px;transform: rotate(-90deg);}
+#map{height:260px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-top:8px}
 .tools .tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.015);margin-bottom:10px}
-
-/* DST ticker */
 .ticker{background:linear-gradient(90deg,#0b1b2a,#071323);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
 .ticker span{display:inline-block;padding-right:28px;color:var(--muted)}
-
-/* footer */
 .footer{margin-top:14px;color:var(--muted);text-align:center;font-size:13px}
-
-/* responsive */
-@media (max-width:980px){ .row{flex-direction:column} .col.side{max-width:none;flex:1} .citylabel{width:120px;flex:0 0 120px} .hour{flex:0 0 40px} #map{height:200px} .vert-wrap{display:none} }
+@media (max-width:980px){.row{flex-direction:column}.col.side{max-width:none;flex:1}.citylabel{width:120px;flex:0 0 120px}.hour{flex:0 0 40px}#map{height:200px}.vert-wrap{display:none}}
 </style>
 
-<!-- Libraries -->
+<!-- libs: keep Leaflet, Luxon, Fuse, SunCalc, html2canvas (no adhan) -->
 <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="https://unpkg.com/adhan/dist/Adhan.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 </head>
 <body>
 <div class="container">
   <header class="header">
     <div class="title-row">
-      <h1 class="h1">WorldTime Pro: Global Meeting Scheduler & Time Zone Comparator</h1>
+      <h1 class="h1">WorldTime Pro: Fixed</h1>
       <div class="tag">Never guess a meeting time again — instantly find the best slot across any time zone.</div>
     </div>
-
-    <!-- SEO blurb (Option 1 recommended) -->
     <div class="seo-blurb" id="seoBlurb">
-      WorldTime Pro is the ultimate free world clock and time zone meeting planner for global teams, remote workers, and international travelers. Easily compare time zones for New York, London, Mumbai and hundreds more. Our Meeting Planner instantly scores and suggests the best universal time slots to maximize attendance across all your cities (optimizing for 9 AM to 6 PM local working hours). Features include a real-time DST ticker, sunrise/sunset times, time converters (e.g., EST to IST), and embeddable widgets for your website. No sign-up or backend required—start planning instantly.
+      WorldTime Pro is the ultimate free world clock and time zone meeting planner for global teams, remote workers, and international travelers. Compare zones, find the best meeting slot, see DST alerts, sunrise/sunset, and share/embed your view.
     </div>
   </header>
 
-  <!-- DST ticker -->
   <div class="ticker" id="dstTicker" aria-live="polite"><span id="dstText">Scanning for DST changes...</span></div>
 
   <div class="row">
@@ -136,19 +102,16 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
       <div id="cards" class="grid" aria-live="polite"></div>
 
-      <!-- timeline + vertical slider -->
       <div style="margin-top:12px;display:flex;gap:12px;align-items:flex-start">
         <div style="flex:1">
           <h3 style="margin:6px 0">24-Hour Comparator</h3>
           <div id="timeline" class="timeline" aria-hidden="false"></div>
         </div>
-
         <div class="vert-wrap" title="Move slider to highlight hours">
           <input id="vertSlider" type="range" class="vert-range" min="0" max="23" step="1" value="0" aria-label="Highlight hour"/>
         </div>
       </div>
 
-      <!-- meeting planner -->
       <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
       <h3 style="margin:6px 0">Meeting Planner & Suggestions</h3>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
@@ -159,7 +122,6 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
       </div>
       <div id="plannerResult" style="max-height:300px;overflow:auto;padding:6px"></div>
 
-      <!-- small converters / embed -->
       <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start">
         <div style="flex:1" class="tools">
           <div class="tool">
@@ -195,80 +157,38 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
         </div>
       </div>
 
-      <!-- AdSense placeholder (put your AdSense script inside <head> and replace the data-ad-client / ad-slot) -->
       <div style="margin-top:12px;text-align:center;">
-        <!-- Add AdSense script in <head> (see instructions). Place ad unit below -->
         <div id="adContainer" style="display:flex;justify-content:center;margin-top:8px">
-          <!-- Example responsive placeholder: replace with real AdSense code -->
           <div style="width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--muted)">Ad placeholder — paste AdSense unit here</div>
         </div>
       </div>
+
     </main>
 
     <aside class="col side" role="complementary">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <strong style="flex:1">Utilities & Map</strong>
-        <button id="resetTools" class="btn ghost">Reset</button>
-      </div>
-
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><strong style="flex:1">Utilities & Map</strong><button id="resetTools" class="btn ghost">Reset</button></div>
       <div id="map"></div>
-
       <div style="margin-top:12px">
-        <div class="tool" style="margin-bottom:10px">
-          <strong>Sunrise / Sunset</strong>
-          <div class="meta" style="margin-top:6px">Sunrise/sunset times show automatically on each city card (when coords available).</div>
-        </div>
-
-        <div class="tool" style="margin-bottom:10px">
-          <strong>Countdown</strong>
-          <div style="display:flex;gap:6px;margin-top:6px"><input id="countDate" type="date" class="input"/><input id="countTime" type="time" class="input"/><button id="startCount" class="btn">Start</button></div>
-          <div id="countRes" class="meta" style="margin-top:6px"></div>
-        </div>
-
-        <div class="tool">
-          <strong>Prayer times</strong>
-          <div style="display:flex;gap:6px;margin-top:6px">
-            <input id="prayLat" type="number" class="input" placeholder="Lat" step="any"/>
-            <input id="prayLng" type="number" class="input" placeholder="Lng" step="any"/>
-            <select id="prayMethod" class="input"><option>MuslimWorldLeague</option><option>Egyptian</option><option>Karachi</option><option>ISNA</option></select>
-            <button id="calcPray" class="btn">Calc</button>
-          </div>
-          <div id="prayRes" class="meta" style="margin-top:6px"></div>
-        </div>
+        <div class="tool" style="margin-bottom:10px"><strong>Sunrise / Sunset</strong><div class="meta" style="margin-top:6px">Sunrise/sunset times show automatically on each city card (when coords available).</div></div>
+        <div class="tool" style="margin-bottom:10px"><strong>Countdown</strong><div style="display:flex;gap:6px;margin-top:6px"><input id="countDate" type="date" class="input"/><input id="countTime" type="time" class="input"/><button id="startCount" class="btn">Start</button></div><div id="countRes" class="meta" style="margin-top:6px"></div></div>
       </div>
 
-      <div style="margin-top:12px;color:var(--muted);font-size:13px">
-        <strong>Hosting & files</strong>
-        <ul>
-          <li>Just push <code>index.html</code> to GitHub and enable Pages (root). No backend needed.</li>
-          <li>Full IANA data is auto-loaded from a public GitHub raw file (no extra files required). See notes below.</li>
-        </ul>
-      </div>
+      <div style="margin-top:12px;color:var(--muted);font-size:13px"><strong>Hosting & files</strong><ul><li>Push this file to GitHub and enable Pages (root).</li><li>If you want the full IANA DB bundled, I can provide it and update the code to load the local file instead of fetching from GitHub.</li></ul></div>
     </aside>
   </div>
 
-  <footer class="footer">
-    Links: <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener">AdSense</a>
-  </footer>
+  <footer class="footer">Links: <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener">AdSense</a></footer>
 </div>
 
-<!-- App script -->
+<!-- App script: fixes applied (search-ready fuse, guarded loadState, map always init, prayer removed) -->
 <script>
-/* WorldTime Pro — Final edition:
-   - Lazy-load full IANA timezone list (from a public raw GitHub JSON)
-   - Hash-based deep linking (base64url)
-   - DST ticker; vertical slider highlights; present time highlighted in different color
-   - Mobile friendly + AdSense placeholder
-*/
-
-/* ----- Utilities & libs ----- */
-const { DateTime, IANAZone } = luxon;
+/* fixed script */
+const { DateTime } = luxon;
 const base64url = {
-  encode: (s) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
-  decode: (s) => decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))
+  encode: s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+  decode: s => decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))
 };
 
-/* ----- DOM refs ----- */
 const $ = id => document.getElementById(id);
 const cards = $('cards'), citySearch = $('citySearch'), addBtn = $('addBtn'), suggestions = $('suggestions');
 const timeline = $('timeline'), vertSlider = $('vertSlider'), dstText = $('dstText');
@@ -277,12 +197,12 @@ const embedCode = $('embedCode'), copyEmbed = $('copyEmbed'), shareBtn = $('shar
 const exportImg = $('exportImg'), resetBtn = $('resetBtn'), preset = $('preset');
 const meetingDate = $('meetingDate'), meetingTime = $('meetingTime'), meetingDuration = $('meetingDuration'), applyPlan = $('applyPlan'), plannerResult = $('plannerResult');
 
-let tzCities = []; // will be loaded (full DB) or fallback to compact
-let fuse = null;
 const STORAGE_KEY = 'wtpro_final_v1';
-let cities = []; // user selected cities
+let tzCities = [];      // IANA DB or fallback
+let fuse = null;
+let cities = [];
 
-/* ----- Built-in compact fallback list (small) ----- */
+/* compact fallback */
 const COMPACT = [
   {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
   {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB'},
@@ -294,461 +214,255 @@ const COMPACT = [
   {label:'Singapore', tz:'Asia/Singapore', lat:1.3521, lon:103.8198, cc:'SG'}
 ];
 
-/* ----- Try to load full IANA timezone DB (lazy) ----- */
-/*
-  Source used: raw GitHub repo 'timezones.json' (dmfilipenko/timezones.json).
-  If this fetch fails (rate limit/offline), COMPACT will be used.
-*/
+/* create immediate fuse from compact so search works instantly */
+fuse = new Fuse(COMPACT, { keys: ['label','tz'], threshold: 0.35 });
+
+/* load big IANA DB (lazy) and then replace fuse */
 async function loadIanaDB(){
   const url = 'https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json';
   try {
     const resp = await fetch(url, {cache:'reload'});
-    if(!resp.ok) throw new Error('TZ fetch failed');
+    if(!resp.ok) throw new Error('fetch fail');
     const raw = await resp.json();
-    // raw is array of objects with {value: 'Europe/London', abbr, offset, value etc}
-    // Convert to tzCities with basic label and no coords (coords not provided in that file),
-    // So we'll merge with COMPACT for coords when available.
-    tzCities = raw.map(z => ({ label: z.value.replace('_',' '), tz: z.value, lat: null, lon: null, cc: null }));
-    // merge coords for entries present in COMPACT
+    tzCities = raw.map(z=>({ label: z.value.replace('_',' '), tz: z.value, lat: null, lon: null, cc: null }));
+    // merge coords for common ones from COMPACT
     for(const c of COMPACT){
       const found = tzCities.find(t=>t.tz === c.tz);
       if(found){ found.lat = c.lat; found.lon = c.lon; found.cc = c.cc; found.label = c.label; }
     }
-    console.log('Loaded IANA DB entries:', tzCities.length);
   } catch(e){
-    console.warn('Could not load full IANA DB, using compact list', e);
+    console.warn('IANA fetch failed, using COMPACT', e);
     tzCities = COMPACT.slice();
   }
-  // Initialize Fuse for search
   fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.35 });
 }
 
-/* ----- State persistence and hash sharing ----- */
+/* state: try hash -> localStorage -> default seed (guard empty arrays) */
 function loadState(){
-  // Priority: URL hash -> localStorage -> default seed
+  // hash
   const hash = location.hash.replace(/^#/,'');
   if(hash){
     try {
-      const json = base64url.decode(hash);
-      const parsed = JSON.parse(json);
-      if(Array.isArray(parsed) && parsed.length){
-        cities = parsed; saveState(); return;
-      }
-    } catch(e){ console.warn('Invalid hash payload', e); }
+      const decoded = base64url.decode(hash);
+      const parsed = JSON.parse(decoded);
+      if(Array.isArray(parsed) && parsed.length>0){ cities = parsed; saveState(); return; }
+    } catch(e){ console.warn('invalid hash', e); }
   }
+  // localStorage
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) { cities = JSON.parse(raw); return; }
-  } catch(e){}
-  // default seed
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length>0){ cities = parsed; return; }
+    }
+  } catch(e){ console.warn('storage read failed', e); }
+  // fallback seed (ensure non-empty)
   cities = [
     {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
     {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
     {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
   ];
 }
+
 function saveState(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); } catch(e){ console.warn('Storage save failed', e); }
-  // update hash for deep linking
-  try {
-    const payload = base64url.encode(JSON.stringify(cities));
-    location.hash = payload;
-    $('shareLink').value = location.href;
-  } catch(e){ console.warn('Hash encode failed', e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); } catch(e){ console.warn('save fail', e); }
+  try { const payload = base64url.encode(JSON.stringify(cities)); location.hash = payload; $('shareLink').value = location.href; } catch(e){ console.warn('hash update failed', e); }
 }
 
-/* ----- helpers ----- */
-function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
+function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g,ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
 function fmtOffset(m){ const sign = m>=0?'+':'-'; const mm = Math.abs(m); const h = String(Math.floor(mm/60)).padStart(2,'0'); const mm2 = String(mm%60).padStart(2,'0'); return `${sign}${h}:${mm2}`; }
 
-/* ----- Render cards + tooltip ----- */
+/* render cards */
 function renderCards(){
   cards.innerHTML = '';
+  // ensure we always have at least one city
+  if(!Array.isArray(cities) || cities.length===0){
+    // seed fallback
+    cities = [
+      {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
+      {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
+      {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
+    ];
+    saveState();
+  }
+
   cities.forEach((c, idx) => {
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.tabIndex = 0;
-    card.setAttribute('aria-label', `${c.label} local time card`);
-    const flag = c.flag || (c.cc ? ccToEmoji(c.cc) : '');
+    const card = document.createElement('article'); card.className='card'; card.tabIndex=0; card.setAttribute('aria-label', `${c.label} local time card`);
+    const flag = c.flag || (c.cc? ccToEmoji(c.cc): '');
     const latlon = (c.lat && c.lon) ? `${Number(c.lat).toFixed(3)}, ${Number(c.lon).toFixed(3)}` : '';
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="flag">${flag}</div>
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div class="meta" style="font-weight:700">${c.label}</div>
-              <div class="meta">${c.tz}${latlon ? ' • '+latlon : ''}</div>
-            </div>
-            <div style="display:flex;gap:6px">
-              <button class="small remove" data-idx="${idx}" title="Remove">✖</button>
-            </div>
-          </div>
-          <div class="timebig" id="time-${idx}">--:--:--</div>
-          <div class="meta" id="date-${idx}">--</div>
-          <div class="meta" id="sun-${idx}" style="margin-top:6px"></div>
-        </div>
-      </div>
-      <div class="tooltip" id="tip-${idx}"></div>
-    `;
+    card.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="flag">${flag}</div><div style="flex:1"><div style="display:flex;align-items:center;justify-content:space-between"><div><div class="meta" style="font-weight:700">${c.label}</div><div class="meta">${c.tz}${latlon? ' • '+latlon : ''}</div></div><div style="display:flex;gap:6px"><button class="small remove" data-idx="${idx}" title="Remove">✖</button></div></div><div class="timebig" id="time-${idx}">--:--:--</div><div class="meta" id="date-${idx}">--</div><div class="meta" id="sun-${idx}" style="margin-top:6px"></div></div></div><div class="tooltip" id="tip-${idx}"></div>`;
     cards.appendChild(card);
-    card.addEventListener('mouseenter', ()=> showTip(idx));
-    card.addEventListener('mouseleave', ()=> hideTip(idx));
-    card.addEventListener('click', () => { const tip = $('tip-'+idx); if(tip) tip.classList.toggle('show'); });
-    // remove button
-    card.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); const i = +e.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); });
+    card.addEventListener('mouseenter', ()=> showTip(idx)); card.addEventListener('mouseleave', ()=> hideTip(idx));
+    card.addEventListener('click', ()=> { const tip = $('tip-'+idx); if(tip) tip.classList.toggle('show'); });
+    card.querySelector('.remove').addEventListener('click', (e)=> { e.stopPropagation(); const i=+e.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); });
   });
 }
 
-/* ----- showTip / hideTip ----- */
+/* tooltip */
 function showTip(idx){
-  const c = cities[idx];
-  const tip = $('tip-'+idx);
-  if(!tip) return;
+  const c = cities[idx]; const tip = $('tip-'+idx); if(!tip) return;
   try {
     const now = DateTime.now().setZone(c.tz);
-    let sun = '';
-    if(c.lat && c.lon){
-      try {
-        const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
-        sun = `${DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm')} • ${DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm')}`;
-      } catch(e){}
-    }
-    tip.innerHTML = `
-      <div style="font-weight:700">${c.tz}</div>
-      <div style="margin-top:6px;color:var(--muted)">Local: ${now.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div>
-      <div style="margin-top:6px;color:var(--muted)">UTC offset: UTC${fmtOffset(now.offset)}</div>
-      <div style="margin-top:6px;color:var(--muted)">DST: ${now.isInDST ? 'Yes' : 'No'}</div>
-      ${sun ? `<div style="margin-top:6px;color:var(--muted)">Sunrise/Sunset: ${sun}</div>` : ''}
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Tip: Use map to add missing coordinates.</div>
-    `;
+    let sun='';
+    if(c.lat && c.lon){ try { const times = SunCalc.getTimes(new Date(), c.lat, c.lon); sun = `${DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm')} • ${DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm')}`; } catch(e){} }
+    tip.innerHTML = `<div style="font-weight:700">${c.tz}</div><div style="margin-top:6px;color:var(--muted)">Local: ${now.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div><div style="margin-top:6px;color:var(--muted)">UTC offset: UTC${fmtOffset(now.offset)}</div><div style="margin-top:6px;color:var(--muted)">DST: ${now.isInDST ? 'Yes' : 'No'}</div>${sun?`<div style="margin-top:6px;color:var(--muted)">Sunrise/Sunset: ${sun}</div>`:''}<div style="margin-top:8px;font-size:12px;color:var(--muted)">Tip: use map to add coords.</div>`;
     tip.classList.add('show');
-  } catch(e){ tip.textContent = 'Error showing details'; tip.classList.add('show'); }
+  } catch(e){ console.warn(e); tip.textContent='Error'; tip.classList.add('show'); }
 }
 function hideTip(idx){ const tip = $('tip-'+idx); if(tip) tip.classList.remove('show'); }
 
-/* ----- Timeline rendering (hour columns) ----- */
-function renderTimeline(selectedHour = null){
-  const offset = 0; // using UTC base and slider for highlight; vertical slider controls selectedHour
-  const hours = Array.from({length:24}, (_,i)=>i);
-  timeline.innerHTML = '';
-  const header = document.createElement('div'); header.className = 'hourbar';
-  header.innerHTML = `<div style="width:160px"></div>` + hours.map(h => `<div class="hour" data-hour="${h}">${String(h).padStart(2,'0')}:00</div>`).join('');
+/* timeline */
+function renderTimeline(selectedHour=null){
+  timeline.innerHTML=''; const hours = Array.from({length:24},(_,i)=>i);
+  const header = document.createElement('div'); header.className='hourbar'; header.innerHTML = `<div style="width:160px"></div>` + hours.map(h=>`<div class="hour" data-hour="${h}">${String(h).padStart(2,'0')}:00</div>`).join('');
   timeline.appendChild(header);
-  cities.forEach(c => {
-    const row = document.createElement('div'); row.className = 'cityrow';
-    const label = document.createElement('div'); label.className = 'citylabel'; label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="meta">${c.tz}</div>`;
+  cities.forEach(c=>{
+    const row = document.createElement('div'); row.className='cityrow';
+    const label = document.createElement('div'); label.className='citylabel'; label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="meta">${c.tz}</div>`;
     row.appendChild(label);
     const container = document.createElement('div'); container.style.display='flex'; container.style.gap='6px';
-    hours.forEach(h => {
-      // compute local hour at UTC h
+    hours.forEach(h=>{
       const dt = DateTime.utc().set({hour:h, minute:0}).setZone(c.tz);
-      const el = document.createElement('div'); el.className = 'hour'; el.dataset.hour = h; el.textContent = dt.toFormat('HH');
-      // current hour highlight (based on actual now)
+      const el = document.createElement('div'); el.className='hour'; el.dataset.hour=h; el.textContent = dt.toFormat('HH');
       const nowLocal = DateTime.now().setZone(c.tz);
-      if(dt.hasSame(nowLocal, 'hour')) el.classList.add('now');
-      // selected hour highlight
-      if(selectedHour !== null && Number(selectedHour) === h) el.classList.add('selected');
+      if(dt.hasSame(nowLocal,'hour')) el.classList.add('now');
+      if(selectedHour!==null && Number(selectedHour)===h) el.classList.add('selected');
       container.appendChild(el);
     });
-    row.appendChild(container);
-    timeline.appendChild(row);
+    row.appendChild(container); timeline.appendChild(row);
   });
 }
 
-/* ----- vertical slider interaction ----- */
-vertSlider.addEventListener('input', (e) => {
-  const h = Number(e.target.value);
-  renderTimeline(h);
-});
+/* vertical slider */
+$('vertSlider').addEventListener('input', (e)=> renderTimeline(Number(e.target.value)));
 
-/* ----- Meeting planner with suggestions (scan day, 30-min slots) ----- */
-applyPlan.addEventListener('click', runPlanner);
-function runPlanner(){
-  plannerResult.innerHTML = '';
+/* meeting planner (same logic, unchanged) */
+applyPlan.addEventListener('click', ()=>{
+  plannerResult.innerHTML='';
   if(!meetingDate.value || !meetingTime.value){ plannerResult.innerHTML = '<div class="meta">Pick a date and time.</div>'; return; }
   const dur = Number(meetingDuration.value || 60);
   const [hh,mm] = meetingTime.value.split(':').map(Number);
   const baseLocal = DateTime.fromISO(meetingDate.value).set({hour:hh, minute:mm});
-  const baseUtc = baseLocal.toUTC();
-  const endUtc = baseUtc.plus({minutes:dur});
-  // show local times
-  const listHtml = cities.map(c => {
-    const s = baseUtc.setZone(c.tz), e = endUtc.setZone(c.tz);
-    return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between"><div><strong>${c.label}</strong><div class="meta">${c.tz}</div></div><div style="text-align:right"><div class="timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`;
-  }).join('');
-  plannerResult.innerHTML = listHtml;
+  const baseUtc = baseLocal.toUTC(); const endUtc = baseUtc.plus({minutes:dur});
+  plannerResult.innerHTML = cities.map(c => { const s = baseUtc.setZone(c.tz), e = endUtc.setZone(c.tz); return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between"><div><strong>${c.label}</strong><div class="meta">${c.tz}</div></div><div style="text-align:right"><div class="timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`; }).join('');
   // suggestions
-  const scanStart = DateTime.fromISO(meetingDate.value).startOf('day').toUTC();
-  const slots = [];
-  for(let i=0;i<48;i++){
-    const slotStartUtc = scanStart.plus({minutes: i*30});
-    const slotEndUtc = slotStartUtc.plus({minutes: dur});
-    let score = 0; const details = [];
-    cities.forEach(c => {
-      const s = slotStartUtc.setZone(c.tz), e = slotEndUtc.setZone(c.tz);
-      const within = (s.hour >=9 && s.hour <=17) && (e.hour >=9 && e.hour <=18);
-      if(within) score++;
-      details.push({city:c.label, start:s.toFormat('HH:mm'), within});
-    });
-    slots.push({slotStartUtc, score, details});
+  const scanStart = DateTime.fromISO(meetingDate.value).startOf('day').toUTC(); const slots=[];
+  for(let i=0;i<48;i++){ const slotStartUtc = scanStart.plus({minutes: i*30}); const slotEndUtc = slotStartUtc.plus({minutes: dur}); let score=0; const details=[];
+    cities.forEach(c=>{ const s = slotStartUtc.setZone(c.tz), e = slotEndUtc.setZone(c.tz); const within = (s.hour>=9 && s.hour<=17) && (e.hour>=9 && e.hour<=18); if(within) score++; details.push({city:c.label,start:s.toFormat('HH:mm'),within}); });
+    slots.push({slotStartUtc,score,details});
   }
-  slots.sort((a,b) => b.score - a.score || +a.slotStartUtc - +b.slotStartUtc);
-  const wrap = document.createElement('div'); wrap.style.marginTop='10px';
-  wrap.innerHTML = `<div class="meta">Top suggestions (maximize cities in 09:00–18:00):</div>`;
+  slots.sort((a,b)=> b.score - a.score || +a.slotStartUtc - +b.slotStartUtc);
+  const wrap = document.createElement('div'); wrap.style.marginTop='10px'; wrap.innerHTML = `<div class="meta">Top suggestions (maximize cities in 09:00–18:00):</div>`;
   const list = document.createElement('div'); list.style.marginTop='6px';
-  slots.slice(0,6).forEach(s => {
-    const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName);
-    const item = document.createElement('div'); item.style.padding='8px'; item.style.border='1px solid rgba(255,255,255,0.02)'; item.style.marginBottom='6px';
-    item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="meta">${s.score}/${cities.length} fit</div><button class="small applySuggest" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--muted)">Sample: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`;
-    list.appendChild(item);
-  });
+  slots.slice(0,6).forEach(s=>{ const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName); const item = document.createElement('div'); item.style.padding='8px'; item.style.border='1px solid rgba(255,255,255,0.02)'; item.style.marginBottom='6px'; item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="meta">${s.score}/${cities.length} fit</div><button class="small applySuggest" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--muted)">Sample: ${s.details.slice(0,3).map(d=>`${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`; list.appendChild(item); });
   wrap.appendChild(list); plannerResult.appendChild(wrap);
-  plannerResult.querySelectorAll('.applySuggest').forEach(btn => btn.addEventListener('click', (ev)=>{
-    const utcIso = ev.currentTarget.dataset.utc;
-    const utc = DateTime.fromISO(utcIso);
-    const local = utc.setZone(DateTime.now().zoneName);
-    meetingDate.value = local.toISODate(); meetingTime.value = `${local.toFormat('HH')}:${local.toFormat('mm')}`; runPlanner();
-  }));
-}
+  plannerResult.querySelectorAll('.applySuggest').forEach(btn => btn.addEventListener('click', ev => { const utc = DateTime.fromISO(ev.currentTarget.dataset.utc); const local = utc.setZone(DateTime.now().zoneName); meetingDate.value = local.toISODate(); meetingTime.value = `${local.toFormat('HH')}:${local.toFormat('mm')}`; applyPlan.click(); }));
+});
 
-/* ----- Converter ----- */
+/* converter */
 function populateConv(){
-  convFrom.innerHTML = ''; convTo.innerHTML = '';
-  cities.forEach(c => {
-    const o = document.createElement('option'); o.value = c.tz; o.textContent = `${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-  });
-  // add some common zones
-  const common = ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'];
-  common.forEach(tz => {
-    if(!Array.from(convFrom.options).some(o=>o.value===tz)){
-      const o = document.createElement('option'); o.value=tz; o.textContent = tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-    }
-  });
+  convFrom.innerHTML=''; convTo.innerHTML='';
+  cities.forEach(c => { const o=document.createElement('option'); o.value=c.tz; o.textContent=`${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true)); });
+  ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'].forEach(tz=>{ if(!Array.from(convFrom.options).some(o=>o.value===tz)){ const o=document.createElement('option'); o.value=tz; o.textContent=tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true)); }});
 }
-$('convBtn').addEventListener('click', ()=>{
-  if(!convFrom.value || !convTo.value || !convTime.value) { convOut.textContent='Pick From, To and time'; return; }
+$('convBtn').addEventListener('click', ()=> {
+  if(!convFrom.value || !convTo.value || !convTime.value){ convOut.textContent='Pick From, To and time'; return; }
   const today = DateTime.now().setZone(convFrom.value).toISODate();
   const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
   const out = dt.setZone(convTo.value);
   convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
 });
 
-/* ----- Embed & Share (hash) ----- */
-function updateEmbed(){
-  try {
-    const payload = base64url.encode(JSON.stringify(cities));
-    const url = `${location.origin}${location.pathname}#${payload}`;
-    embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`;
-    shareLink.value = url;
-  } catch(e){ console.warn('embed update failed', e); }
-}
-copyEmbed.addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')));
+/* embed & share (hash) */
+function updateEmbed(){ try{ const payload = base64url.encode(JSON.stringify(cities)); const url = `${location.origin}${location.pathname}#${payload}`; embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`; shareLink.value = url; } catch(e){ console.warn(e); } }
+$('copyEmbed').addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')));
 
-/* ----- Export image (cards + timeline) ----- */
-exportImg.addEventListener('click', ()=>{
-  const wrapper = document.createElement('div'); wrapper.style.background='#071323'; wrapper.style.padding='12px'; wrapper.appendChild(cards.cloneNode(true)); wrapper.appendChild(timeline.cloneNode(true));
-  document.body.appendChild(wrapper);
-  html2canvas(wrapper, {backgroundColor:null, scale:2}).then(canvas=>{
-    const url = canvas.toDataURL('image/png'); const a = document.createElement('a'); a.href = url; a.download='worldtime.png'; a.click(); document.body.removeChild(wrapper);
-  }).catch(err => alert('Export failed: '+err));
-});
+/* export image */
+$('exportImg').addEventListener('click', ()=> { const wrapper = document.createElement('div'); wrapper.style.background='#071323'; wrapper.style.padding='12px'; wrapper.appendChild(cards.cloneNode(true)); wrapper.appendChild(timeline.cloneNode(true)); document.body.appendChild(wrapper); html2canvas(wrapper,{backgroundColor:null,scale:2}).then(canvas=>{ const url = canvas.toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='worldtime.png'; a.click(); document.body.removeChild(wrapper); }).catch(err=>alert('Export failed: '+err)); });
 
-/* ----- DST ticker: scan next 90 days for offset changes ----- */
+/* DST ticker */
 function scanDst(){
   try {
-    const changes = [];
-    const now = DateTime.now();
-    const days = 90;
-    cities.forEach(c => {
+    const changes = []; const now = DateTime.now(); const days=90;
+    cities.forEach(c=>{
       if(!c.tz) return;
       let prev = DateTime.now().setZone(c.tz).offset;
-      for(let d=1; d<=days; d++){
-        const dt = now.plus({days:d}).setZone(c.tz);
-        if(dt.offset !== prev){ changes.push({city:c.label, date: dt.toISODate(), oldOffset: prev, newOffset: dt.offset}); break; }
-      }
+      for(let d=1; d<=days; d++){ const dt = now.plus({days:d}).setZone(c.tz); if(dt.offset !== prev){ changes.push({city:c.label, date:dt.toISODate(), oldOffset:prev, newOffset:dt.offset}); break; } }
     });
-    if(changes.length===0) dstText.textContent = 'No DST changes for your cities in next 90 days.';
-    else {
-      changes.sort((a,b)=> new Date(a.date) - new Date(b.date));
-      const s = changes[0];
-      dstText.textContent = `Upcoming DST: ${s.city} on ${s.date} — from UTC${fmtOffset(s.oldOffset)} to UTC${fmtOffset(s.newOffset)}`;
-    }
-  } catch(e){ dstText.textContent='DST ticker unavailable'; console.warn(e); }
+    if(changes.length===0) $('dstText').textContent='No DST changes for your cities in next 90 days.';
+    else { changes.sort((a,b)=> new Date(a.date)-new Date(b.date)); const s = changes[0]; $('dstText').textContent = `Upcoming DST: ${s.city} on ${s.date} — from UTC${fmtOffset(s.oldOffset)} to UTC${fmtOffset(s.newOffset)}`; }
+  } catch(e){ console.warn(e); $('dstText').textContent='DST ticker unavailable'; }
 }
 
-/* ----- Map (Leaflet) ----- */
+/* map init always */
 let map=null;
 function initMap(){
   try {
-    map = L.map('map', { attributionControl:false }).setView([20,0], 2);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(map);
-    // add markers from tzCities that have coords (if any)
-    tzCities.forEach(tc => {
-      if(tc.lat == null || tc.lon == null) return;
-      const marker = L.circleMarker([tc.lat, tc.lon], {radius:6, fillOpacity:0.9}).addTo(map);
-      marker.bindTooltip(`${tc.label} — ${tc.tz}`);
-      marker.on('mouseover', ()=> {
-        const dt = DateTime.now().setZone(tc.tz);
-        marker.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
-        marker.openTooltip();
-      });
-      marker.on('click', ()=> {
-        cities.push({label:tc.label, tz:tc.tz, lat:tc.lat, lon:tc.lon, cc:tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
-        saveState(); renderAll();
-      });
-    });
-  } catch(e){ console.warn('Map init failed', e); $('map').innerHTML = '<div class="meta">Map could not load</div>'; }
+    map = L.map('map', { attributionControl:false }).setView([20,0],2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+    // add markers for tzCities that have coords
+    tzCities.forEach(tc => { if(tc.lat==null || tc.lon==null) return; const marker = L.circleMarker([tc.lat,tc.lon],{radius:6,fillOpacity:0.9}).addTo(map); marker.bindTooltip(`${tc.label} — ${tc.tz}`); marker.on('mouseover', ()=> { const dt = DateTime.now().setZone(tc.tz); marker.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); marker.openTooltip(); }); marker.on('click', ()=> { cities.push({label:tc.label,tz:tc.tz,lat:tc.lat,lon:tc.lon,cc:tc.cc,flag:tc.cc?ccToEmoji(tc.cc):''}); saveState(); renderAll(); }); });
+  } catch(e){ console.warn('map init failed',e); $('map').innerHTML = '<div class="meta">Map could not load</div>'; }
 }
 
-/* ----- Autocomplete suggestions (Fuse) ----- */
+/* suggestions & search */
 function showSuggestions(q){
   suggestions.innerHTML=''; suggestions.setAttribute('aria-hidden','true');
   if(!q || !fuse) return;
   const res = fuse.search(q).slice(0,8).map(r=>r.item);
   if(!res.length) return;
   const wrap = document.createElement('div'); wrap.className='suggest-list';
-  res.forEach(r => {
-    const it = document.createElement('div'); it.className='suggest-item'; it.tabIndex=0;
-    it.innerHTML = `<strong>${r.label}</strong><div class="meta">${r.tz}</div>`;
-    it.addEventListener('click', ()=> { pickSuggestion(r); });
-    it.addEventListener('keydown', ev => { if(ev.key==='Enter') pickSuggestion(r); });
-    wrap.appendChild(it);
-  });
+  res.forEach(r=>{ const it=document.createElement('div'); it.className='suggest-item'; it.tabIndex=0; it.innerHTML=`<strong>${r.label}</strong><div class="meta">${r.tz}</div>`; it.addEventListener('click', ()=> { cities.push({label:r.label,tz:r.tz,lat:r.lat||null,lon:r.lon||null,cc:r.cc||null,flag:r.cc?ccToEmoji(r.cc):''}); saveState(); renderAll(); suggestions.innerHTML=''; citySearch.value=''; }); it.addEventListener('keydown', ev=>{ if(ev.key==='Enter') it.click(); }); wrap.appendChild(it); });
   suggestions.appendChild(wrap); suggestions.setAttribute('aria-hidden','false');
 }
-function pickSuggestion(r){
-  cities.push({label:r.label, tz:r.tz, lat:r.lat, lon:r.lon, cc:r.cc, flag: r.cc ? ccToEmoji(r.cc) : ''});
-  saveState(); citySearch.value=''; suggestions.innerHTML=''; renderAll();
-}
+citySearch.addEventListener('input', e=> showSuggestions(e.target.value.trim()));
+citySearch.addEventListener('keydown', e=> { if(e.key==='Enter') addBtn.click(); });
 
-/* ----- Add city from input ----- */
-addBtn.addEventListener('click', () => {
+/* add from input (exact or fuzzy) */
+addBtn.addEventListener('click', ()=> {
   const q = citySearch.value.trim(); if(!q) return;
-  // try exact
-  let found = tzCities.find(t => t.label.toLowerCase() === q.toLowerCase() || t.tz.toLowerCase() === q.toLowerCase());
+  let found = tzCities.find(t=>t.tz.toLowerCase()===q.toLowerCase() || t.label.toLowerCase()===q.toLowerCase());
   if(!found && fuse){ const res = fuse.search(q); if(res && res.length) found = res[0].item; }
-  if(!found){ alert('City not found in list. Try a different name or IANA zone.'); return; }
-  cities.push({label:found.label, tz:found.tz, lat:found.lat||null, lon:found.lon||null, cc:found.cc||null, flag: found.cc? ccToEmoji(found.cc): ''});
+  if(!found){ alert('City not found. Try another name or IANA zone.'); return; }
+  cities.push({label:found.label,tz:found.tz,lat:found.lat||null,lon:found.lon||null,cc:found.cc||null,flag:found.cc?ccToEmoji(found.cc):''});
   saveState(); citySearch.value=''; renderAll();
 });
-citySearch.addEventListener('input', (e)=> showSuggestions(e.target.value.trim()));
-citySearch.addEventListener('keydown', e => { if(e.key==='Enter'){ addBtn.click(); } });
 
-/* ----- Preset add ----- */
-preset.addEventListener('change', ()=>{
-  const v = preset.value; if(!v) return;
-  const [label,tz] = v.split('|'); const found = tzCities.find(t => t.tz === tz);
-  const lat = found ? found.lat : null, lon = found ? found.lon : null, cc = found ? found.cc : null;
-  cities.push({label: label.trim(), tz: tz.trim(), lat, lon, cc, flag: cc? ccToEmoji(cc): ''});
-  preset.selectedIndex = 0; saveState(); renderAll();
-});
+/* preset add */
+preset.addEventListener('change', ()=> { const v = preset.value; if(!v) return; const [label,tz] = v.split('|'); const found = tzCities.find(t=>t.tz===tz); const lat = found?found.lat:null, lon=found?found.lon:null, cc=found?found.cc:null; cities.push({label:label.trim(),tz:tz.trim(),lat,lon,cc,flag:cc?ccToEmoji(cc):''}); preset.selectedIndex=0; saveState(); renderAll(); });
 
-/* ----- Reset button ----- */
-resetBtn.addEventListener('click', ()=> {
-  if(!confirm('Reset to default cities?')) return;
-  cities = [
-    {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
-    {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
-    {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
-  ];
-  saveState(); renderAll();
-});
+/* reset */
+resetBtn.addEventListener('click', ()=> { if(confirm('Reset to default cities?')){ cities=[{label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,cc:'US',flag:'🇺🇸'},{label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,cc:'GB',flag:'🇬🇧'},{label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,cc:'IN',flag:'🇮🇳'}]; saveState(); renderAll(); } });
 
-/* ----- Share button (copies URL with hash) ----- */
-shareBtn.addEventListener('click', ()=> {
-  try {
-    saveState(); navigator.clipboard?.writeText(location.href).then(()=> alert('Link copied')); $('shareLink').value = location.href;
-  } catch(e){ alert('Could not copy link'); }
-});
+/* share */
+shareBtn.addEventListener('click', ()=> { try{ saveState(); navigator.clipboard?.writeText(location.href).then(()=> alert('Link copied')); $('shareLink').value = location.href;}catch(e){alert('Copy failed');} });
 
-/* ----- Populate conv selects etc ----- */
-function populateAllSelects(){
-  // conv
-  convFrom.innerHTML=''; convTo.innerHTML='';
-  cities.forEach(c => {
-    const o = document.createElement('option'); o.value=c.tz; o.textContent=`${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-  });
-  // fallback list
-  ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'].forEach(tz=>{
-    if(!Array.from(convFrom.options).some(o=>o.value===tz)){ const o=document.createElement('option'); o.value=tz; o.textContent=tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true)); }
-  });
-  updateEmbed();
-}
+/* embed/share updater */
+function updateEmbed(){ try{ const payload = base64url.encode(JSON.stringify(cities)); const url = `${location.origin}${location.pathname}#${payload}`; embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`; shareLink.value = url; }catch(e){console.warn(e);} }
 
-/* ----- Tick update (times, sun, timeline, dst) ----- */
+/* tick updates */
 function tick(){
-  cities.forEach((c, idx) => {
-    const timeEl = $('time-'+idx), dateEl = $('date-'+idx), sunEl = $('sun-'+idx);
-    if(!timeEl) return;
-    try {
-      const dt = DateTime.now().setZone(c.tz);
-      timeEl.textContent = dt.toFormat('HH:mm:ss'); dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
-      if(c.lat && c.lon){
-        const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
-        const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
-        const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
-        sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`;
-      } else sunEl.textContent = '';
-    } catch(e){ console.warn('tick update', e); }
-  });
-  const selectedHour = Number(vertSlider.value);
-  renderTimeline(selectedHour);
-  scanDst();
-  populateAllSelects();
+  cities.forEach((c,idx)=>{ const timeEl=$('time-'+idx), dateEl=$('date-'+idx), sunEl=$('sun-'+idx); if(!timeEl) return; try{ const dt=DateTime.now().setZone(c.tz); timeEl.textContent = dt.toFormat('HH:mm:ss'); dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy'); if(c.lat && c.lon){ const times = SunCalc.getTimes(new Date(), c.lat, c.lon); const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm'); const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm'); sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`; } else sunEl.textContent=''; }catch(e){console.warn(e);} });
+  renderTimeline(Number($('vertSlider').value)); scanDst(); populateConv(); updateEmbed();
 }
+setInterval(()=>tick(),1000);
 
-/* ----- Render all ----- */
-function renderAll(){
-  renderCards();
-  populateAllSelects();
-  renderTimeline(Number(vertSlider.value));
-  updateEmbed();
-  scanDst();
-}
+/* render all */
+function renderAll(){ renderCards(); renderTimeline(Number($('vertSlider').value)); populateConv(); updateEmbed(); scanDst(); }
 
-/* ----- boot sequence ----- */
-(async function init(){
-  // load IANA DB
-  await loadIanaDB();
-  // set fuse
-  fuse = new Fuse(tzCities, { keys:['label','tz'], threshold:0.35 });
-  // load state
-  loadState();
-  // init map (best-effort)
-  try { initMap(); } catch(e){ console.warn('map init', e); }
-  // initial render
-  renderAll();
-  // tick every second
-  tick(); setInterval(tick, 1000);
+/* load IANA DB, state, map and start */
+(async function boot(){
+  await loadIanaDB(); // attempts to load full list; fuse replaced there
+  loadState(); // reads hash/localStorage guarded
+  try{ initMap(); }catch(e){ console.warn(e); }
+  renderAll(); tick();
 })();
 
-/* ----- Accessibility: keyboard for suggestions (arrow keys) ----- */
-document.addEventListener('keydown', (e)=>{
-  const list = suggestions.querySelectorAll('.suggest-item');
-  if(!list.length) return;
-  const active = suggestions.querySelector('.suggest-item.active');
-  if(e.key === 'ArrowDown'){ e.preventDefault(); const next = active ? (active.nextSibling || list[0]) : list[0]; setActive(next); }
-  if(e.key === 'ArrowUp'){ e.preventDefault(); const prev = active ? (active.previousSibling || list[list.length-1]) : list[list.length-1]; setActive(prev); }
-  if(e.key === 'Enter' && active){ active.click(); }
-});
+/* extra small utilities and keyboard nav for suggestions */
+document.addEventListener('keydown', e=> { const list = suggestions.querySelectorAll('.suggest-item'); if(!list.length) return; const active = suggestions.querySelector('.suggest-item.active'); if(e.key==='ArrowDown'){ e.preventDefault(); const next = active ? (active.nextSibling || list[0]) : list[0]; setActive(next); } if(e.key==='ArrowUp'){ e.preventDefault(); const prev = active ? (active.previousSibling || list[list.length-1]) : list[list.length-1]; setActive(prev); } if(e.key==='Enter' && active){ active.click(); } });
 function setActive(el){ suggestions.querySelectorAll('.suggest-item').forEach(i=>i.classList.remove('active')); if(el) el.classList.add('active'); }
 
-/* ----- Simple error handling for inputs (some validations) ----- */
-$('calcPray')?.addEventListener?.('click', ()=> {
-  const lat = Number($('prayLat').value), lng = Number($('prayLng').value);
-  if(Number.isNaN(lat) || Number.isNaN(lng)){ $('prayRes').textContent = 'Enter valid lat & lng'; return; }
-});
-
-/* ----- Footer links already use rel="noopener" above ----- */
-
-/* ----- AdSense instructions (you must paste your AdSense script) -----
-  1) Sign up for AdSense and get <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-XXXXXXXXXXXX"></script>
-  2) Paste that script inside the <head> of this HTML (replace ca-pub-...).
-  3) Replace the ad placeholder at #adContainer with the ad unit code provided by AdSense.
-  4) Use responsive ad units to fit mobile; do not place ads where they create accidental clicks (e.g., avoid placing inside interactive elements).
----------------------------------------------------------------------*/
-
+/* finished */
 </script>
 </body>
 </html>
