@@ -14,7 +14,7 @@
   --wtp-accent:#a23a3a;
   --wtp-accent2:#3b82f6;
   --wtp-glass:rgba(255,255,255,0.03);
-  --wtp-search-bg: rgba(255,255,255,0.02); /* new search column background */
+  --wtp-search-bg: rgba(255,255,255,0.02);
   --wtp-radius:12px;
   color-scheme: dark;
   --touch-pad: 14px;
@@ -25,91 +25,158 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 .container{max-width:1200px;margin:0 auto}
 .wtp-header{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .wtp-titleRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.wtp-h1{font-size:20px;margin:0}
-.wtp-tag{color:var(--wtp-muted);font-size:13px}
-.wtp-seo{margin-top:8px;color:#dbeafe;background:linear-gradient(90deg, rgba(59,130,246,0.04), rgba(162,58,58,0.02));padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);font-size:13px}
+.wtp-h1{font-size:20px;margin:0;line-height:1.3}
+.wtp-tag{color:var(--wtp-muted);font-size:13px;line-height:1.4}
+.wtp-seo{margin-top:8px;color:#dbeafe;background:linear-gradient(90deg, rgba(59,130,246,0.04), rgba(162,58,58,0.02));padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);font-size:13px;line-height:1.5}
 
 /* layout */
 .wtp-row{display:flex;gap:12px;align-items:flex-start}
-.wtp-col{background:var(--wtp-card);border-radius:var(--wtp-radius);padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1}
-.wtp-col-side{flex:0 0 380px;max-width:380px}
+.wtp-col{background:var(--wtp-card);border-radius:var(--wtp-radius);padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1;min-width:0}
+.wtp-col-side{flex:0 0 380px;max-width:380px;min-width:0}
 
-/* search column (distinct background) */
-.wtp-searchCol{background:var(--wtp-search-bg);padding:8px;border-radius:10px;display:flex;gap:8px;align-items:center}
-.wtp-searchWrapper{flex:1;position:relative}
+/* search column */
+.wtp-searchCol{background:var(--wtp-search-bg);padding:8px;border-radius:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.wtp-searchWrapper{flex:1;position:relative;min-width:200px}
 
 /* controls */
-.wtp-controls{display:flex;gap:8px;margin-bottom:12px;align-items:center}
-.wtp-input,.wtp-select,.wtp-time,.wtp-date,.wtp-num{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:10px;border-radius:8px;outline:none;font-size:15px}
-.wtp-btn{background:var(--wtp-accent);border:0;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-size:14px}
+.wtp-controls{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.wtp-input,.wtp-select,.wtp-time,.wtp-date,.wtp-num{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:10px;border-radius:8px;outline:none;font-size:15px;width:100%;min-width:0}
+.wtp-btn{background:var(--wtp-accent);border:0;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-size:14px;white-space:nowrap;min-width:fit-content}
 .wtp-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
 .wtp-small{font-size:13px;padding:8px 10px;border-radius:6px}
 
 /* suggestions */
 .wtp-suggestions{position:relative}
 .wtp-suggest-list{position:absolute;z-index:60;left:0;right:0;background:var(--wtp-card);border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-top:8px;max-height:260px;overflow:auto}
-.wtp-suggest-item{padding:10px;border-radius:6px;cursor:pointer}
+.wtp-suggest-item{padding:10px;border-radius:6px;cursor:pointer;word-wrap:break-word}
 .wtp-suggest-item:hover,.wtp-suggest-item.active{background:rgba(255,255,255,0.02)}
 
 /* grid & cards */
 .wtp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
-.wtp-card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02)}
-.wtp-flag{font-size:22px;margin-right:8px}
-.wtp-timebig{font-weight:700;font-size:18px}
-.wtp-meta{color:var(--wtp-muted);font-size:12px}
-.wtp-tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--wtp-glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:30}
+.wtp-card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02);min-width:0}
+.wtp-flag{font-size:22px;margin-right:8px;flex-shrink:0}
+.wtp-timebig{font-weight:700;font-size:18px;word-break:break-all}
+.wtp-meta{color:var(--wtp-muted);font-size:12px;word-wrap:break-word;overflow-wrap:break-word}
+.wtp-tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--wtp-glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:30;max-width:90vw}
 .wtp-tooltip.show{display:block}
 
 /* timeline & hour slider */
 .wtp-timelineWrap{border-radius:10px;padding:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
-.wtp-hourSliderWrapper{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.wtp-hourSlider{width:100%}
-.wtp-timeline{overflow:auto;background:transparent;padding:8px;border-radius:6px;margin-top:6px}
-.wtp-hourbar{display:flex;gap:6px;align-items:center}
+.wtp-hourSliderWrapper{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.wtp-hourSlider{flex:1;min-width:150px}
+.wtp-timeline{overflow-x:auto;overflow-y:hidden;background:transparent;padding:8px;border-radius:6px;margin-top:6px;-webkit-overflow-scrolling:touch}
+.wtp-hourbar{display:flex;gap:6px;align-items:center;min-width:min-content}
 .wtp-hour{flex:0 0 44px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
 .wtp-hour.now{background:linear-gradient(180deg, rgba(162,58,58,0.12), rgba(162,58,58,0.06));border-color:rgba(162,58,58,0.25)}
 .wtp-hour.selected{background:linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.25)}
-.wtp-cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
-.wtp-citylabel{width:160px;flex:0 0 160px}
+.wtp-cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px;min-width:min-content}
+.wtp-citylabel{width:160px;flex:0 0 160px;overflow:hidden;text-overflow:ellipsis}
 
-/* vertical slider hidden on phones */
+/* vertical slider */
 .wtp-vertWrap{height:220px;display:flex;align-items:center;justify-content:center}
-.wtp-vertRange{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:160px;transform: rotate(-90deg);}
+.wtp-vertRange{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:160px;transform: rotate(-90deg)}
 
 /* map */
-#wtp-map{height:260px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-top:8px}
+#wtp-map{height:260px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-top:8px;min-height:200px}
 
 /* utilities */
 .wtp-tools .wtp-tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.015);margin-bottom:10px}
 
 /* ticker */
 .wtp-ticker{background:linear-gradient(90deg,#0b1b2a,#071323);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
-.wtp-ticker span{display:inline-block;padding-right:28px;color:var(--wtp-muted)}
+.wtp-ticker span{display:inline-block;padding-right:28px;color:var(--wtp-muted);font-size:13px}
 
 /* footer */
-.wtp-footer{margin-top:14px;color:var(--wtp-muted);text-align:center;font-size:13px}
+.wtp-footer{margin-top:14px;color:var(--wtp-muted);text-align:center;font-size:13px;padding:8px}
 
-/* responsive */
+/* meeting planner */
+.wtp-planner{display:grid;grid-template-columns:1fr 360px;gap:10px}
+
+/* responsive tablets */
 @media (max-width:980px){
   .wtp-row{flex-direction:column}
   .wtp-col-side{max-width:none;flex:1}
   .wtp-citylabel{width:120px;flex:0 0 120px}
-  .wtp-hour{flex:0 0 40px}
+  .wtp-hour{flex:0 0 40px;height:34px}
   #wtp-map{height:220px}
   .wtp-vertWrap{display:none}
+  .wtp-planner{grid-template-columns:1fr;gap:12px}
   .wtp-card{padding:12px}
-  .wtp-input{padding:12px}
-  .wtp-btn{padding:10px 12px}
+  .wtp-input,.wtp-select,.wtp-time,.wtp-date{padding:12px;font-size:16px}
+  .wtp-btn{padding:12px 14px;font-size:14px}
+  .wtp-h1{font-size:18px}
+}
+
+/* responsive mobile */
+@media (max-width:640px){
+  body{padding:12px}
+  .wtp-h1{font-size:17px}
+  .wtp-tag{font-size:12px}
+  .wtp-seo{font-size:12px;padding:8px}
+  .wtp-controls{gap:6px}
+  .wtp-searchCol{flex-direction:column;align-items:stretch;padding:8px}
+  .wtp-searchWrapper{min-width:100%;width:100%}
+  .wtp-input,.wtp-select,.wtp-time,.wtp-date{font-size:16px;padding:12px}
+  .wtp-btn{width:100%;padding:12px;font-size:14px}
+  .wtp-small{padding:10px 12px;font-size:13px}
+  .wtp-grid{grid-template-columns:1fr;gap:10px}
+  .wtp-citylabel{width:100px;flex:0 0 100px;font-size:11px}
+  .wtp-hour{flex:0 0 36px;height:32px;font-size:11px}
+  .wtp-timebig{font-size:16px}
+  .wtp-meta{font-size:11px}
+  .wtp-hourSliderWrapper{flex-direction:column;align-items:stretch}
+  .wtp-hourSlider{min-width:100%;width:100%}
+  #wtp-map{height:180px}
+  .wtp-planner{grid-template-columns:1fr}
+  .wtp-tool{padding:8px}
+  pre{font-size:10px;overflow-x:auto}
+  .wtp-ticker{font-size:12px}
+  .wtp-footer{font-size:12px}
+  .wtp-tooltip{min-width:200px;max-width:85vw;font-size:12px}
 }
 
 /* small phones */
 @media (max-width:420px){
-  body{padding:10px}
-  .wtp-h1{font-size:18px}
-  .wtp-meta{font-size:11px}
-  .wtp-citylabel{width:110px;flex:0 0 110px}
-  .wtp-hour{flex:0 0 36px;height:34px;font-size:11px}
-  .wtp-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  body{padding:8px}
+  .wtp-h1{font-size:16px}
+  .wtp-tag{font-size:11px}
+  .wtp-seo{padding:6px;font-size:11px}
+  .wtp-citylabel{width:90px;flex:0 0 90px;font-size:10px}
+  .wtp-hour{flex:0 0 34px;height:30px;font-size:10px}
+  .wtp-timebig{font-size:15px}
+  .wtp-meta{font-size:10px}
+  .wtp-card{padding:10px}
+  .wtp-input,.wtp-select,.wtp-time,.wtp-date{padding:10px;font-size:16px}
+  .wtp-btn{padding:10px;font-size:13px}
+  #wtp-map{height:160px}
+  .wtp-flag{font-size:20px}
+}
+
+/* button group wrapping */
+.wtp-btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+
+@media (max-width:640px){
+  .wtp-btn-group{margin-left:0;width:100%;flex-direction:column}
+  .wtp-btn-group .wtp-btn{width:100%}
+}
+
+/* preset select on mobile */
+@media (max-width:640px){
+  #wtp-preset{width:100%;min-width:100%}
+}
+
+/* converter tools responsive */
+.wtp-converter-inputs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+@media (max-width:640px){
+  .wtp-converter-inputs{flex-direction:column}
+  .wtp-converter-inputs > *{width:100%}
+}
+
+.wtp-preset-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+@media (max-width:640px){
+  .wtp-preset-buttons .wtp-small{flex:1 1 calc(50% - 4px);min-width:calc(50% - 4px)}
 }
 </style>
 
@@ -137,14 +204,13 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
       <!-- Main Column -->
       <div class="wtp-col" id="wtp-main">
 
-        <!-- New search area with distinct background and Add next to input -->
+        <!-- Search area -->
         <div class="wtp-controls" role="region" aria-label="City controls">
-          <div class="wtp-searchCol" style="flex:1">
-            <div class="wtp-searchWrapper" style="flex:1">
-              <input id="wtp-citySearch" class="wtp-input" type="text" placeholder="Search city or IANA zone (e.g. New York or Europe/London)" aria-label="City search"/>
+          <div class="wtp-searchCol" style="flex:1;min-width:0">
+            <div class="wtp-searchWrapper">
+              <input id="wtp-citySearch" class="wtp-input" type="text" placeholder="Search city or IANA zone" aria-label="City search"/>
               <div id="wtp-suggestions" class="wtp-suggestions" aria-hidden="true"></div>
             </div>
-            <!-- ADD button next to search -->
             <button id="wtp-addCity" class="wtp-btn" title="Add selected city">Add</button>
           </div>
 
@@ -158,7 +224,7 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
             <option>Sydney, AU|Australia/Sydney</option>
           </select>
 
-          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <div class="wtp-btn-group">
             <button id="wtp-shareBtn" class="wtp-btn">Share</button>
             <button id="wtp-exportImage" class="wtp-btn wtp-ghost">Export Image</button>
             <button id="wtp-resetBtn" class="wtp-btn wtp-ghost">Reset</button>
@@ -167,7 +233,7 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
         <div id="wtp-cards" class="wtp-grid" aria-live="polite" style="margin-top:10px"></div>
 
-        <!-- Timeline + horizontal slider (new) -->
+        <!-- Timeline + horizontal slider -->
         <div style="margin-top:12px;display:flex;gap:10px;align-items:flex-start;flex-direction:column">
           <div style="width:100%">
             <h3 style="margin:6px 0">24-Hour Comparator</h3>
@@ -183,7 +249,7 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
             </div>
           </div>
 
-          <div style="width:240px">
+          <div style="width:240px" class="wtp-vertWrap">
             <label class="wtp-meta">Vertical hour slider (highlight)</label>
             <div class="wtp-vertWrap">
               <input id="wtp-vertSlider" class="wtp-vertRange" type="range" min="0" max="23" step="1" value="0" aria-label="Hour highlight"/>
@@ -195,18 +261,18 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
         <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
 
         <h3 style="margin:6px 0">Meeting Planner & Suggestions</h3>
-        <div class="wtp-planner" style="display:grid;grid-template-columns:1fr 360px;gap:10px">
+        <div class="wtp-planner">
           <div>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-              <input id="wtp-meetingDate" class="wtp-date" type="date" />
-              <input id="wtp-meetingTime" class="wtp-time" type="time" />
-              <select id="wtp-meetingDuration" class="wtp-select">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+              <input id="wtp-meetingDate" class="wtp-date" type="date" style="flex:1;min-width:140px"/>
+              <input id="wtp-meetingTime" class="wtp-time" type="time" style="flex:1;min-width:120px"/>
+              <select id="wtp-meetingDuration" class="wtp-select" style="flex:0 0 100px">
                 <option value="30">30 min</option>
                 <option value="45">45 min</option>
                 <option value="60" selected>60 min</option>
                 <option value="90">90 min</option>
               </select>
-              <button id="wtp-applyPlan" class="wtp-btn">Apply</button>
+              <button id="wtp-applyPlan" class="wtp-btn" style="flex:0 0 auto">Apply</button>
             </div>
             <div id="wtp-plannerResult" style="max-height:300px;overflow:auto;padding:6px"></div>
           </div>
@@ -214,27 +280,27 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
           <div class="wtp-tools">
             <div class="wtp-tool">
               <strong>Quick Converters</strong>
-              <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <div class="wtp-preset-buttons">
                 <button class="wtp-presetConv wtp-small" data-from="America/New_York" data-to="Asia/Kolkata">EST → IST</button>
                 <button class="wtp-presetConv wtp-small" data-from="America/Los_Angeles" data-to="Asia/Kolkata">PST → IST</button>
                 <button class="wtp-presetConv wtp-small" data-from="Etc/UTC" data-to="Asia/Kolkata">GMT → IST</button>
                 <button id="wtp-swapConv" class="wtp-small wtp-ghost">Swap</button>
               </div>
 
-              <div style="display:flex;gap:6px;margin-top:8px">
-                <select id="wtp-convFrom" class="wtp-select"></select>
-                <select id="wtp-convTo" class="wtp-select"></select>
-                <input id="wtp-convTime" class="wtp-time" type="time" />
-                <button id="wtp-convBtn" class="wtp-btn">Convert</button>
+              <div class="wtp-converter-inputs">
+                <select id="wtp-convFrom" class="wtp-select" style="flex:1"></select>
+                <select id="wtp-convTo" class="wtp-select" style="flex:1"></select>
+                <input id="wtp-convTime" class="wtp-time" type="time" style="flex:0 0 120px"/>
+                <button id="wtp-convBtn" class="wtp-btn" style="flex:0 0 auto">Convert</button>
               </div>
-              <div id="wtp-convOut" style="margin-top:6px;color:var(--wtp-muted)"></div>
+              <div id="wtp-convOut" style="margin-top:6px;color:var(--wtp-muted);word-wrap:break-word"></div>
             </div>
 
             <div class="wtp-tool" style="margin-top:10px">
               <strong>Embeddable Widget</strong>
               <div style="font-size:13px;margin-top:8px">Paste this iframe on your blog:</div>
-              <pre id="wtp-embedCode" style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px"></pre>
-              <button id="wtp-copyEmbed" class="wtp-btn">Copy</button>
+              <pre id="wtp-embedCode" style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"></pre>
+              <button id="wtp-copyEmbed" class="wtp-btn" style="width:100%">Copy</button>
             </div>
 
             <div class="wtp-tool" style="margin-top:10px">
@@ -246,14 +312,14 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
         <div style="margin-top:12px;text-align:center;">
           <div id="wtp-adContainer" style="display:flex;justify-content:center;margin-top:8px">
-            <div style="width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--wtp-muted)">Ad placeholder — paste AdSense unit here</div>
+            <div style="width:100%;max-width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--wtp-muted)">Ad placeholder — paste AdSense unit here</div>
           </div>
         </div>
       </div>
 
       <!-- Side column -->
       <aside class="wtp-col wtp-col-side" role="complementary">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
           <strong style="flex:1">Utilities & Map</strong>
           <button id="wtp-resetTools" class="wtp-btn wtp-ghost">Reset</button>
         </div>
@@ -268,18 +334,18 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
 
           <div class="wtp-tool" style="margin-top:10px">
             <strong>Countdown</strong>
-            <div style="margin-top:8px;display:flex;gap:6px">
-              <input id="wtp-countDate" class="wtp-date" type="date" />
-              <input id="wtp-countTime" class="wtp-time" type="time" />
-              <button id="wtp-startCount" class="wtp-btn">Start</button>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+              <input id="wtp-countDate" class="wtp-date" type="date" style="flex:1;min-width:140px"/>
+              <input id="wtp-countTime" class="wtp-time" type="time" style="flex:1;min-width:100px"/>
+              <button id="wtp-startCount" class="wtp-btn" style="flex:0 0 auto;width:100%">Start</button>
             </div>
-            <div id="wtp-countRes" style="margin-top:8px;color:var(--wtp-muted)"></div>
+            <div id="wtp-countRes" style="margin-top:8px;color:var(--wtp-muted);word-wrap:break-word"></div>
           </div>
         </div>
 
         <div style="margin-top:12px;color:var(--wtp-muted);font-size:13px">
           <strong>Notes</strong>
-          <ul>
+          <ul style="padding-left:20px;margin:8px 0">
             <li>Push this file to GitHub and enable Pages (root). No backend required.</li>
             <li>If you want the IANA DB bundled locally (recommended for reliability), say "bundle IANA".</li>
           </ul>
@@ -288,13 +354,13 @@ body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0
     </div>
 
     <footer class="wtp-footer">
-      Built with Luxon, Fuse.js, Leaflet, SunCalc and html2canvas. Links: <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener">AdSense</a>
+      Built with Luxon, Fuse.js, Leaflet, SunCalc and html2canvas. Links: <a href="https://github.com/" target="_blank" rel="noopener" style="color:var(--wtp-accent2)">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener" style="color:var(--wtp-accent2)">AdSense</a>
     </footer>
   </div>
 
 <!-- App Script -->
 <script>
-/* WorldTime Pro — updated UI (search bg, inline Add, responsive, horizontal hour slider) */
+/* WorldTime Pro — Fully Responsive Version */
 
 /* libs */
 const { DateTime } = luxon;
@@ -412,13 +478,13 @@ function renderCards(){
     card.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px">
         <div class="wtp-flag">${flag}</div>
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="flex:1;min-width:0">
               <div class="wtp-meta" style="font-weight:700">${c.label}</div>
               <div class="wtp-meta">${c.tz}${latlon ? ' • ' + latlon : ''}</div>
             </div>
-            <div style="display:flex;gap:6px">
+            <div style="display:flex;gap:6px;flex-shrink:0">
               <button class="wtp-small wtp-remove" data-idx="${idx}" title="Remove">✖</button>
             </div>
           </div>
@@ -470,13 +536,13 @@ function renderTimeline(selectedHour = null){
   const hours = Array.from({length:24}, (_,i)=>i);
   timelineEl.innerHTML = '';
   const header = document.createElement('div'); header.className = 'wtp-hourbar';
-  header.innerHTML = `<div style="width:160px"></div>` + hours.map(h => `<div class="wtp-hour" data-hour="${h}">${h.toString().padStart(2,'0')}:00</div>`).join('');
+  header.innerHTML = `<div style="width:160px;flex-shrink:0"></div>` + hours.map(h => `<div class="wtp-hour" data-hour="${h}">${h.toString().padStart(2,'0')}:00</div>`).join('');
   timelineEl.appendChild(header);
 
   cities.forEach((c) => {
     const row = document.createElement('div'); row.className = 'wtp-cityrow';
     const label = document.createElement('div'); label.className = 'wtp-citylabel';
-    label.innerHTML = `<div style="font-weight:700">${c.label}</div><div class="wtp-meta">${c.tz}</div>`;
+    label.innerHTML = `<div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.label}</div><div class="wtp-meta" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.tz}</div>`;
     row.appendChild(label);
 
     const container = document.createElement('div'); container.style.display = 'flex'; container.style.gap = '6px';
@@ -501,18 +567,15 @@ function setSelectedHour(h){
   hourSlider.value = String(val);
   hourLabel.textContent = `${String(val).padStart(2,'0')}:00`;
   renderTimeline(val);
-  // also sync vertical slider
   if(vertSlider) { vertSlider.value = String(val); vertLabel.textContent = `Highlight hour: ${String(val).padStart(2,'0')}:00`; }
 }
 hourSlider.addEventListener('input', (e)=> setSelectedHour(e.target.value));
 
-/* mouse move over timeline to update slider (so moving mouse shows hour quickly) */
+/* mouse move over timeline */
 timelineEl.addEventListener('mousemove', (ev)=>{
   try {
     const rect = timelineEl.getBoundingClientRect();
-    // ignore if too narrow or outside the hour area
     if(rect.width <= 10) return;
-    // map x to hour: compute fraction across timeline excluding left label column (approx 160px)
     const leftPadding = 160;
     let x = ev.clientX - rect.left - leftPadding;
     if(x < 0) x = 0;
@@ -523,7 +586,6 @@ timelineEl.addEventListener('mousemove', (ev)=>{
   } catch(e){}
 });
 
-/* also allow click on timeline to set hour */
 timelineEl.addEventListener('click', (ev)=>{
   try {
     const rect = timelineEl.getBoundingClientRect();
@@ -537,14 +599,15 @@ timelineEl.addEventListener('click', (ev)=>{
   } catch(e){}
 });
 
-/* vertSlider syncs to horizontal */
-vertSlider.addEventListener('input', (e) => {
-  const val = Number(e.target.value);
-  vertLabel.textContent = `Highlight hour: ${String(val).padStart(2,'0')}:00`;
-  setSelectedHour(val);
-});
+if(vertSlider) {
+  vertSlider.addEventListener('input', (e) => {
+    const val = Number(e.target.value);
+    vertLabel.textContent = `Highlight hour: ${String(val).padStart(2,'0')}:00`;
+    setSelectedHour(val);
+  });
+}
 
-/* Meeting planner, converters, embed — same logic as before (concise for brevity) */
+/* Meeting planner */
 applyPlanBtn.addEventListener('click', applyMeetingPlan);
 function applyMeetingPlan(){
   plannerResult.innerHTML = '';
@@ -556,7 +619,7 @@ function applyMeetingPlan(){
 
   const listHtml = cities.map(c => {
     const s = baseUtc.setZone(c.tz), e = endUtc.setZone(c.tz);
-    return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between"><div><strong>${c.label}</strong><div class="wtp-meta">${c.tz}</div></div><div style="text-align:right"><div class="wtp-timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="wtp-meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`;
+    return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><strong>${c.label}</strong><div class="wtp-meta">${c.tz}</div></div><div style="text-align:right"><div class="wtp-timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="wtp-meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`;
   }).join('');
   plannerResult.innerHTML = listHtml;
 
@@ -581,7 +644,7 @@ function applyMeetingPlan(){
   slots.slice(0,6).forEach(s => {
     const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName);
     const el = document.createElement('div'); el.style.padding='8px'; el.style.border='1px solid rgba(255,255,255,0.02)'; el.style.marginBottom='6px';
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="wtp-meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="wtp-meta">${s.score}/${cities.length} fit</div><button class="wtp-applySuggest wtp-btn" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--wtp-muted)">Sample: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="wtp-meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="wtp-meta">${s.score}/${cities.length} fit</div><button class="wtp-applySuggest wtp-btn wtp-small" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--wtp-muted)">Sample: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`;
     list.appendChild(el);
   });
   suggestWrap.appendChild(list); plannerResult.appendChild(suggestWrap);
@@ -611,6 +674,23 @@ convBtn.addEventListener('click', () => {
   const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
   const out = dt.setZone(convTo.value);
   convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
+});
+
+presetConvButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const from = btn.dataset.from;
+    const to = btn.dataset.to;
+    if(from && to) {
+      Array.from(convFrom.options).forEach(o => { if(o.value === from) o.selected = true; });
+      Array.from(convTo.options).forEach(o => { if(o.value === to) o.selected = true; });
+    }
+  });
+});
+
+swapConvBtn.addEventListener('click', () => {
+  const temp = convFrom.value;
+  convFrom.value = convTo.value;
+  convTo.value = temp;
 });
 
 /* embed & share */
@@ -644,6 +724,31 @@ searchInput.addEventListener('keydown', (e)=> {
   if(e.key === 'ArrowDown'){ e.preventDefault(); if(list.length){ let next = active ? active.nextSibling : list[0]; if(!next) next = list[0]; setActiveSuggestion(next);} return; }
   if(e.key === 'ArrowUp'){ e.preventDefault(); if(list.length){ let prev = active ? active.previousSibling : list[list.length-1]; if(!prev) prev = list[list.length-1]; setActiveSuggestion(prev);} return; }
 });
+
+presetEl.addEventListener('change', (e) => {
+  const val = e.target.value;
+  if(!val) return;
+  const parts = val.split('|');
+  if(parts.length < 2) return;
+  const label = parts[0].trim();
+  const tz = parts[1].trim();
+  const found = COMPACT.find(c => c.tz === tz);
+  if(found) {
+    cities.push({
+      label: found.label || label,
+      tz: found.tz,
+      lat: found.lat,
+      lon: found.lon,
+      cc: found.cc,
+      flag: found.cc ? ccToEmoji(found.cc) : ''
+    });
+    saveState();
+    renderAll();
+    initMap();
+  }
+  presetEl.value = '';
+});
+
 function setActiveSuggestion(el){
   suggestionsWrap.querySelectorAll('.wtp-suggest-item').forEach(i => i.classList.remove('active'));
   if(el) el.classList.add('active'); el?.scrollIntoView({block:'nearest'});
@@ -735,7 +840,7 @@ function showSuggestions(q){
   suggestionsWrap.setAttribute('aria-hidden','false');
 }
 
-/* addCityFromInput (robust) */
+/* addCityFromInput */
 function addCityFromInput(){
   const q = (searchInput.value || '').trim();
   if(!q) return;
@@ -771,7 +876,7 @@ function addCityFromInput(){
   try { initMap(); } catch(e){}
 }
 
-/* DST ticker (same) */
+/* DST ticker */
 function scanDst(){
   try {
     const changes = [];
@@ -794,7 +899,7 @@ function scanDst(){
   } catch(e){ console.warn('DST scan failed', e); dstText.textContent = 'DST ticker unavailable'; }
 }
 
-/* Map init & markers (kept efficient) */
+/* Map init */
 let map = null, markers = [];
 function clearMarkers(){
   if(!map) return;
@@ -812,10 +917,6 @@ function initMap(){
       clearMarkers();
     }
 
-    const useClustering = !!(L && typeof L.markerClusterGroup === 'function');
-    let clusterGroup = null;
-    if (useClustering) clusterGroup = L.markerClusterGroup();
-
     const MAX_MARKERS = 800; let count = 0;
     if (Array.isArray(tzCities) && tzCities.length) {
       for (const tc of tzCities) {
@@ -823,24 +924,14 @@ function initMap(){
         if (tc.lat == null || tc.lon == null) continue;
         if (count >= MAX_MARKERS) break;
         count++;
-        if (useClustering) {
-          const mk = L.marker([tc.lat, tc.lon]);
-          mk.bindTooltip(`${tc.label} — ${tc.tz}`);
-          mk.on('mouseover', ()=> { const dt = DateTime.now().setZone(tc.tz); mk.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); mk.openTooltip(); });
-          mk.on('click', ()=> { cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''}); saveState(); renderAll(); initMap(); });
-          clusterGroup.addLayer(mk); markers.push(mk);
-        } else {
-          const mark = L.circleMarker([tc.lat, tc.lon], { radius:5, fillOpacity:0.9 });
-          mark.bindTooltip(`${tc.label} — ${tc.tz}`);
-          mark.on('mouseover', ()=> { const dt = DateTime.now().setZone(tc.tz); mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); mark.openTooltip(); });
-          mark.on('click', ()=> { cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''}); saveState(); renderAll(); initMap(); });
-          mark.addTo(map); markers.push(mark);
-        }
+        const mark = L.circleMarker([tc.lat, tc.lon], { radius:5, fillOpacity:0.9 });
+        mark.bindTooltip(`${tc.label} — ${tc.tz}`);
+        mark.on('mouseover', ()=> { const dt = DateTime.now().setZone(tc.tz); mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); mark.openTooltip(); });
+        mark.on('click', ()=> { cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''}); saveState(); renderAll(); initMap(); });
+        mark.addTo(map); markers.push(mark);
       }
     }
-    if (useClustering && clusterGroup) { map.addLayer(clusterGroup); markers.push(clusterGroup); }
 
-    // add markers for currently selected cities (highlight)
     if (Array.isArray(cities) && cities.length) {
       for (const c of cities) {
         if (!c || c.lat == null || c.lon == null) continue;
@@ -857,7 +948,7 @@ function initMap(){
   } catch(e){ console.warn('Map init error', e); const mp = document.getElementById('wtp-map'); if(mp) mp.innerHTML = '<div class="wtp-meta">Map could not load</div>'; }
 }
 
-/* export image (unchanged) */
+/* export image */
 exportImageBtn.addEventListener('click', () => {
   const wrapper = document.createElement('div');
   wrapper.style.background = '#071323'; wrapper.style.padding = '12px'; wrapper.style.borderRadius = '8px';
@@ -869,10 +960,11 @@ exportImageBtn.addEventListener('click', () => {
     document.body.removeChild(wrapper);
   }).catch(err => {
     alert('Export failed: ' + String(err));
+    document.body.removeChild(wrapper);
   });
 });
 
-/* countdown (kept simple) */
+/* countdown */
 let countdownInterval = null;
 $('wtp-startCount')?.addEventListener?.('click', ()=> {
   const d = $('wtp-countDate').value; const t = $('wtp-countTime').value; const out = $('wtp-countRes');
@@ -883,7 +975,7 @@ $('wtp-startCount')?.addEventListener?.('click', ()=> {
   tickCount(); countdownInterval = setInterval(tickCount, 1000);
 });
 
-/* main tick loop (updates times & timeline every ~8s) */
+/* main tick loop */
 let lastTimelineUpdate = 0;
 function tick(){
   const nowTs = Date.now(); const now = DateTime.fromMillis(nowTs);
@@ -908,7 +1000,7 @@ function tick(){
 }
 if (!window.__wtp_tick_started__) { setInterval(tick, 1000); window.__wtp_tick_started__ = true; }
 
-/* IANA DB loader (tries local then remote) */
+/* IANA DB loader */
 async function loadIanaDB(){
   const localTz = './timezones.json';
   const localIdx = './country_to_zones_index.json';
@@ -941,8 +1033,25 @@ async function loadIanaDB(){
 }
 
 /* misc handlers */
-$('wtp-copyEmbed').addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')).catch(()=> alert('Copy failed')));
-$('wtp-resetBtn').addEventListener('click', ()=> { if(confirm('Reset to default cities?')) { cities = [{label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,flag:'🇺🇸'},{label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,flag:'🇬🇧'},{label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,flag:'🇮🇳'}]; saveState(); renderAll(); initMap(); } });
+resetBtn.addEventListener('click', ()=> { 
+  if(confirm('Reset to default cities?')) { 
+    cities = [
+      {label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,cc:'US',flag:'🇺🇸'},
+      {label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,cc:'GB',flag:'🇬🇧'},
+      {label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,cc:'IN',flag:'🇮🇳'}
+    ]; 
+    saveState(); renderAll(); initMap(); 
+  } 
+});
+
+$('wtp-resetTools')?.addEventListener?.('click', ()=> {
+  if(confirm('Reset utilities?')) {
+    $('wtp-countDate').value = '';
+    $('wtp-countTime').value = '';
+    $('wtp-countRes').textContent = '';
+    if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  }
+});
 
 /* render all */
 function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(hourSlider.value)); updateEmbedShare(); scanDst(); }
