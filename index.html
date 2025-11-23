@@ -601,6 +601,15 @@ shareBtn.addEventListener('click', ()=> { navigator.clipboard?.writeText(shareLi
 
 /* --- Add city / Autocomplete --- */
 addBtn.addEventListener('click', addCityFromInput);
+  // --- Add this once under Utilities ---
+function debounce(fn, wait = 200) {
+  let t;
+  return function(...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
 searchInput.addEventListener('input', debounce((e)=> showSuggestions(e.target.value.trim()), 220));
 searchInput.addEventListener('keydown', (e)=> {
   const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
@@ -774,33 +783,86 @@ function clearMarkers(){
 
 function initMap(){
   try {
+    // create map if missing
     if(!map){
       map = L.map('wtp-map', { dragging: true, attributionControl: false }).setView([20,0], 2);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
     } else {
+      // remove existing markers (keeps map instance)
       clearMarkers();
     }
 
-    tzCities.forEach(tc => {
-      if(tc.lat == null || tc.lon == null) return;
-      const mark = L.circleMarker([tc.lat, tc.lon], { radius:6, fillOpacity:0.9 }).addTo(map);
-      mark.bindTooltip(`${tc.label} — ${tc.tz}`);
-      mark.on('mouseover', ()=> {
-        const dt = DateTime.now().setZone(tc.tz);
-        mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
-        mark.openTooltip();
-      });
-      mark.on('click', ()=> {
-        cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
-        saveState(); renderAll();
-      });
-      markers.push(mark);
-    });
+    // Performance: limit number of markers added from large tzCities
+    const MAX_MARKERS = 800; // tune this: 200-2000 depending on device expectations
+    let count = 0;
+
+    // Use marker clustering if plugin is present for much better performance/UX
+    // (Leaflet.markercluster exposes L.markerClusterGroup)
+    const useClustering = typeof L.markerClusterGroup === 'function';
+    let clusterGroup = null;
+    if (useClustering) {
+      clusterGroup = L.markerClusterGroup();
+    }
+
+    for (const tc of tzCities) {
+      if (tc.lat == null || tc.lon == null) continue;
+      if (count >= MAX_MARKERS) break;
+      count++;
+
+      // If clustering is available, use simple markers (clustering handles rendering)
+      if (useClustering) {
+        const mk = L.marker([tc.lat, tc.lon]);
+        mk.bindTooltip(`${tc.label} — ${tc.tz}`);
+        mk.on('mouseover', ()=> {
+          const dt = DateTime.now().setZone(tc.tz);
+          mk.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+          mk.openTooltip();
+        });
+        mk.on('click', ()=> {
+          cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
+          saveState(); renderAll();
+        });
+        clusterGroup.addLayer(mk);
+        markers.push(mk); // for clearMarkers to remove later
+      } else {
+        // simple circle marker fallback (lighter weight than full markers)
+        const mark = L.circleMarker([tc.lat, tc.lon], { radius:6, fillOpacity:0.9 }).addTo(map);
+        mark.bindTooltip(`${tc.label} — ${tc.tz}`);
+        mark.on('mouseover', ()=> {
+          const dt = DateTime.now().setZone(tc.tz);
+          mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`);
+          mark.openTooltip();
+        });
+        mark.on('click', ()=> {
+          cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''});
+          saveState(); renderAll();
+        });
+        markers.push(mark);
+      }
+    }
+
+    // add clusterGroup to map if used
+    if (useClustering && clusterGroup) {
+      map.addLayer(clusterGroup);
+      // keep clusterGroup in markers array so clearMarkers will remove it nicely:
+      markers.push(clusterGroup);
+    }
+
+    // if we hit the MAX_MARKERS cap, show a small map hint (non-blocking)
+    if (count >= MAX_MARKERS) {
+      const hint = L.popup({ closeButton: false, autoClose: true, closeOnEscapeKey: true })
+        .setLatLng([20,0])
+        .setContent(`<div class="wtp-meta" style="font-size:12px;padding:6px">Marker limit reached (${MAX_MARKERS}). Zoom or refine search to add more.</div>`);
+      hint.openOn(map);
+      setTimeout(()=> map.closePopup(hint), 3500);
+    }
+
   } catch(e) {
     console.warn('Map init error', e);
     const mp = document.getElementById('wtp-map'); if(mp) mp.innerHTML = '<div class="wtp-meta">Map could not load</div>';
   }
 }
+
 
 
 /* --- Export Image --- */
@@ -818,45 +880,97 @@ exportImageBtn.addEventListener('click', () => {
   });
 });
 
-/* --- Countdown --- */
+/* --- Countdown (fixed) --- */
+// keep one countdown interval in module scope so it can be cleared reliably
+let countdownInterval = null;
+
 $('wtp-startCount')?.addEventListener?.('click', ()=> {
-  const d = $('wtp-countDate').value, t = $('wtp-countTime').value, out = $('wtp-countRes');
+  const d = $('wtp-countDate').value;
+  const t = $('wtp-countTime').value;
+  const out = $('wtp-countRes');
+
   if(!d || !t){ out.textContent = 'Pick date & time'; return; }
+
   const target = DateTime.fromISO(`${d}T${t}`);
   if(!target.isValid){ out.textContent = 'Invalid date/time'; return; }
-  let interval = null;
+
+  // clear any existing interval
+  if(countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+
   function tickCount(){
     const now = DateTime.now();
+    // if target reached or earlier -> stop immediately
+    if(target <= now) {
+      out.textContent = 'Event reached!';
+      if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; }
+      return;
+    }
+    // compute remaining, rounding down each unit
     const diff = target.diff(now, ['days','hours','minutes','seconds']).toObject();
-    if(diff.seconds <= 0){ out.textContent = 'Event reached!'; if(interval) clearInterval(interval); return; }
-    out.textContent = `${Math.floor(diff.days)}d ${Math.floor(diff.hours)}h ${Math.floor(diff.minutes)}m ${Math.floor(diff.seconds)}s`;
+    const days = Math.floor(diff.days || 0);
+    const hours = Math.floor(diff.hours || 0);
+    const minutes = Math.floor(diff.minutes || 0);
+    const seconds = Math.floor(diff.seconds || 0);
+    out.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
-  tickCount(); if(interval) clearInterval(interval); interval = setInterval(tickCount, 1000);
-});
 
-/* --- Tick update (time + timeline + DST + embed) --- */
+  // initial update and start interval
+  tickCount();
+  countdownInterval = setInterval(tickCount, 1000);
+});
+/* --- Tick / main loop (fixed) --- */
+let lastTimelineUpdate = 0;
 function tick(){
+  const nowTs = Date.now();
+  const now = DateTime.fromMillis(nowTs);
+
   cities.forEach((c, idx) => {
     const timeEl = $(`wtp-time-${idx}`), dateEl = $(`wtp-date-${idx}`), sunEl = $(`wtp-sun-${idx}`);
     if(!timeEl) return;
     try {
-      const dt = DateTime.now().setZone(c.tz);
-      timeEl.textContent = dt.toFormat('HH:mm:ss'); dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
+      const dt = now.setZone(c.tz);
+      timeEl.textContent = dt.toFormat('HH:mm:ss');
+      dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
+
       if(c.lat && c.lon){
-        const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
+        // consider caching SunCalc.getTimes results per-city and updating less frequently if performance becomes a concern
+        const times = SunCalc.getTimes(new Date(nowTs), c.lat, c.lon);
         const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
         const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
         sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`;
-      } else sunEl.textContent = '';
-      const tip = $(`wtp-tip-${idx}`); if(tip && tip.classList.contains('show')) showTip(idx);
-    } catch(e) { console.warn('tick update failed', e); }
+      } else {
+        sunEl.textContent = '';
+      }
+
+      const tip = $(`wtp-tip-${idx}`);
+      if(tip && tip.classList.contains('show')) showTip(idx);
+    } catch(e) {
+      console.warn('tick update failed', e);
+    }
   });
-  const selectedHour = Number(vertSlider.value || 0);
-  renderTimeline(selectedHour);
+
+  // throttle timeline re-render to once every ~8s
+  if (nowTs - lastTimelineUpdate > 8000) {
+    renderTimeline(Number(vertSlider.value || 0));
+    lastTimelineUpdate = nowTs;
+  }
+
   scanDst();
   updateEmbedShare();
 }
-setInterval(tick, 1000);
+
+// make sure you start the tick interval once at boot:
+if (typeof window !== 'undefined') {
+  // don't double-start if code re-evaluates
+  if (!window.__wtp_tick_started__) {
+    setInterval(tick, 1000);
+    window.__wtp_tick_started__ = true;
+  }
+}
+
 
 /* --- State & boot --- */
 function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(vertSlider.value)); updateEmbedShare(); scanDst(); }
@@ -932,18 +1046,6 @@ async function loadIanaDB(){
 
 
 /* --- Populate conv selects --- */
-function populateConverterSelects(){
-  convFrom.innerHTML = ''; convTo.innerHTML = '';
-  cities.forEach(c => {
-    const o = document.createElement('option'); o.value = c.tz; o.textContent = `${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-  });
-  const common = ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'];
-  common.forEach(tz => {
-    if(!Array.from(convFrom.options).some(o => o.value === tz)){
-      const o = document.createElement('option'); o.value = tz; o.textContent = tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-    }
-  });
-}
 
 /* --- Event handlers for misc controls --- */
 $('wtp-copyEmbed').addEventListener('click', ()=> navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed copied')).catch(()=> alert('Copy failed')));
