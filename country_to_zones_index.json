@@ -1,0 +1,15 @@
+{
+"United States":["America/New_York","America/Chicago","America/Los_Angeles","America/Phoenix"],
+"United Kingdom":["Europe/London"],
+"Germany":["Europe/Berlin"],
+"France":["Europe/Paris"],
+"Spain":["Europe/Madrid"],
+"Italy":["Europe/Rome"],
+"India":["Asia/Kolkata"],
+"Japan":["Asia/Tokyo"],
+"China":["Asia/Shanghai"],
+"Singapore":["Asia/Singapore"],
+"Australia":["Australia/Sydney","Australia/Melbourne"],
+"Canada":["America/Toronto","America/Vancouver"],
+"UAE":["Asia/Dubai"]
+}
