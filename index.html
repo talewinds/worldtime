@@ -348,7 +348,7 @@ const COMPACT = [
 ];
 
 /* initialize fuse with compact immediately (search works without waiting) */
-fuse = new Fuse(COMPACT, { keys: ['label','tz'], threshold: 0.33 });
+fuse = new Fuse(COMPACT, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
 
 /* --- Utilities --- */
 function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
@@ -734,7 +734,10 @@ function addCityFromInput(){
   // exact match
   let found = tzCities.find(t => t.label.toLowerCase() === q.toLowerCase() || t.tz.toLowerCase() === q.toLowerCase());
   if(!found){
-    const res = fuse.search(q); if(res && res.length) found = res[0].item;
+    const res = fuse.search(q); if(res && res.length){
+  const first = res[0];
+  // if fuse returned wrapped results: {item}
+  found = first.item || first;
   }
   if(!found){ alert('City not found in list. Try a different name or IANA zone.'); return; }
   cities.push({label: found.label, tz: found.tz, lat: found.lat || null, lon: found.lon || null, cc: found.cc || null, flag: found.cc ? ccToEmoji(found.cc) : ''});
