@@ -1,1086 +1,182 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>WorldTime Pro — Final Edition (Stable)</title>
-<meta name="description" content="WorldTime Pro — Global time zone comparator, meeting planner, DST ticker, sunrise/sunset, share/embed, and responsive design.">
-<link rel="icon" href="data:,">
-<style>
-:root{
-  --wtp-bg:#071323;
-  --wtp-card:#0d1b2a;
-  --wtp-muted:#9fb0c8;
-  --wtp-accent:#a23a3a;
-  --wtp-accent2:#3b82f6;
-  --wtp-glass:rgba(255,255,255,0.03);
-  --wtp-search-bg: rgba(255,255,255,0.02);
-  --wtp-radius:12px;
-  color-scheme: dark;
-  --touch-pad: 14px;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:0;padding:16px;background:linear-gradient(180deg,#03101a,#071323);color:#e6f0fb;min-height:100vh;-webkit-font-smoothing:antialiased}
-.container{max-width:1200px;margin:0 auto}
-.wtp-header{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.wtp-titleRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.wtp-h1{font-size:20px;margin:0;line-height:1.3}
-.wtp-tag{color:var(--wtp-muted);font-size:13px;line-height:1.4}
-.wtp-seo{margin-top:8px;color:#dbeafe;background:linear-gradient(90deg, rgba(59,130,246,0.04), rgba(162,58,58,0.02));padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);font-size:13px;line-height:1.5}
+<!-- ====== HealFlora — Ginger Post (Paste in Blogger: HTML view) ====== -->
 
-/* layout */
-.wtp-row{display:flex;gap:12px;align-items:flex-start}
-.wtp-col{background:var(--wtp-card);border-radius:var(--wtp-radius);padding:12px;border:1px solid rgba(255,255,255,0.03);flex:1;min-width:0}
-.wtp-col-side{flex:0 0 380px;max-width:380px;min-width:0}
+<!-- HERO IMAGE: replace src with your uploaded WebP hero image URL -->
+<div style="max-width:980px;margin:0 auto;padding:6px 14px;">
+  <h1 style="font-family:Roboto,Arial,Helvetica,sans-serif;font-size:28px;margin-bottom:6px;">
+    Ginger: The Powerful Root That Heals From Within
+  </h1>
+  <p style="color:#555;font-size:16px;margin-top:0;line-height:1.6;">
+    Ginger (Zingiber officinale) is one of the world’s oldest and most trusted medicinal roots.
+    Warm, pungent and intensely aromatic, ginger supports digestion, immunity, circulation and more —
+    all thanks to its active compounds like <strong>gingerol</strong>.
+  </p>
 
-/* search column */
-.wtp-searchCol{background:var(--wtp-search-bg);padding:8px;border-radius:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.wtp-searchWrapper{flex:1;position:relative;min-width:200px}
+  <figure style="margin:12px 0;">
+    <img src="INSERT_HERO_WEBP_URL_HERE" alt="Fresh ginger root (Zingiber officinale)" style="width:100%;height:auto;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
+    <figcaption style="font-size:13px;color:#777;padding-top:6px;">Fresh ginger root (Zingiber officinale)</figcaption>
+  </figure>
 
-/* controls */
-.wtp-controls{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
-.wtp-input,.wtp-select,.wtp-time,.wtp-date,.wtp-num{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:10px;border-radius:8px;outline:none;font-size:15px;width:100%;min-width:0}
-.wtp-btn{background:var(--wtp-accent);border:0;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-size:14px;white-space:nowrap;min-width:fit-content}
-.wtp-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
-.wtp-small{font-size:13px;padding:8px 10px;border-radius:6px}
+  <!-- Jump break (Blogger: Insert Jump Break in Compose after pasting if you want) -->
+</div>
 
-/* suggestions */
-.wtp-suggestions{position:relative}
-.wtp-suggest-list{position:absolute;z-index:60;left:0;right:0;background:var(--wtp-card);border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-top:8px;max-height:260px;overflow:auto}
-.wtp-suggest-item{padding:10px;border-radius:6px;cursor:pointer;word-wrap:break-word}
-.wtp-suggest-item:hover,.wtp-suggest-item.active{background:rgba(255,255,255,0.02)}
+<!-- CONTENT CONTAINER -->
+<div style="max-width:980px;margin:10px auto 40px;background:#fff;padding:18px 16px;border-radius:8px;font-family:Roboto,Arial,Helvetica,sans-serif;color:#222;line-height:1.65;">
 
-/* grid & cards */
-.wtp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
-.wtp-card{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));position:relative;border:1px solid rgba(255,255,255,0.02);min-width:0}
-.wtp-flag{font-size:22px;margin-right:8px;flex-shrink:0}
-.wtp-timebig{font-weight:700;font-size:18px;word-break:break-all}
-.wtp-meta{color:var(--wtp-muted);font-size:12px;word-wrap:break-word;overflow-wrap:break-word}
-.wtp-tooltip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:var(--wtp-glass);backdrop-filter:blur(6px);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:240px;display:none;z-index:30;max-width:90vw}
-.wtp-tooltip.show{display:block}
-
-/* timeline & hour slider */
-.wtp-timelineWrap{border-radius:10px;padding:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
-.wtp-hourSliderWrapper{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.wtp-hourSlider{flex:1;min-width:150px}
-.wtp-timeline{overflow-x:auto;overflow-y:hidden;background:transparent;padding:8px;border-radius:6px;margin-top:6px;-webkit-overflow-scrolling:touch}
-.wtp-hourbar{display:flex;gap:6px;align-items:center;min-width:min-content}
-.wtp-hour{flex:0 0 44px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
-.wtp-hour.now{background:linear-gradient(180deg, rgba(162,58,58,0.12), rgba(162,58,58,0.06));border-color:rgba(162,58,58,0.25)}
-.wtp-hour.selected{background:linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.25)}
-.wtp-cityrow{display:flex;gap:6px;align-items:center;margin-bottom:6px;min-width:min-content}
-.wtp-citylabel{width:160px;flex:0 0 160px;overflow:hidden;text-overflow:ellipsis}
-
-/* vertical slider */
-.wtp-vertWrap{height:220px;display:flex;align-items:center;justify-content:center}
-.wtp-vertRange{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:160px;transform: rotate(-90deg)}
-
-/* map */
-#wtp-map{height:260px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-top:8px;min-height:200px}
-
-/* utilities */
-.wtp-tools .wtp-tool{padding:10px;border-radius:10px;background:rgba(255,255,255,0.015);margin-bottom:10px}
-
-/* ticker */
-.wtp-ticker{background:linear-gradient(90deg,#0b1b2a,#071323);padding:8px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);overflow:hidden;white-space:nowrap}
-.wtp-ticker span{display:inline-block;padding-right:28px;color:var(--wtp-muted);font-size:13px}
-
-/* footer */
-.wtp-footer{margin-top:14px;color:var(--wtp-muted);text-align:center;font-size:13px;padding:8px}
-
-/* meeting planner */
-.wtp-planner{display:grid;grid-template-columns:1fr 360px;gap:10px}
-
-/* responsive tablets */
-@media (max-width:980px){
-  .wtp-row{flex-direction:column}
-  .wtp-col-side{max-width:none;flex:1}
-  .wtp-citylabel{width:120px;flex:0 0 120px}
-  .wtp-hour{flex:0 0 40px;height:34px}
-  #wtp-map{height:220px}
-  .wtp-vertWrap{display:none}
-  .wtp-planner{grid-template-columns:1fr;gap:12px}
-  .wtp-card{padding:12px}
-  .wtp-input,.wtp-select,.wtp-time,.wtp-date{padding:12px;font-size:16px}
-  .wtp-btn{padding:12px 14px;font-size:14px}
-  .wtp-h1{font-size:18px}
-}
-
-/* responsive mobile */
-@media (max-width:640px){
-  body{padding:12px}
-  .wtp-h1{font-size:17px}
-  .wtp-tag{font-size:12px}
-  .wtp-seo{font-size:12px;padding:8px}
-  .wtp-controls{gap:6px}
-  .wtp-searchCol{flex-direction:column;align-items:stretch;padding:8px}
-  .wtp-searchWrapper{min-width:100%;width:100%}
-  .wtp-input,.wtp-select,.wtp-time,.wtp-date{font-size:16px;padding:12px}
-  .wtp-btn{width:100%;padding:12px;font-size:14px}
-  .wtp-small{padding:10px 12px;font-size:13px}
-  .wtp-grid{grid-template-columns:1fr;gap:10px}
-  .wtp-citylabel{width:100px;flex:0 0 100px;font-size:11px}
-  .wtp-hour{flex:0 0 36px;height:32px;font-size:11px}
-  .wtp-timebig{font-size:16px}
-  .wtp-meta{font-size:11px}
-  .wtp-hourSliderWrapper{flex-direction:column;align-items:stretch}
-  .wtp-hourSlider{min-width:100%;width:100%}
-  #wtp-map{height:180px}
-  .wtp-planner{grid-template-columns:1fr}
-  .wtp-tool{padding:8px}
-  pre{font-size:10px;overflow-x:auto}
-  .wtp-ticker{font-size:12px}
-  .wtp-footer{font-size:12px}
-  .wtp-tooltip{min-width:200px;max-width:85vw;font-size:12px}
-}
-
-/* small phones */
-@media (max-width:420px){
-  body{padding:8px}
-  .wtp-h1{font-size:16px}
-  .wtp-tag{font-size:11px}
-  .wtp-seo{padding:6px;font-size:11px}
-  .wtp-citylabel{width:90px;flex:0 0 90px;font-size:10px}
-  .wtp-hour{flex:0 0 34px;height:30px;font-size:10px}
-  .wtp-timebig{font-size:15px}
-  .wtp-meta{font-size:10px}
-  .wtp-card{padding:10px}
-  .wtp-input,.wtp-select,.wtp-time,.wtp-date{padding:10px;font-size:16px}
-  .wtp-btn{padding:10px;font-size:13px}
-  #wtp-map{height:160px}
-  .wtp-flag{font-size:20px}
-}
-
-/* button group wrapping */
-.wtp-btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-
-@media (max-width:640px){
-  .wtp-btn-group{margin-left:0;width:100%;flex-direction:column}
-  .wtp-btn-group .wtp-btn{width:100%}
-}
-
-/* preset select on mobile */
-@media (max-width:640px){
-  #wtp-preset{width:100%;min-width:100%}
-}
-
-/* converter tools responsive */
-.wtp-converter-inputs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-
-@media (max-width:640px){
-  .wtp-converter-inputs{flex-direction:column}
-  .wtp-converter-inputs > *{width:100%}
-}
-
-.wtp-preset-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-
-@media (max-width:640px){
-  .wtp-preset-buttons .wtp-small{flex:1 1 calc(50% - 4px);min-width:calc(50% - 4px)}
-}
-</style>
-
-<!-- External libs -->
-<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <header class="wtp-header" role="banner">
-      <div class="wtp-titleRow">
-        <h1 class="wtp-h1">WorldTime Pro: Global Meeting Scheduler & Time Zone Comparator</h1>
-        <div class="wtp-tag">Never guess a meeting time again — find the best slot across any time zone.</div>
-      </div>
-      <div class="wtp-seo" id="wtp-seo">WorldTime Pro — free world clock & meeting planner for teams and travelers. DST ticker, sunrise/sunset, converters, embeddable widgets. No backend required.</div>
-    </header>
-
-    <div class="wtp-ticker" id="wtp-dstTicker" aria-live="polite"><span id="wtp-dstText">Scanning for upcoming DST changes for your cities...</span></div>
-
-    <div class="wtp-row" role="main">
-      <!-- Main Column -->
-      <div class="wtp-col" id="wtp-main">
-
-        <!-- Search area -->
-        <div class="wtp-controls" role="region" aria-label="City controls">
-          <div class="wtp-searchCol" style="flex:1;min-width:0">
-            <div class="wtp-searchWrapper">
-              <input id="wtp-citySearch" class="wtp-input" type="text" placeholder="Search city or IANA zone" aria-label="City search"/>
-              <div id="wtp-suggestions" class="wtp-suggestions" aria-hidden="true"></div>
-            </div>
-            <button id="wtp-addCity" class="wtp-btn" title="Add selected city">Add</button>
-          </div>
-
-          <select id="wtp-preset" class="wtp-select" aria-label="Popular presets" style="min-width:170px">
-            <option value="">Popular presets</option>
-            <option>New York, USA|America/New_York</option>
-            <option>London, UK|Europe/London</option>
-            <option>Mumbai, India|Asia/Kolkata</option>
-            <option>Dubai, UAE|Asia/Dubai</option>
-            <option>Tokyo, Japan|Asia/Tokyo</option>
-            <option>Sydney, AU|Australia/Sydney</option>
-          </select>
-
-          <div class="wtp-btn-group">
-            <button id="wtp-shareBtn" class="wtp-btn">Share</button>
-            <button id="wtp-exportImage" class="wtp-btn wtp-ghost">Export Image</button>
-            <button id="wtp-resetBtn" class="wtp-btn wtp-ghost">Reset</button>
-          </div>
-        </div>
-
-        <div id="wtp-cards" class="wtp-grid" aria-live="polite" style="margin-top:10px"></div>
-
-        <!-- Timeline + horizontal slider -->
-        <div style="margin-top:12px;display:flex;gap:10px;align-items:flex-start;flex-direction:column">
-          <div style="width:100%">
-            <h3 style="margin:6px 0">24-Hour Comparator</h3>
-
-            <div class="wtp-timelineWrap">
-              <div class="wtp-hourSliderWrapper" title="Drag slider or move mouse over timeline to highlight an hour">
-                <div style="min-width:80px" class="wtp-meta">Hour:</div>
-                <input id="wtp-hourSlider" class="wtp-hourSlider" type="range" min="0" max="23" step="1" value="0" aria-label="Select hour to highlight">
-                <div id="wtp-hourLabel" class="wtp-meta" style="min-width:64px;text-align:right">00:00</div>
-              </div>
-
-              <div id="wtp-timeline" class="wtp-timeline" aria-hidden="false"></div>
-            </div>
-          </div>
-
-          <div style="width:240px" class="wtp-vertWrap">
-            <label class="wtp-meta">Vertical hour slider (highlight)</label>
-            <div class="wtp-vertWrap">
-              <input id="wtp-vertSlider" class="wtp-vertRange" type="range" min="0" max="23" step="1" value="0" aria-label="Hour highlight"/>
-            </div>
-            <div class="wtp-meta" id="wtp-vertLabel">Highlight hour: 00</div>
-          </div>
-        </div>
-
-        <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
-
-        <h3 style="margin:6px 0">Meeting Planner & Suggestions</h3>
-        <div class="wtp-planner">
-          <div>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-              <input id="wtp-meetingDate" class="wtp-date" type="date" style="flex:1;min-width:140px"/>
-              <input id="wtp-meetingTime" class="wtp-time" type="time" style="flex:1;min-width:120px"/>
-              <select id="wtp-meetingDuration" class="wtp-select" style="flex:0 0 100px">
-                <option value="30">30 min</option>
-                <option value="45">45 min</option>
-                <option value="60" selected>60 min</option>
-                <option value="90">90 min</option>
-              </select>
-              <button id="wtp-applyPlan" class="wtp-btn" style="flex:0 0 auto">Apply</button>
-            </div>
-            <div id="wtp-plannerResult" style="max-height:300px;overflow:auto;padding:6px"></div>
-          </div>
-
-          <div class="wtp-tools">
-            <div class="wtp-tool">
-              <strong>Quick Converters</strong>
-              <div class="wtp-preset-buttons">
-                <button class="wtp-presetConv wtp-small" data-from="America/New_York" data-to="Asia/Kolkata">EST → IST</button>
-                <button class="wtp-presetConv wtp-small" data-from="America/Los_Angeles" data-to="Asia/Kolkata">PST → IST</button>
-                <button class="wtp-presetConv wtp-small" data-from="Etc/UTC" data-to="Asia/Kolkata">GMT → IST</button>
-                <button id="wtp-swapConv" class="wtp-small wtp-ghost">Swap</button>
-              </div>
-
-              <div class="wtp-converter-inputs">
-                <select id="wtp-convFrom" class="wtp-select" style="flex:1"></select>
-                <select id="wtp-convTo" class="wtp-select" style="flex:1"></select>
-                <input id="wtp-convTime" class="wtp-time" type="time" style="flex:0 0 120px"/>
-                <button id="wtp-convBtn" class="wtp-btn" style="flex:0 0 auto">Convert</button>
-              </div>
-              <div id="wtp-convOut" style="margin-top:6px;color:var(--wtp-muted);word-wrap:break-word"></div>
-            </div>
-
-            <div class="wtp-tool" style="margin-top:10px">
-              <strong>Embeddable Widget</strong>
-              <div style="font-size:13px;margin-top:8px">Paste this iframe on your blog:</div>
-              <pre id="wtp-embedCode" style="background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-top:8px;font-size:12px;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"></pre>
-              <button id="wtp-copyEmbed" class="wtp-btn" style="width:100%">Copy</button>
-            </div>
-
-            <div class="wtp-tool" style="margin-top:10px">
-              <strong>Share / Save</strong>
-              <div style="margin-top:8px"><input id="wtp-shareLink" class="wtp-input" readonly style="width:100%"/></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;text-align:center;">
-          <div id="wtp-adContainer" style="display:flex;justify-content:center;margin-top:8px">
-            <div style="width:100%;max-width:320px;height:50px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--wtp-muted)">Ad placeholder — paste AdSense unit here</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Side column -->
-      <aside class="wtp-col wtp-col-side" role="complementary">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-          <strong style="flex:1">Utilities & Map</strong>
-          <button id="wtp-resetTools" class="wtp-btn wtp-ghost">Reset</button>
-        </div>
-
-        <div id="wtp-map"></div>
-
-        <div style="margin-top:10px" class="wtp-tools">
-          <div class="wtp-tool">
-            <strong>Sunrise / Sunset</strong>
-            <div class="wtp-meta" style="margin-top:8px">Sunrise/sunset times show automatically on each city card (when coords available).</div>
-          </div>
-
-          <div class="wtp-tool" style="margin-top:10px">
-            <strong>Countdown</strong>
-            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-              <input id="wtp-countDate" class="wtp-date" type="date" style="flex:1;min-width:140px"/>
-              <input id="wtp-countTime" class="wtp-time" type="time" style="flex:1;min-width:100px"/>
-              <button id="wtp-startCount" class="wtp-btn" style="flex:0 0 auto;width:100%">Start</button>
-            </div>
-            <div id="wtp-countRes" style="margin-top:8px;color:var(--wtp-muted);word-wrap:break-word"></div>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;color:var(--wtp-muted);font-size:13px">
-          <strong>Notes</strong>
-          <ul style="padding-left:20px;margin:8px 0">
-            <li>Push this file to GitHub and enable Pages (root). No backend required.</li>
-            <li>If you want the IANA DB bundled locally (recommended for reliability), say "bundle IANA".</li>
-          </ul>
-        </div>
-      </aside>
+  <!-- Quick Facts box -->
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+    <div style="flex:1 1 220px;background:#f8fff6;border-left:4px solid #2E8B57;padding:10px;border-radius:6px;">
+      <strong>Quick Facts</strong>
+      <ul style="margin:8px 0 0 18px;padding:0;color:#444;font-size:14px;">
+        <li><strong>Scientific name:</strong> Zingiber officinale</li>
+        <li><strong>Family:</strong> Zingiberaceae</li>
+        <li><strong>Parts used:</strong> Rhizome (root)</li>
+        <li><strong>Traditional uses:</strong> Digestive, anti-inflammatory, respiratory</li>
+      </ul>
     </div>
 
-    <footer class="wtp-footer">
-      Built with Luxon, Fuse.js, Leaflet, SunCalc and html2canvas. Links: <a href="https://github.com/" target="_blank" rel="noopener" style="color:var(--wtp-accent2)">GitHub</a> • <a href="https://developers.google.com/adsense" target="_blank" rel="noopener" style="color:var(--wtp-accent2)">AdSense</a>
-    </footer>
+    <div style="flex:1 1 220px;background:#fff8f0;border-left:4px solid #f0ad4e;padding:10px;border-radius:6px;">
+      <strong>Gingerol</strong>
+      <p style="margin:6px 0 0;color:#333;font-size:14px;">
+        Gingerol is the main bioactive compound in fresh ginger — responsible for its aroma, pungency and many medicinal effects.
+        When heated or dried, gingerol converts to shogaol, which is also highly active.
+      </p>
+    </div>
   </div>
 
-<!-- App Script -->
-<script>
-/* WorldTime Pro — Fully Responsive Version */
+  <!-- Table of Contents -->
+  <div style="border-left:4px solid #2E8B57;padding:10px 14px;margin:10px 0 18px;background:#fcfff9;border-radius:6px;">
+    <strong>Contents</strong>
+    <ul style="margin:8px 0 0 18px;padding:0">
+      <li><a href="#benefits" style="color:#2E8B57;text-decoration:none;">12 Evidence-Based Benefits</a></li>
+      <li><a href="#how-to-use" style="color:#2E8B57;text-decoration:none;">How to Use</a></li>
+      <li><a href="#nutrition" style="color:#2E8B57;text-decoration:none;">Nutrition Facts</a></li>
+      <li><a href="#precautions" style="color:#2E8B57;text-decoration:none;">Precautions</a></li>
+      <li><a href="#references" style="color:#2E8B57;text-decoration:none;">References</a></li>
+    </ul>
+  </div>
 
-/* libs */
-const { DateTime } = luxon;
-const base64url = {
-  encode: (s)=>{ const u=new TextEncoder().encode(String(s)); let b=''; for(let i=0;i<u.length;i++) b+=String.fromCharCode(u[i]); return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); },
-  decode: (s)=>{ if(!s) return ''; s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; const bin=atob(s); let out=''; for(let i=0;i<bin.length;i++) out+=String.fromCharCode(bin.charCodeAt(i)); return new TextDecoder().decode(new Uint8Array([...out].map(c=>c.charCodeAt(0)))); }
-};
+  <!-- Benefits Section -->
+  <h2 id="benefits" style="font-size:20px;color:#111;margin-top:6px;">12 Evidence-Based Health Benefits of Ginger</h2>
 
-/* DOM refs */
-const $ = id => document.getElementById(id);
-const cardsEl = $('wtp-cards');
-const searchInput = $('wtp-citySearch');
-const addBtn = $('wtp-addCity');
-const presetEl = $('wtp-preset');
-const timelineEl = $('wtp-timeline');
-const vertSlider = $('wtp-vertSlider');
-const vertLabel = $('wtp-vertLabel');
-const plannerResult = $('wtp-plannerResult');
-const meetingDate = $('wtp-meetingDate');
-const meetingTime = $('wtp-meetingTime');
-const meetingDuration = $('wtp-meetingDuration');
-const applyPlanBtn = $('wtp-applyPlan');
-const convFrom = $('wtp-convFrom');
-const convTo = $('wtp-convTo');
-const convTime = $('wtp-convTime');
-const convBtn = $('wtp-convBtn');
-const convOut = $('wtp-convOut');
-const suggestionsWrap = $('wtp-suggestions');
-const embedCode = $('wtp-embedCode');
-const copyEmbed = $('wtp-copyEmbed');
-const shareBtn = $('wtp-shareBtn');
-const shareLink = $('wtp-shareLink');
-const exportImageBtn = $('wtp-exportImage');
-const dstText = $('wtp-dstText');
-const presetConvButtons = document.querySelectorAll('.wtp-presetConv');
-const swapConvBtn = $('wtp-swapConv');
-const resetBtn = $('wtp-resetBtn');
-const hourSlider = $('wtp-hourSlider');
-const hourLabel = $('wtp-hourLabel');
+  <!-- Benefit 1 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">1. Natural Remedy for Nausea and Morning Sickness</h3>
+  <p>Ginger is highly effective for multiple forms of nausea — including morning sickness, motion sickness, and chemotherapy-related nausea. Clinical trials show daily doses of <em>1–1.5 g</em> can significantly reduce nausea in many people. Pregnant women should consult their doctor, but low doses are commonly used safely to ease morning sickness.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-const STORAGE_KEY = 'wtpro_final_stable_v1';
-let tzCities = [];
-let fuse = null;
-let cities = [];
-let countryIndex = {};
+  <!-- Benefit 2 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">2. Powerful Anti-Inflammatory Effects</h3>
+  <p>Gingerol and shogaol reduce pro-inflammatory cytokines and inhibit inflammatory enzymes, helping conditions like arthritis, muscle soreness and chronic inflammation. Studies report meaningful reductions in pain and swelling after regular ginger intake.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-const COMPACT = [
-  {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US'},
-  {label:'Los Angeles, USA', tz:'America/Los_Angeles', lat:34.0522, lon:-118.2437, cc:'US'},
-  {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB'},
-  {label:'Paris, France', tz:'Europe/Paris', lat:48.8566, lon:2.3522, cc:'FR'},
-  {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN'},
-  {label:'Tokyo, Japan', tz:'Asia/Tokyo', lat:35.6762, lon:139.6503, cc:'JP'},
-  {label:'Sydney, Australia', tz:'Australia/Sydney', lat:-33.8688, lon:151.2093, cc:'AU'},
-  {label:'Dubai, UAE', tz:'Asia/Dubai', lat:25.2048, lon:55.2708, cc:'AE'},
-  {label:'Singapore', tz:'Asia/Singapore', lat:1.3521, lon:103.8198, cc:'SG'},
-  {label:'Beijing, China', tz:'Asia/Shanghai', lat:39.9042, lon:116.4074, cc:'CN'}
-];
+  <!-- Benefit 3 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">3. Relieves Muscle Pain and Soreness</h3>
+  <p>Regular ginger consumption reduces exercise-induced muscle pain and soreness. Research indicates up to ~25% reduction in delayed onset muscle soreness when ginger is used daily over time.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-fuse = new Fuse(COMPACT, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
+  <!-- Benefit 4 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">4. Supports Digestive Health</h3>
+  <p>Ginger speeds gastric emptying and stimulates digestive enzymes, reducing gas, bloating and indigestion. It can also protect the stomach lining and support people with functional dyspepsia.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-/* helpers */
-function ccToEmoji(cc){ if(!cc) return ''; return cc.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))); }
-function fmtOffset(m){ const sign = m>=0 ? '+' : '-'; const mm = Math.abs(m); const h = String(Math.floor(mm/60)).padStart(2,'0'); const mm2 = String(mm%60).padStart(2,'0'); return `${sign}${h}:${mm2}`; }
-function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
+  <!-- Benefit 5 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">5. Helps Lower Blood Sugar</h3>
+  <p>Clinical studies show ginger improves insulin sensitivity and lowers fasting blood glucose. Regular ginger intake can be a supportive dietary strategy for people with insulin resistance or type 2 diabetes (consult your doctor before changes).</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-/* persistence */
-function loadState(){
-  try {
-    const hash = location.hash.replace(/^#/,'');
-    if(hash){
-      const decoded = base64url.decode(hash);
-      const parsed = JSON.parse(decoded);
-      if(Array.isArray(parsed) && parsed.length > 0){ cities = parsed; saveState(); return; }
-    }
-  } catch(e){ console.warn('invalid hash payload', e); }
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length > 0){ cities = parsed; return; }
-    }
-  } catch(e){ console.warn('storage read failed', e); }
-  cities = [
-    {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
-    {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
-    {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
-  ];
-}
-function saveState(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cities)); } catch(e){ console.warn('saveState failed', e); }
-  try { const payload = base64url.encode(JSON.stringify(cities)); location.hash = payload; shareLink.value = location.href; } catch(e){ console.warn('hash update failed', e); }
-}
+  <!-- Benefit 6 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">6. Reduces Menstrual Pain</h3>
+  <p>Ginger reduces menstrual cramps when taken at the start of menstruation; trials show doses of 500–1000 mg daily during the first three days provide significant relief, comparable to common NSAIDs for many women.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-/* render cards */
-function renderCards(){
-  cardsEl.innerHTML = '';
-  if(!Array.isArray(cities) || cities.length === 0){
-    cities = [
-      {label:'New York, USA', tz:'America/New_York', lat:40.7128, lon:-74.0060, cc:'US', flag:'🇺🇸'},
-      {label:'London, UK', tz:'Europe/London', lat:51.5074, lon:-0.1278, cc:'GB', flag:'🇬🇧'},
-      {label:'Mumbai, India', tz:'Asia/Kolkata', lat:19.0760, lon:72.8777, cc:'IN', flag:'🇮🇳'}
-    ];
-    saveState();
-  }
+  <!-- Benefit 7 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">7. May Lower Cholesterol</h3>
+  <p>Ginger may reduce total cholesterol, LDL and triglycerides while supporting HDL. These effects help protect cardiovascular health when combined with a heart-healthy diet.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-  cities.forEach((c, idx) => {
-    const card = document.createElement('article');
-    card.className = 'wtp-card';
-    card.tabIndex = 0;
-    card.setAttribute('role','button');
-    card.setAttribute('aria-label', `${c.label} local time card`);
-    const flag = c.flag || (c.cc ? ccToEmoji(c.cc) : '');
-    const latlon = (c.lat && c.lon) ? `${Number(c.lat).toFixed(3)}, ${Number(c.lon).toFixed(3)}` : '';
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="wtp-flag">${flag}</div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <div style="flex:1;min-width:0">
-              <div class="wtp-meta" style="font-weight:700">${c.label}</div>
-              <div class="wtp-meta">${c.tz}${latlon ? ' • ' + latlon : ''}</div>
-            </div>
-            <div style="display:flex;gap:6px;flex-shrink:0">
-              <button class="wtp-small wtp-remove" data-idx="${idx}" title="Remove">✖</button>
-            </div>
-          </div>
-          <div class="wtp-timebig" id="wtp-time-${idx}">--:--:--</div>
-          <div class="wtp-meta" id="wtp-date-${idx}">--</div>
-          <div class="wtp-meta" id="wtp-sun-${idx}" style="margin-top:6px"></div>
-        </div>
-      </div>
-      <div class="wtp-tooltip" id="wtp-tip-${idx}"></div>
-    `;
-    cardsEl.appendChild(card);
+  <!-- Benefit 8 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">8. Fights Infections & Boosts Immunity</h3>
+  <p>Ginger shows antimicrobial activity against many pathogens and strengthens immune responses. It can help alleviate symptoms of common colds and respiratory infections and supports overall immune resilience.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-    card.addEventListener('mouseenter', ()=> showTip(idx));
-    card.addEventListener('mouseleave', ()=> hideTip(idx));
-    card.addEventListener('click', () => { const tip = $(`wtp-tip-${idx}`); if(tip) tip.classList.toggle('show'); });
-    const rmBtn = card.querySelector('.wtp-remove');
-    rmBtn.addEventListener('click', (ev) => { ev.stopPropagation(); const i = +ev.currentTarget.dataset.idx; cities.splice(i,1); saveState(); renderAll(); initMap(); });
-  });
-}
+  <!-- Benefit 9 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">9. Improves Brain Function & Memory</h3>
+  <p>Ginger’s antioxidants and anti-inflammatory compounds protect brain cells and improve cognitive performance: studies note gains in working memory, reaction time and attention with regular ginger supplementation.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-/* tooltip */
-function showTip(idx){
-  const c = cities[idx]; const tip = $(`wtp-tip-${idx}`);
-  if(!tip) return;
-  try {
-    const now = DateTime.now().setZone(c.tz);
-    let sunriseText = '';
-    if(c.lat && c.lon){
-      try {
-        const times = SunCalc.getTimes(new Date(), c.lat, c.lon);
-        sunriseText = `${DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm')} • ${DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm')}`;
-      } catch(e){}
-    }
-    tip.innerHTML = `
-      <div style="font-weight:700">${c.tz}</div>
-      <div style="margin-top:6px;color:var(--wtp-muted)">Local: ${now.toFormat('cccc, dd LLL yyyy, HH:mm:ss')}</div>
-      <div style="margin-top:6px;color:var(--wtp-muted)">UTC offset: UTC${fmtOffset(now.offset)}</div>
-      <div style="margin-top:6px;color:var(--wtp-muted)">DST: ${now.isInDST ? 'Yes' : 'No'}</div>
-      ${sunriseText ? `<div style="margin-top:6px;color:var(--wtp-muted)">Sunrise/Sunset: ${sunriseText}</div>` : ''}
-      <div style="margin-top:8px;font-size:12px;color:var(--wtp-muted)">Tip: Use the map to add missing coordinates.</div>
-    `;
-    tip.classList.add('show');
-  } catch(e){ tip.textContent = 'Error showing details'; tip.classList.add('show'); }
-}
-function hideTip(idx){ const tip = $(`wtp-tip-${idx}`); if(tip) tip.classList.remove('show'); }
+  <!-- Benefit 10 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">10. May Help Fight Cancer</h3>
+  <p>Preclinical and some clinical studies suggest ginger compounds may inhibit tumor growth and promote cancer cell death — particularly in gastrointestinal cancers. More research is needed, but results are promising.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-/* timeline & horizontal slider behavior */
-function renderTimeline(selectedHour = null){
-  const hours = Array.from({length:24}, (_,i)=>i);
-  timelineEl.innerHTML = '';
-  const header = document.createElement('div'); header.className = 'wtp-hourbar';
-  header.innerHTML = `<div style="width:160px;flex-shrink:0"></div>` + hours.map(h => `<div class="wtp-hour" data-hour="${h}">${h.toString().padStart(2,'0')}:00</div>`).join('');
-  timelineEl.appendChild(header);
+  <!-- Benefit 11 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">11. Natural Pain Reliever</h3>
+  <p>Ginger acts as a mild natural analgesic effective for headaches, joint pain and general aches. Some trials show ginger’s effectiveness similar to ibuprofen for certain pain conditions.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
-  cities.forEach((c) => {
-    const row = document.createElement('div'); row.className = 'wtp-cityrow';
-    const label = document.createElement('div'); label.className = 'wtp-citylabel';
-    label.innerHTML = `<div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.label}</div><div class="wtp-meta" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.tz}</div>`;
-    row.appendChild(label);
+  <!-- Benefit 12 -->
+  <h3 style="font-size:16px;margin-top:14px;color:#222;">12. Improves Respiratory Health</h3>
+  <p>Ginger helps loosen mucus, soothe sore throats and open congested airways. Its warming, expectorant properties make it useful for coughs, bronchitis and asthma symptom relief.</p>
 
-    const container = document.createElement('div'); container.style.display = 'flex'; container.style.gap = '6px';
-    hours.forEach(h => {
-      const dtUtc = DateTime.utc().set({ hour: h, minute:0, second:0, millisecond:0 });
-      const dtLocal = dtUtc.setZone(c.tz);
-      const cell = document.createElement('div'); cell.className = 'wtp-hour'; cell.dataset.hour = h; cell.textContent = dtLocal.toFormat('HH');
-      const nowLocalAt = DateTime.now().setZone(c.tz);
-      if(dtLocal.hasSame(nowLocalAt, 'hour')) cell.classList.add('now');
-      if(selectedHour !== null && Number(selectedHour) === h) cell.classList.add('selected');
-      container.appendChild(cell);
-    });
+  <!-- HOW TO USE -->
+  <h2 id="how-to-use" style="font-size:20px;color:#111;margin-top:22px;">How to Get the Most Out of Ginger</h2>
 
-    row.appendChild(container);
-    timelineEl.appendChild(row);
-  });
-}
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 320px;">
+      <h3 style="font-size:16px;margin-top:8px;color:#222;">Forms: Fresh, Dried, Powdered</h3>
+      <p>Fresh ginger contains the most gingerol and is ideal for teas and juices. Dried ginger is concentrated and convenient for remedies; powdered ginger is handy for cooking and supplements.</p>
+    </div>
 
-/* horizontal slider -> update timeline */
-function setSelectedHour(h){
-  const val = Number(h);
-  hourSlider.value = String(val);
-  hourLabel.textContent = `${String(val).padStart(2,'0')}:00`;
-  renderTimeline(val);
-  if(vertSlider) { vertSlider.value = String(val); vertLabel.textContent = `Highlight hour: ${String(val).padStart(2,'0')}:00`; }
-}
-hourSlider.addEventListener('input', (e)=> setSelectedHour(e.target.value));
+    <div style="flex:1 1 320px;background:#f3fff4;border-left:4px solid #2E8B57;padding:10px;border-radius:6px;">
+      <strong>Absorption Tips</strong>
+      <ul style="margin:8px 0 0 18px;color:#444">
+        <li>Combine with healthy fats (ghee, oil) for better absorption.</li>
+        <li>Steep in hot water (tea) to increase bioavailability.</li>
+        <li>Pair with black pepper for enhanced uptake of some nutrients.</li>
+      </ul>
+    </div>
+  </div>
 
-/* mouse move over timeline */
-timelineEl.addEventListener('mousemove', (ev)=>{
-  try {
-    const rect = timelineEl.getBoundingClientRect();
-    if(rect.width <= 10) return;
-    const leftPadding = 160;
-    let x = ev.clientX - rect.left - leftPadding;
-    if(x < 0) x = 0;
-    const usable = Math.max(1, rect.width - leftPadding);
-    const frac = Math.min(1, Math.max(0, x / usable));
-    const hour = Math.round(frac * 23);
-    setSelectedHour(hour);
-  } catch(e){}
-});
+  <!-- Practical ways -->
+  <h3 style="font-size:16px;margin-top:16px;color:#222;">Easy Ways to Use Ginger Daily</h3>
+  <ul style="margin-left:18px;color:#444;">
+    <li><strong>The Morning Shot:</strong> Juice 1" fresh ginger + half lemon + a pinch of cayenne + 1 tsp honey.</li>
+    <li><strong>Ginger Tea:</strong> Simmer 3–4 slices in water for 10–15 minutes; add honey/lemon.</li>
+    <li><strong>Cooking:</strong> Add grated ginger to stir-fries, soups and curries.</li>
+    <li><strong>Ginger + Honey:</strong> Soothe throat and cough with a tablespoon of warm ginger-honey mix.</li>
+  </ul>
 
-timelineEl.addEventListener('click', (ev)=>{
-  try {
-    const rect = timelineEl.getBoundingClientRect();
-    const leftPadding = 160;
-    let x = ev.clientX - rect.left - leftPadding;
-    if(x < 0) x = 0;
-    const usable = Math.max(1, rect.width - leftPadding);
-    const frac = Math.min(1, Math.max(0, x / usable));
-    const hour = Math.round(frac * 23);
-    setSelectedHour(hour);
-  } catch(e){}
-});
+  <!-- NUTRITION -->
+  <h2 id="nutrition" style="font-size:20px;color:#111;margin-top:20px;">Nutrition (per 100 g fresh ginger)</h2>
+  <table style="width:100%;border-collapse:collapse;max-width:680px;">
+    <tr style="background:#f7f7f7"><td style="padding:8px;border:1px solid #eee">Calories</td><td style="padding:8px;border:1px solid #eee">80 kcal</td></tr>
+    <tr><td style="padding:8px;border:1px solid #eee">Carbohydrates</td><td style="padding:8px;border:1px solid #eee">17.8 g</td></tr>
+    <tr style="background:#f7f7f7"><td style="padding:8px;border:1px solid #eee">Protein</td><td style="padding:8px;border:1px solid #eee">1.8 g</td></tr>
+    <tr><td style="padding:8px;border:1px solid #eee">Fat</td><td style="padding:8px;border:1px solid #eee">0.8 g</td></tr>
+    <tr style="background:#f7f7f7"><td style="padding:8px;border:1px solid #eee">Vitamin C</td><td style="padding:8px;border:1px solid #eee">5 mg</td></tr>
+  </table>
 
-if(vertSlider) {
-  vertSlider.addEventListener('input', (e) => {
-    const val = Number(e.target.value);
-    vertLabel.textContent = `Highlight hour: ${String(val).padStart(2,'0')}:00`;
-    setSelectedHour(val);
-  });
-}
+  <!-- PRECAUTIONS -->
+  <h2 id="precautions" style="font-size:20px;color:#111;margin-top:18px;">Precautions & Side Effects</h2>
+  <div style="background:#fff5f5;border-left:4px solid #ff6b6b;padding:12px;margin:8px 0 14px;border-radius:6px;">
+    <strong>Important Precautions</strong>
+    <ul style="margin:8px 0 0 18px;">
+      <li>Stop high doses at least 2 weeks before surgery — ginger may increase bleeding risk.</li>
+      <li>Speak to a doctor if you take anticoagulants or antiplatelet drugs.</li>
+      <li>Pregnant women: limit intake (~1 g/day) and consult a healthcare provider.</li>
+      <li>High doses (>5 g/day) may cause heartburn, diarrhoea or stomach upset.</li>
+    </ul>
+  </div>
 
-/* Meeting planner */
-applyPlanBtn.addEventListener('click', applyMeetingPlan);
-function applyMeetingPlan(){
-  plannerResult.innerHTML = '';
-  if(!meetingDate.value || !meetingTime.value){ plannerResult.innerHTML = '<div class="wtp-meta">Pick a date and time.</div>'; return; }
-  const durMin = Number(meetingDuration.value || 60);
-  const [hh, mm] = meetingTime.value.split(':').map(Number);
-  const baseLocal = DateTime.fromISO(meetingDate.value).set({ hour: hh, minute: mm, second:0 });
-  const baseUtc = baseLocal.toUTC(); const endUtc = baseUtc.plus({ minutes: durMin });
+  <!-- REFERENCES -->
+  <h2 id="references" style="font-size:18px;margin-top:16px;color:#111;">References & Further Reading</h2>
+  <ul>
+    <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK92775/" target="_blank" rel="noopener">NCBI — Ginger review</a></li>
+    <li><a href="https://www.healthline.com/nutrition/11-proven-benefits-of-ginger" target="_blank" rel="noopener">Healthline — Ginger benefits</a></li>
+    <li><a href="https://www.herbazest.com/herbs/ginger" target="_blank" rel="noopener">HerbaZest — Ginger</a></li>
+  </ul>
 
-  const listHtml = cities.map(c => {
-    const s = baseUtc.setZone(c.tz), e = endUtc.setZone(c.tz);
-    return `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.02)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><strong>${c.label}</strong><div class="wtp-meta">${c.tz}</div></div><div style="text-align:right"><div class="wtp-timebig">${s.toFormat('HH:mm')} — ${e.toFormat('HH:mm')}</div><div class="wtp-meta">${s.toFormat('cccc, dd LLL yyyy')}</div></div></div></div>`;
-  }).join('');
-  plannerResult.innerHTML = listHtml;
+  <!-- END -->
+  <p style="color:#555;font-size:14px;margin-top:18px;">Disclaimer: This information is for educational purposes only and is not medical advice. Consult your healthcare provider for personal guidance.</p>
+</div>
 
-  const scanStart = DateTime.fromISO(meetingDate.value).startOf('day').toUTC();
-  const slots = [];
-  for(let i=0;i<48;i++){
-    const slotStartUtc = scanStart.plus({ minutes: i*30 });
-    const slotEndUtc = slotStartUtc.plus({ minutes: durMin });
-    let score = 0; const details = [];
-    cities.forEach(c => {
-      const s = slotStartUtc.setZone(c.tz), e = slotEndUtc.setZone(c.tz);
-      const within = (s.hour >= 9 && s.hour <= 17) && (e.hour >= 9 && e.hour <= 18);
-      if(within) score++;
-      details.push({city:c.label, start:s.toFormat('HH:mm'), within});
-    });
-    slots.push({slotStartUtc, score, details});
-  }
-  slots.sort((a,b)=> b.score - a.score || +a.slotStartUtc - +b.slotStartUtc);
-  const suggestWrap = document.createElement('div'); suggestWrap.style.marginTop = '10px';
-  suggestWrap.innerHTML = `<div class="wtp-meta">Top suggestions (maximize cities in 09:00–18:00):</div>`;
-  const list = document.createElement('div'); list.style.marginTop = '6px';
-  slots.slice(0,6).forEach(s => {
-    const localUser = s.slotStartUtc.setZone(DateTime.now().zoneName);
-    const el = document.createElement('div'); el.style.padding='8px'; el.style.border='1px solid rgba(255,255,255,0.02)'; el.style.marginBottom='6px';
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div><strong>${localUser.toFormat('dd LLL yyyy, HH:mm')}</strong><div class="wtp-meta">UTC ${s.slotStartUtc.toFormat('dd LLL yyyy, HH:mm')}</div></div><div style="text-align:right"><div class="wtp-meta">${s.score}/${cities.length} fit</div><button class="wtp-applySuggest wtp-btn wtp-small" data-utc="${s.slotStartUtc.toISO()}">Apply</button></div></div><div style="margin-top:6px;font-size:13px;color:var(--wtp-muted)">Sample: ${s.details.slice(0,3).map(d => `${d.city} ${d.start}${d.within?' ✓':''}`).join(' • ')}...</div>`;
-    list.appendChild(el);
-  });
-  suggestWrap.appendChild(list); plannerResult.appendChild(suggestWrap);
-  plannerResult.querySelectorAll('.wtp-applySuggest').forEach(btn => btn.addEventListener('click', (ev) => {
-    const utcIso = ev.currentTarget.dataset.utc; const utc = DateTime.fromISO(utcIso);
-    const local = utc.setZone(DateTime.now().zoneName);
-    meetingDate.value = local.toISODate(); meetingTime.value = `${local.toFormat('HH')}:${local.toFormat('mm')}`; applyMeetingPlan();
-  }));
-}
-
-/* converter */
-function populateConverterSelects(){
-  convFrom.innerHTML = ''; convTo.innerHTML = '';
-  cities.forEach(c => {
-    const o = document.createElement('option'); o.value = c.tz; o.textContent = `${c.label} — ${c.tz}`; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-  });
-  const common = ['Etc/UTC','America/New_York','America/Los_Angeles','Europe/London','Asia/Kolkata','Asia/Tokyo'];
-  common.forEach(tz => {
-    if(!Array.from(convFrom.options).some(o => o.value === tz)){
-      const o = document.createElement('option'); o.value = tz; o.textContent = tz; convFrom.appendChild(o); convTo.appendChild(o.cloneNode(true));
-    }
-  });
-}
-convBtn.addEventListener('click', () => {
-  if(!convFrom.value || !convTo.value || !convTime.value){ convOut.textContent = 'Pick From, To and time'; return; }
-  const today = DateTime.now().setZone(convFrom.value).toISODate();
-  const dt = DateTime.fromISO(`${today}T${convTime.value}`, {zone:convFrom.value});
-  const out = dt.setZone(convTo.value);
-  convOut.innerHTML = `${dt.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convFrom.value}) → <strong>${out.toFormat('cccc, dd LLL yyyy, HH:mm')} (${convTo.value})</strong>`;
-});
-
-presetConvButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const from = btn.dataset.from;
-    const to = btn.dataset.to;
-    if(from && to) {
-      Array.from(convFrom.options).forEach(o => { if(o.value === from) o.selected = true; });
-      Array.from(convTo.options).forEach(o => { if(o.value === to) o.selected = true; });
-    }
-  });
-});
-
-swapConvBtn.addEventListener('click', () => {
-  const temp = convFrom.value;
-  convFrom.value = convTo.value;
-  convTo.value = temp;
-});
-
-/* embed & share */
-function updateEmbedShare(){
-  try {
-    const payload = base64url.encode(JSON.stringify(cities));
-    const url = `${location.origin}${location.pathname}#${payload}`;
-    embedCode.textContent = `<iframe src="${url}" width="340" height="220" frameborder="0" style="border-radius:8px"></iframe>`;
-    shareLink.value = url;
-  } catch(e){ console.warn('embed update failed', e); }
-}
-copyEmbed.addEventListener('click', () => navigator.clipboard?.writeText(embedCode.textContent).then(()=> alert('Embed code copied')).catch(()=> alert('Copy failed')));
-shareBtn.addEventListener('click', ()=> { navigator.clipboard?.writeText(shareLink.value || window.location.href).then(()=> alert('Share link copied!')).catch(()=> alert('Copy failed')); });
-
-/* debounce */
-function debounce(fn, wait = 200) {
-  let t;
-  return function(...args) {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(this, args), wait);
-  };
-}
-
-/* search & suggestions */
-addBtn.addEventListener('click', addCityFromInput);
-searchInput.addEventListener('input', debounce((e)=> showSuggestions(e.target.value.trim()), 180));
-searchInput.addEventListener('keydown', (e)=> {
-  const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
-  const active = suggestionsWrap.querySelector('.wtp-suggest-item.active');
-  if(e.key === 'Enter') { e.preventDefault(); if(active) active.click(); else addCityFromInput(); return; }
-  if(e.key === 'ArrowDown'){ e.preventDefault(); if(list.length){ let next = active ? active.nextSibling : list[0]; if(!next) next = list[0]; setActiveSuggestion(next);} return; }
-  if(e.key === 'ArrowUp'){ e.preventDefault(); if(list.length){ let prev = active ? active.previousSibling : list[list.length-1]; if(!prev) prev = list[list.length-1]; setActiveSuggestion(prev);} return; }
-});
-
-presetEl.addEventListener('change', (e) => {
-  const val = e.target.value;
-  if(!val) return;
-  const parts = val.split('|');
-  if(parts.length < 2) return;
-  const label = parts[0].trim();
-  const tz = parts[1].trim();
-  const found = COMPACT.find(c => c.tz === tz);
-  if(found) {
-    cities.push({
-      label: found.label || label,
-      tz: found.tz,
-      lat: found.lat,
-      lon: found.lon,
-      cc: found.cc,
-      flag: found.cc ? ccToEmoji(found.cc) : ''
-    });
-    saveState();
-    renderAll();
-    initMap();
-  }
-  presetEl.value = '';
-});
-
-function setActiveSuggestion(el){
-  suggestionsWrap.querySelectorAll('.wtp-suggest-item').forEach(i => i.classList.remove('active'));
-  if(el) el.classList.add('active'); el?.scrollIntoView({block:'nearest'});
-}
-
-function showSuggestions(q){
-  suggestionsWrap.innerHTML = ''; suggestionsWrap.setAttribute('aria-hidden','true');
-  if(!q) return;
-  q = String(q).trim();
-  let results = [];
-  let fuseResults = [];
-
-  try {
-    if(fuse){
-      const res = fuse.search(q, {limit: 20});
-      fuseResults = res.map(r => ({ item: r.item, score: (r.score != null ? r.score : 1) }));
-    }
-  } catch(e){ console.warn('Fuse search error', e); }
-
-  results = fuseResults.map(r => Object.assign({}, r.item, { _score: r.score }));
-
-  try {
-    if(countryIndex && typeof countryIndex === 'object'){
-      const qLower = q.toLowerCase();
-      Object.keys(countryIndex).forEach(countryName => {
-        if(countryName.toLowerCase().includes(qLower) || qLower.includes(countryName.toLowerCase())){
-          const tzs = countryIndex[countryName] || [];
-          tzs.forEach(tz => {
-            const entry = tzCities.find(x => x.tz === tz || (x.label && x.label.toLowerCase().includes(tz.toLowerCase())));
-            if(entry) results.push(Object.assign({}, entry, { _score: 0.05 }));
-          });
-        }
-      });
-      if(q.length <= 3){
-        const code = q.toUpperCase();
-        tzCities.forEach(entry => { if(entry.cc && entry.cc.toUpperCase() === code) results.push(Object.assign({}, entry, { _score: 0.05 })); });
-      }
-    }
-  } catch(e){ console.warn('countryIndex lookup error', e); }
-
-  if(results.length === 0 && Array.isArray(tzCities) && tzCities.length){
-    const qq = q.toLowerCase();
-    results = tzCities.filter(it => {
-      const label = (it.label || '').toLowerCase();
-      const tz = (it.tz || '').toLowerCase();
-      return label.includes(qq) || tz.includes(qq);
-    }).slice(0, 30).map(r => Object.assign({}, r, { _score: 0.5 }));
-  }
-
-  if(results.length === 0 && Array.isArray(COMPACT)){
-    const qq = q.toLowerCase();
-    results = COMPACT.filter(it => ((it.label || '').toLowerCase().includes(qq) || (it.tz || '').toLowerCase().includes(qq))).slice(0,12).map(r => Object.assign({}, r, {_score:0.6}));
-  }
-
-  if(!results || results.length === 0) return;
-
-  const byTz = new Map();
-  results.forEach(r => { if(r && r.tz) byTz.set(r.tz, r); });
-  let final = Array.from(byTz.values());
-  final.sort((a,b) => {
-    const sa = (a._score != null ? a._score : 1);
-    const sb = (b._score != null ? b._score : 1);
-    if(sa !== sb) return sa - sb;
-    const wa = (a.weight||0), wb = (b.weight||0);
-    return wb - wa;
-  });
-  final = final.slice(0, 12);
-
-  const wrap = document.createElement('div'); wrap.className = 'wtp-suggest-list';
-  final.forEach(r => {
-    const it = document.createElement('div'); it.className = 'wtp-suggest-item'; it.tabIndex = 0;
-    const label = r.label || r.tz || String(r);
-    const tz = r.tz || '';
-    const meta = (r.cc ? `${r.cc} • ` : '') + tz;
-    const strong = document.createElement('strong'); strong.textContent = label;
-    const metaEl = document.createElement('div'); metaEl.className = 'wtp-meta'; metaEl.style.fontSize = '12px'; metaEl.textContent = meta;
-    it.appendChild(strong);
-    it.appendChild(metaEl);
-
-    it.addEventListener('click', ()=> {
-      cities.push({ label: r.label || label, tz: r.tz || tz, lat: r.lat || null, lon: r.lon || null, cc: r.cc || null, flag: r.cc ? ccToEmoji(r.cc) : '' });
-      saveState(); renderAll(); suggestionsWrap.innerHTML = ''; searchInput.value = ''; initMap();
-    });
-    it.addEventListener('keydown', ev => { if(ev.key === 'Enter') it.click(); });
-    wrap.appendChild(it);
-  });
-
-  suggestionsWrap.appendChild(wrap);
-  suggestionsWrap.setAttribute('aria-hidden','false');
-}
-
-/* addCityFromInput */
-function addCityFromInput(){
-  const q = (searchInput.value || '').trim();
-  if(!q) return;
-  let found = null;
-  if (Array.isArray(tzCities) && tzCities.length) {
-    found = tzCities.find(t => (t.label || '').toLowerCase() === q.toLowerCase() || (t.tz || '').toLowerCase() === q.toLowerCase());
-  }
-  if (!found && fuse) {
-    try {
-      const res = fuse.search(q, { limit: 10 });
-      if (Array.isArray(res) && res.length > 0) {
-        const top = res[0];
-        found = (top && top.item) ? top.item : top;
-      }
-    } catch (err) { console.warn('Fuse search error in addCityFromInput:', err); }
-  }
-  if (!found) {
-    alert('City not found in list. Try a different name or IANA zone.');
-    return;
-  }
-  cities.push({
-    label: found.label || found.tz || q,
-    tz: found.tz || found.value || q,
-    lat: safeNum(found.lat),
-    lon: safeNum(found.lon),
-    cc: found.cc || null,
-    flag: found.cc ? ccToEmoji(found.cc) : (found.flag || '')
-  });
-  saveState();
-  searchInput.value = '';
-  suggestionsWrap.innerHTML = '';
-  renderAll();
-  try { initMap(); } catch(e){}
-}
-
-/* DST ticker */
-function scanDst(){
-  try {
-    const changes = [];
-    const now = DateTime.now();
-    const days = 90;
-    cities.forEach(c => {
-      if(!c.tz) return;
-      let prev = DateTime.now().setZone(c.tz).offset;
-      for(let d=1; d<=days; d++){
-        const dt = now.plus({ days: d }).setZone(c.tz);
-        if(dt.offset !== prev){ changes.push({city:c.label, date: dt.toISODate(), oldOffset: prev, newOffset: dt.offset}); break; }
-      }
-    });
-    if(changes.length===0) dstText.textContent = 'No DST changes detected for your cities in next 90 days.';
-    else {
-      changes.sort((a,b)=> new Date(a.date) - new Date(b.date));
-      const s = changes[0];
-      dstText.textContent = `Upcoming DST: ${s.city} on ${s.date} — from UTC${fmtOffset(s.oldOffset)} to UTC${fmtOffset(s.newOffset)}`;
-    }
-  } catch(e){ console.warn('DST scan failed', e); dstText.textContent = 'DST ticker unavailable'; }
-}
-
-/* Map init */
-let map = null, markers = [];
-function clearMarkers(){
-  if(!map) return;
-  try { markers.forEach(m => map.removeLayer && map.removeLayer(m)); } catch(e){}
-  markers = [];
-}
-function initMap(){
-  try {
-    const mpEl = document.getElementById('wtp-map'); if(!mpEl) return;
-    if(!map){
-      map = L.map('wtp-map', { dragging: true, attributionControl: false }).setView([20,0], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
-      setTimeout(()=> { try { map.invalidateSize(); } catch(e){} }, 150);
-    } else {
-      clearMarkers();
-    }
-
-    const MAX_MARKERS = 800; let count = 0;
-    if (Array.isArray(tzCities) && tzCities.length) {
-      for (const tc of tzCities) {
-        if (tc == null) continue;
-        if (tc.lat == null || tc.lon == null) continue;
-        if (count >= MAX_MARKERS) break;
-        count++;
-        const mark = L.circleMarker([tc.lat, tc.lon], { radius:5, fillOpacity:0.9 });
-        mark.bindTooltip(`${tc.label} — ${tc.tz}`);
-        mark.on('mouseover', ()=> { const dt = DateTime.now().setZone(tc.tz); mark.setTooltipContent(`${tc.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); mark.openTooltip(); });
-        mark.on('click', ()=> { cities.push({label: tc.label, tz: tc.tz, lat: tc.lat, lon: tc.lon, cc: tc.cc, flag: tc.cc ? ccToEmoji(tc.cc) : ''}); saveState(); renderAll(); initMap(); });
-        mark.addTo(map); markers.push(mark);
-      }
-    }
-
-    if (Array.isArray(cities) && cities.length) {
-      for (const c of cities) {
-        if (!c || c.lat == null || c.lon == null) continue;
-        const msel = L.circleMarker([c.lat, c.lon], { radius:6, color:'#a23a3a', weight:1, fillOpacity:0.95 }).addTo(map);
-        msel.bindTooltip(`${c.label} — ${c.tz}`);
-        msel.on('mouseover', ()=> { const dt = DateTime.now().setZone(c.tz); msel.setTooltipContent(`${c.label}<br>${dt.toFormat('HH:mm:ss')} (UTC${fmtOffset(dt.offset)})`); msel.openTooltip(); });
-        markers.push(msel);
-      }
-    }
-
-    if (!markers.length) {
-      mpEl.innerHTML = '<div class="wtp-meta" style="padding:12px">No map markers available — add a city with coordinates or bundle timezones.json with coords.</div>';
-    }
-  } catch(e){ console.warn('Map init error', e); const mp = document.getElementById('wtp-map'); if(mp) mp.innerHTML = '<div class="wtp-meta">Map could not load</div>'; }
-}
-
-/* export image */
-exportImageBtn.addEventListener('click', () => {
-  const wrapper = document.createElement('div');
-  wrapper.style.background = '#071323'; wrapper.style.padding = '12px'; wrapper.style.borderRadius = '8px';
-  wrapper.appendChild(cardsEl.cloneNode(true)); wrapper.appendChild(timelineEl.cloneNode(true));
-  document.body.appendChild(wrapper);
-  html2canvas(wrapper, {backgroundColor: null, scale:2}).then(canvas => {
-    const url = canvas.toDataURL('image/png');
-    const a = document.createElement('a'); a.href = url; a.download = 'worldtime.png'; a.click();
-    document.body.removeChild(wrapper);
-  }).catch(err => {
-    alert('Export failed: ' + String(err));
-    document.body.removeChild(wrapper);
-  });
-});
-
-/* countdown */
-let countdownInterval = null;
-$('wtp-startCount')?.addEventListener?.('click', ()=> {
-  const d = $('wtp-countDate').value; const t = $('wtp-countTime').value; const out = $('wtp-countRes');
-  if(!d || !t){ out.textContent = 'Pick date & time'; return; }
-  const target = DateTime.fromISO(`${d}T${t}`); if(!target.isValid){ out.textContent = 'Invalid date/time'; return; }
-  if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  function tickCount(){ const now = DateTime.now(); if(target <= now){ out.textContent='Event reached!'; if(countdownInterval){ clearInterval(countdownInterval); countdownInterval=null;} return; } const diff = target.diff(now, ['days','hours','minutes','seconds']).toObject(); out.textContent = `${Math.floor(diff.days||0)}d ${Math.floor(diff.hours||0)}h ${Math.floor(diff.minutes||0)}m ${Math.floor(diff.seconds||0)}s`; }
-  tickCount(); countdownInterval = setInterval(tickCount, 1000);
-});
-
-/* main tick loop */
-let lastTimelineUpdate = 0;
-function tick(){
-  const nowTs = Date.now(); const now = DateTime.fromMillis(nowTs);
-  cities.forEach((c, idx) => {
-    const timeEl = $(`wtp-time-${idx}`), dateEl = $(`wtp-date-${idx}`), sunEl = $(`wtp-sun-${idx}`);
-    if(!timeEl) return;
-    try {
-      const dt = now.setZone(c.tz);
-      timeEl.textContent = dt.toFormat('HH:mm:ss'); dateEl.textContent = dt.toFormat('cccc, dd LLL yyyy');
-      if(c.lat && c.lon){
-        const times = SunCalc.getTimes(new Date(nowTs), c.lat, c.lon);
-        const sr = DateTime.fromJSDate(times.sunrise).setZone(c.tz).toFormat('HH:mm');
-        const ss = DateTime.fromJSDate(times.sunset).setZone(c.tz).toFormat('HH:mm');
-        sunEl.textContent = `Sunrise ${sr} • Sunset ${ss}`;
-      } else sunEl.textContent = '';
-      const tip = $(`wtp-tip-${idx}`); if(tip && tip.classList.contains('show')) showTip(idx);
-    } catch(e){ console.warn('tick update failed', e); }
-  });
-  const nowTs2 = Date.now();
-  if (nowTs2 - lastTimelineUpdate > 8000) { renderTimeline(Number(hourSlider.value || 0)); lastTimelineUpdate = nowTs2; }
-  scanDst(); updateEmbedShare();
-}
-if (!window.__wtp_tick_started__) { setInterval(tick, 1000); window.__wtp_tick_started__ = true; }
-
-/* IANA DB loader */
-async function loadIanaDB(){
-  const localTz = './timezones.json';
-  const localIdx = './country_to_zones_index.json';
-  let raw = null, idxRaw = null;
-  try { const r = await fetch(localTz, {cache:'reload'}); if(r.ok) raw = await r.json(); } catch(e){ console.warn('local tz fetch failed', e); }
-  try { const r2 = await fetch(localIdx, {cache:'reload'}); if(r2.ok) idxRaw = await r2.json(); } catch(e){ console.warn('local country index fetch failed', e); }
-  if(!raw){
-    try { const resp = await fetch('https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json',{cache:'reload'}); if(resp.ok) raw = await resp.json(); } catch(e){ console.warn('remote tz fetch failed', e); }
-  }
-  if(!raw || !Array.isArray(raw) || raw.length === 0){
-    console.warn('No timezone DB loaded, falling back to COMPACT list.');
-    tzCities = COMPACT.slice();
-    fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
-    countryIndex = idxRaw || {};
-    return;
-  }
-  tzCities = raw.map(item => {
-    const tz = item.tz || item.value || item.name || String(item);
-    const label = item.label || item.name || (typeof item.value === 'string' ? item.value.split('/').pop().replace(/_/g,' ') + ' ('+ tz +')' : tz);
-    return { label: String(label), tz: String(tz), lat: safeNum(item.lat), lon: safeNum(item.lon), cc: item.cc || item.country || null, weight: Number(item.weight || 0) };
-  });
-  for(const c of COMPACT){
-    const found = tzCities.find(t => t.tz === c.tz);
-    if(found){ found.lat = found.lat || c.lat; found.lon = found.lon || c.lon; found.cc = found.cc || c.cc; found.label = found.label || c.label; found.weight = Math.max(found.weight||0, 500); }
-  }
-  const seen = new Set(); tzCities = tzCities.filter(t => { if(seen.has(t.tz)) return false; seen.add(t.tz); return true; });
-  fuse = new Fuse(tzCities, { keys: ['label','tz'], threshold: 0.33, includeScore: true });
-  countryIndex = idxRaw || {};
-  console.log('tzCities loaded, count=', tzCities.length, 'countryIndex keys=', Object.keys(countryIndex).length);
-}
-
-/* misc handlers */
-resetBtn.addEventListener('click', ()=> { 
-  if(confirm('Reset to default cities?')) { 
-    cities = [
-      {label:'New York, USA',tz:'America/New_York',lat:40.7128,lon:-74.0060,cc:'US',flag:'🇺🇸'},
-      {label:'London, UK',tz:'Europe/London',lat:51.5074,lon:-0.1278,cc:'GB',flag:'🇬🇧'},
-      {label:'Mumbai, India',tz:'Asia/Kolkata',lat:19.0760,lon:72.8777,cc:'IN',flag:'🇮🇳'}
-    ]; 
-    saveState(); renderAll(); initMap(); 
-  } 
-});
-
-$('wtp-resetTools')?.addEventListener?.('click', ()=> {
-  if(confirm('Reset utilities?')) {
-    $('wtp-countDate').value = '';
-    $('wtp-countTime').value = '';
-    $('wtp-countRes').textContent = '';
-    if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  }
-});
-
-/* render all */
-function renderAll(){ renderCards(); populateConverterSelects(); renderTimeline(Number(hourSlider.value)); updateEmbedShare(); scanDst(); }
-
-/* boot */
-(async function boot(){
-  try { await loadIanaDB(); } catch(e){ console.warn('loadIanaDB failed', e); }
-  try { loadState(); } catch(e){ console.warn('loadState failed', e); }
-  try { initMap(); } catch(e) { console.warn('map init error', e); }
-  try { renderAll(); } catch(e){ console.warn('renderAll failed', e); }
-  try { tick(); } catch(e){ console.warn('initial tick failed', e); }
-})();
-
-/* keyboard nav suggestions */
-document.addEventListener('keydown', (e)=>{
-  const list = suggestionsWrap.querySelectorAll('.wtp-suggest-item');
-  if(!list.length) return;
-  const active = suggestionsWrap.querySelector('.wtp-suggest-item.active');
-  if(e.key === 'ArrowDown'){ e.preventDefault(); const next = active ? (active.nextSibling || list[0]) : list[0]; setActiveSuggestion(next); }
-  if(e.key === 'ArrowUp'){ e.preventDefault(); const prev = active ? (active.previousSibling || list[list.length-1]) : list[list.length-1]; setActiveSuggestion(prev); }
-  if(e.key === 'Enter' && active){ active.click(); }
-});
-
-/* expose for console */
-window.WorldTimePro = {
-  getCities: ()=>cities,
-  setCities: (arr)=> { if(Array.isArray(arr)){ cities = arr; saveState(); renderAll(); initMap(); } }
-};
-</script>
-
-</body>
-</html>
+<!-- ====== End of Ginger Post HTML ====== -->
